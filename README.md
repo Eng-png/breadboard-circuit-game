@@ -1,61 +1,76 @@
-# Breadboard
+# Lights Out
 
-A browser game that teaches the very basics of electronics by having you build
-real circuits on a realistic breadboard.
+A short story game that teaches the basics of electronics by making you build a
+real circuit on a real breadboard.
 
-**Level 1 — "Light It Up":** wire a battery, a switch, a resistor and an LED
-into a single loop, then flip the switch and watch the light obey you. The win
-condition is two-sided on purpose — the LED must be *dark* with the switch open
-and *lit* with it closed — because that is the actual idea being taught.
+You get home after dark. The lights do not work. Behind a panel on the wall
+there is a breadboard with every part pulled out of it. If you want light
+tonight, you are going to have to put the circuit back together.
 
-The board behaves like a physical breadboard, not like a wiring diagram. Holes
-in the same five-hole strip are already joined by copper inside the board. The
-channel down the middle really does split every column in two. Plug an LED in
-backwards and it stays dark. Skip the resistor and you burn it out. Those
-frustrations are the lesson.
+**Level 1** is battery, switch, resistor, LED. Get it wrong and the game tells
+you *why* in plain English: the LED is backwards, both legs are in the same
+strip, nothing is limiting the current. Get it right and the room lights up
+around you — and flipping the switch back off makes it dark again, because that
+is what a switch is.
 
 ## Quick start
 
 ```bash
-git clone https://github.com/<org-or-user>/breadboard-circuit-game.git
-cd breadboard-circuit-game
 npm install
 npm run dev
 ```
 
-Then open the URL it prints (usually <http://localhost:5173>).
-
 | Command | What it does |
 | --- | --- |
 | `npm run dev` | Dev server with hot reload |
-| `npm test` | Run the unit tests once |
-| `npm run test:watch` | Re-run tests as you edit |
+| `npm test` | 35 tests: the solver, and a full playthrough of Level 1 |
 | `npm run lint` | Static checks |
 | `npm run build` | Production build into `dist/` |
 
-## Stack
+## The breadboard is real
 
-React 19 + Vite, plain JavaScript with JSDoc types (no TypeScript compile step),
-SVG for the board, Vitest for tests. No physics library and no circuit-simulation
-dependency — the solver is ours, because writing it *is* part of the project.
+Holes in the same five-hole strip are already joined by copper inside the board.
+The channel down the middle really does split every column in two. Hole spacing
+is 2.54 mm, the actual standard. Hover any hole and every hole it is already
+connected to lights up — that one interaction teaches more than a paragraph can.
+
+The circuit solver is ours: a union-find netlist over the board's copper, then a
+series solve for current. No simulation library. Writing it is part of the point.
+
+## Adding your art
+
+Drop files into `public/assets/` using the names in
+[public/assets/README.md](public/assets/README.md) and they appear on refresh —
+no imports, no code changes. Until a file exists the game draws a styled
+placeholder, so art and code never block each other.
+
+For the breadboard image specifically, load the game with `?calibrate=1` and
+drag the sliders until the holes line up, then paste the numbers into
+`src/breadboard/boardSkin.js`.
 
 ## Layout
 
 ```
 src/
-  shared/      Types and hole-id helpers. The vocabulary everyone speaks.
+  shared/      Hole ids and shared types — the vocabulary everything speaks
   engine/      Pure circuit solver. No React, no DOM, no pixels.
-  breadboard/  SVG board, geometry, drag/drop and wire drawing.
-  game/        Game state, level runner, screen layout.
-  ui/          Tray, objectives, hints.
-  content/     Component catalog, level definitions, theme, copy.
-docs/
-  ARCHITECTURE.md   How the pieces fit and what each contract guarantees.
-TEAM_PLAN.md        Who builds what, in what order.
-CONTRIBUTING.md     Branching, PRs, and how to not step on each other.
+  breadboard/  SVG board, geometry, interaction, image skin
+  game/        Game state and the puzzle panel
+  ui/          Tray, objectives, hints
+  story/       Beats, scenes, dialogue, the dark-to-lit transition
+  content/     Parts catalog, level definitions, asset registry
 ```
+
+The data flow is one-way: **content → breadboard → game state → engine → back
+out as a result everything renders from.** The engine has never heard of a
+living room; the story has never heard of Ohm's law. That separation is what
+lets four people work at once.
 
 ## For the team
 
-Read [TEAM_PLAN.md](TEAM_PLAN.md) first, then
-[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md), then the file you own.
+Read [TEAM_PLAN.md](TEAM_PLAN.md) — the 24-hour sprint, who owns what, and the
+cut list. Then [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the contracts
+between layers.
+
+**Level 2 is not built.** The story ends on the hook for it (the room is too
+bright, nothing is limiting the current). Leave it there.

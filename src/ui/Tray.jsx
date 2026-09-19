@@ -1,41 +1,62 @@
 /**
- * OWNER: Person C (behaviour) / Person D (art + copy)  — STUB.
+ * OWNER: Person C (behaviour) / Person D (art + copy)
  *
- * The parts bin. Shows what the level gives you and how many are left.
+ * The parts bin. Click a part to arm it, then click two holes on the board.
  *
- * TODO:
- *   - (C) Make items draggable; hand the drop off to Breadboard.
- *   - (C) Grey out an item at zero remaining.
- *   - (D) Swap the text placeholder for the real SVG part art.
- *   - (D) Show the blurb on hover/focus — this is where most of the teaching
- *         actually happens, so it should be readable, not a tooltip afterthought.
+ * Person D: the blurb under each part is where most of the teaching actually
+ * lands, so it stays visible rather than hiding in a tooltip.
  */
 
 import { getComponent } from '../content/components.js';
+import { remainingOf } from '../game/useGameState.js';
 
 /**
  * @param {object} props
  * @param {import('../shared/types.js').Level} props.level
  * @param {import('../shared/types.js').Placement[]} props.placements
+ * @param {{ type: string, firstHole: string | null } | null} props.pending
+ * @param {(type: string) => void} props.onArm
  */
-export function Tray({ level, placements }) {
+export function Tray({ level, placements, pending, onArm }) {
   return (
-    <section className="tray">
+    <section className="panel tray">
       <h2>Parts</h2>
       <ul className="tray__list">
         {level.tray.map((item) => {
           const def = getComponent(item.type);
-          const used = placements.filter((p) => p.type === item.type).length;
-          const left = item.count === Infinity ? '∞' : item.count - used;
+          const left = remainingOf(level, placements, item.type);
+          const exhausted = left <= 0;
+          const armed = pending?.type === item.type;
+
           return (
-            <li key={item.type} className="tray__item">
-              <span className="tray__label">{def.label}</span>
-              <span className="tray__count">{left}</span>
-              <p className="tray__blurb">{def.blurb}</p>
+            <li key={item.type}>
+              <button
+                type="button"
+                className="tray__item"
+                data-part={item.type}
+                data-armed={armed}
+                disabled={exhausted}
+                aria-pressed={armed}
+                onClick={() => onArm(item.type)}
+              >
+                <span className="tray__head">
+                  <span className="tray__label">{def.label}</span>
+                  <span className="tray__count">{left === Infinity ? '∞' : left}</span>
+                </span>
+                <span className="tray__blurb">{def.blurb}</span>
+              </button>
             </li>
           );
         })}
       </ul>
+
+      <p className="tray__how">
+        {pending?.firstHole
+          ? 'Now click the hole for the second leg.'
+          : pending
+            ? 'Click a hole for the first leg. Escape to cancel.'
+            : 'Click a part, then click two holes on the board.'}
+      </p>
     </section>
   );
 }

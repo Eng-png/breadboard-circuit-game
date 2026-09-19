@@ -2,31 +2,37 @@
  * OWNER: Person D (Content, Theme & Accessibility)
  *
  * Design tokens live here and nowhere else. Every other stylesheet reads
- * var(--something) so the whole game can be re-themed from one file.
+ * var(--something), so the whole game re-themes from this one file.
  *
- * TODO(Person D): dark mode via prefers-color-scheme, and check every pair
- * below against WCAG AA (4.5:1 for body text).
+ * The game is set at night in a dark house, so the UI is dark by default. The
+ * breadboard deliberately stays light: it is a real object sitting in a pool of
+ * light, and it should be the brightest thing on screen.
  */
 
 :root {
-  --bg: #f7f6f3;
-  --surface: #ffffff;
-  --text: #1f2430;
-  --text-muted: #5b6472;
+  --text: #f2f4f8;
+  --text-dim: #a8b1c2;
 
-  --accent: #3f7de0;
-  --ok: #2f9e64;
-  --warn: #d98324;
-  --error: #d9483b;
+  --accent: #7fb2ff;
+  --ok: #52c98b;
+  --warn: #f0a742;
+  --error: #ff6b5c;
 
+  /* Dark glass, for panels floating over the room */
+  --glass: rgba(18, 23, 34, 0.72);
+  --glass-strong: rgba(12, 16, 25, 0.86);
+  --glass-edge: rgba(255, 255, 255, 0.12);
+
+  /* The breadboard is a lit physical object, so it keeps warm light values */
   --board-surface: #ece7dd;
-  --board-edge: #cfc7b8;
-  --board-channel: #ddd6c9;
+  --board-edge: #b9b1a2;
+  --board-channel: #d8d0c2;
   --hole-fill: #2c2c30;
-  --hole-hover: var(--accent);
+  --hole-hover: #3f7de0;
 
-  --rail-positive: #d9483b;
-  --rail-negative: #2f5fd0;
+  --rail-positive: #e04b3a;
+  --rail-negative: #3f7de0;
+  --wire-neutral: #2f9e64;
 
   --radius: 8px;
   --font: system-ui, -apple-system, 'Segoe UI', sans-serif;
@@ -34,16 +40,25 @@
 
 * { box-sizing: border-box; }
 
+html, body, #root { height: 100%; }
+
 body {
   margin: 0;
   font-family: var(--font);
-  background: var(--bg);
+  background: #05070c;
   color: var(--text);
   line-height: 1.5;
 }
 
 h1 { font-size: 1.5rem; margin: 0 0 0.25rem; }
-h2 { font-size: 1rem; margin: 0 0 0.5rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-muted); }
+
+h2 {
+  font-size: 0.78rem;
+  margin: 0 0 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-dim);
+}
 
 button {
   font: inherit;
@@ -51,8 +66,18 @@ button {
   border: 1px solid var(--accent);
   border-radius: var(--radius);
   background: var(--accent);
-  color: #fff;
+  color: #0a0f18;
+  font-weight: 600;
   cursor: pointer;
 }
+
+.button--ghost {
+  background: transparent;
+  color: var(--text);
+  border-color: var(--glass-edge);
+  font-weight: 500;
+}
+.button--ghost:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+.button--ghost:disabled { opacity: 0.35; cursor: not-allowed; }
 
 :focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }

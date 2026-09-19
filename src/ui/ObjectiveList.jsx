@@ -1,29 +1,28 @@
 /**
- * OWNER: Person C  — STUB.
+ * OWNER: Person C
  *
- * The checklist. Ticking off objectives one at a time is the main feedback
- * loop, so this should animate on change rather than silently flipping.
- *
- * TODO(Person C): announce newly-passed objectives via aria-live.
+ * The checklist. Ticking objectives off one at a time is the main feedback
+ * loop, so changes are announced to screen readers as well as shown.
  */
 
-/**
- * @param {object} props
- * @param {Array<{ id: string, description: string, passed: boolean }>} props.objectives
- * @param {boolean} props.won
- */
-export function ObjectiveList({ objectives, won }) {
+export function ObjectiveList({ objectives }) {
+  const passedCount = objectives.filter((objective) => objective.passed).length;
+
   return (
-    <section className="objectives">
-      <h2>Goals</h2>
-      <ul>
+    <section className="panel objectives">
+      <h2>
+        Goals <span className="objectives__score">{passedCount}/{objectives.length}</span>
+      </h2>
+      <ul aria-live="polite">
         {objectives.map((objective) => (
           <li key={objective.id} data-passed={objective.passed}>
-            {objective.passed ? '✓' : '○'} {objective.description}
+            <span className="objectives__mark" aria-hidden="true">
+              {objective.passed ? '✓' : '○'}
+            </span>
+            {objective.description}
           </li>
         ))}
       </ul>
-      {won && <p className="objectives__won">Level complete</p>}
     </section>
   );
 }

@@ -1,13 +1,17 @@
 /**
- * OWNER: Person C (Game Shell & Levels)
+ * OWNER: Person C (Game Shell & Story)
  *
- * App shell. For v1 there is exactly one level, so this just mounts it.
- * TODO(Person C): level select screen once level 2 exists.
+ * Level 1 is the whole game for now, so this mounts it directly.
+ *
+ * When level 2 exists, this becomes the place that picks which story + level
+ * pair to run. Nothing else needs to change — that is why the story and the
+ * puzzle are passed in as data rather than imported inside StoryScreen.
  */
 
-import { GameScreen } from './game/GameScreen.jsx';
+import { StoryScreen } from './story/StoryScreen.jsx';
+import { level1Story } from './story/level1Story.js';
 import { LEVELS } from './content/levels/index.js';
 
 export default function App() {
-  return <GameScreen level={LEVELS[0]} />;
+  return <StoryScreen level={LEVELS[0]} story={level1Story} />;
 }

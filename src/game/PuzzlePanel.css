@@ -1,0 +1,119 @@
+/* OWNER: Person C (layout) / Person D (visual polish) */
+
+/*
+ * The puzzle sits inside a dark room, so the panels are dark glass rather than
+ * white cards. The breadboard itself stays light — it is a physical object lit
+ * by the open panel, and it should read as the brightest thing on screen.
+ */
+
+.puzzle {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 19rem;
+  gap: 1.1rem;
+  align-items: start;
+  width: 100%;
+}
+
+.puzzle__board { min-width: 0; }
+
+.puzzle__sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+}
+
+.puzzle__toolbar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.6rem;
+  flex-wrap: wrap;
+}
+
+.puzzle__tip { color: var(--text-dim); font-size: 0.8rem; }
+
+.puzzle__status {
+  margin: 0.6rem 0 0;
+  padding: 0.65rem 0.85rem;
+  border-radius: var(--radius);
+  border-left: 4px solid var(--text-dim);
+  background: var(--glass);
+  backdrop-filter: blur(6px);
+  max-width: 64ch;
+  font-size: 0.92rem;
+}
+.puzzle__status[data-tone='ok'] { border-left-color: var(--ok); }
+.puzzle__status[data-tone='warn'] { border-left-color: var(--warn); }
+.puzzle__status[data-tone='error'] { border-left-color: var(--error); }
+
+/* ── Panels ─────────────────────────────────────────────────────────────── */
+
+.panel {
+  background: var(--glass);
+  backdrop-filter: blur(8px);
+  border: 1px solid var(--glass-edge);
+  border-radius: var(--radius);
+  padding: 0.75rem;
+}
+
+.tray__list, .objectives ul, .hints__list { list-style: none; margin: 0; padding: 0; }
+.tray__list { display: flex; flex-direction: column; gap: 0.35rem; }
+
+.tray__item {
+  width: 100%;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  background: transparent;
+  color: var(--text);
+  border: 1px solid var(--glass-edge);
+  padding: 0.45rem 0.55rem;
+}
+.tray__item:hover:not(:disabled) { border-color: var(--accent); }
+.tray__item[data-armed='true'] {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 22%, transparent);
+}
+.tray__item:disabled { opacity: 0.35; cursor: not-allowed; }
+
+.tray__head {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+.tray__count { color: var(--text-dim); font-variant-numeric: tabular-nums; }
+.tray__blurb { font-size: 0.76rem; color: var(--text-dim); font-weight: 400; line-height: 1.35; }
+.tray__how { margin: 0.6rem 0 0; font-size: 0.8rem; color: var(--accent); }
+
+.objectives__score { color: var(--text-dim); font-weight: 400; }
+.objectives li {
+  display: flex;
+  gap: 0.45rem;
+  padding: 0.16rem 0;
+  font-size: 0.85rem;
+  color: var(--text-dim);
+}
+.objectives li[data-passed='true'] { color: var(--ok); font-weight: 600; }
+.objectives__mark { width: 0.9rem; flex: none; }
+
+.hints__list {
+  font-size: 0.8rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  margin-bottom: 0.6rem;
+}
+.hints__list li {
+  padding-left: 0.6rem;
+  border-left: 2px solid var(--warn);
+  color: var(--text-dim);
+  line-height: 1.4;
+}
+.hints__done { font-size: 0.8rem; color: var(--text-dim); margin: 0; }
+
+@media (max-width: 62rem) {
+  .puzzle { grid-template-columns: minmax(0, 1fr); }
+}

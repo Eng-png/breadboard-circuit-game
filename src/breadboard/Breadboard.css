@@ -1,29 +1,225 @@
-/* OWNER: Person B (structure) / Person D (palette tokens) */
+/* OWNER: Person B (structure) / Person D (palette + polish) */
 
 .breadboard {
   width: 100%;
   height: auto;
   display: block;
+  user-select: none;
 }
 
 .breadboard__body {
-  fill: var(--board-surface, #ece7dd);
-  stroke: var(--board-edge, #cfc7b8);
+  fill: var(--board-surface);
+  stroke: var(--board-edge);
   stroke-width: 0.3;
 }
 
 .breadboard__channel {
-  fill: var(--board-channel, #ddd6c9);
+  fill: var(--board-channel);
 }
 
-.breadboard__hole {
-  fill: var(--hole-fill, #2c2c30);
-  cursor: pointer;
-  transition: fill 90ms ease-out;
+.breadboard__rail-stripe {
+  stroke-width: 0.35;
+  opacity: 0.85;
+}
+.breadboard__rail-stripe[data-polarity='pos'] { stroke: var(--rail-positive); }
+.breadboard__rail-stripe[data-polarity='neg'] { stroke: var(--rail-negative); }
+
+.breadboard__label {
+  font-size: 2.1px;
+  fill: var(--text-muted);
+  font-family: var(--font);
+  pointer-events: none;
+}
+.breadboard__label--rail { font-size: 3px; font-weight: 700; }
+.breadboard__label--rail[data-polarity='pos'] { fill: var(--rail-positive); }
+.breadboard__label--rail[data-polarity='neg'] { fill: var(--rail-negative); }
+
+/* ── Holes ──────────────────────────────────────────────────────────────── */
+
+.hole__hit {
+  fill: transparent;
+}
+.hole__hit[data-armed='true'] {
+  cursor: crosshair;
 }
 
-.breadboard__hole:hover {
-  fill: var(--hole-hover, #3f7de0);
+.hole__dot {
+  fill: var(--hole-fill);
+  pointer-events: none;
+  transition: fill 90ms ease-out, r 90ms ease-out;
 }
 
-/* TODO(Person B + D): .breadboard__hole--in-strip for the hover strip highlight. */
+/*
+ * The strip highlight. Hovering one hole reveals every hole the board has
+ * already joined it to. This is the single most instructive thing on screen.
+ */
+.hole[data-in-strip='true'] .hole__dot {
+  fill: var(--hole-hover);
+  r: 0.95px;
+}
+
+.hole[data-pending='true'] .hole__dot {
+  fill: var(--warn);
+}
+
+.breadboard__pending {
+  fill: none;
+  stroke: var(--warn);
+  stroke-width: 0.35;
+  pointer-events: none;
+  animation: pending-pulse 1.1s ease-in-out infinite;
+}
+
+@keyframes pending-pulse {
+  50% { opacity: 0.3; }
+}
+
+/* ── Parts ──────────────────────────────────────────────────────────────── */
+
+.part { cursor: pointer; }
+
+.part__lead {
+  stroke: var(--text);
+  stroke-width: 0.4;
+  stroke-linecap: round;
+}
+
+.part__wire {
+  fill: none;
+  stroke-width: 0.75;
+  stroke-linecap: round;
+}
+
+/* Fat invisible stroke so thin parts are still easy to click. */
+.part__hit {
+  fill: none;
+  stroke: transparent;
+  stroke-width: 2.4;
+}
+
+.part__battery { fill: #2f3440; stroke: #11151c; stroke-width: 0.2; }
+.part__resistor { fill: #d8c39a; stroke: #9d8a66; stroke-width: 0.2; }
+.part__switch { fill: #3a4150; stroke: #11151c; stroke-width: 0.2; }
+.part__terminal { fill: #c9ccd2; }
+
+.part__lever {
+  stroke: #f0c040;
+  stroke-width: 0.55;
+  stroke-linecap: round;
+}
+
+.part__text {
+  font-size: 2.2px;
+  fill: #fff;
+  font-family: var(--font);
+  text-anchor: middle;
+  pointer-events: none;
+}
+
+.part__pole {
+  font-size: 2.6px;
+  font-weight: 700;
+  font-family: var(--font);
+  text-anchor: middle;
+  pointer-events: none;
+}
+.part__pole--pos { fill: var(--rail-positive); }
+.part__pole--neg { fill: var(--rail-negative); }
+
+.part__led {
+  fill: #7a1f1a;
+  stroke: #4a0f0c;
+  stroke-width: 0.2;
+  transition: fill 120ms ease-out;
+}
+.part__led[data-lit='true'] {
+  fill: #ff4b3e;
+  filter: url(#led-glow);
+}
+.part__led[data-dead='true'] {
+  fill: #2b2b2b;
+  stroke: #000;
+}
+
+.part__glow {
+  fill: #ff4b3e;
+  opacity: 0.28;
+  pointer-events: none;
+  animation: led-breathe 2s ease-in-out infinite;
+}
+
+@keyframes led-breathe {
+  50% { opacity: 0.16; }
+}
+
+/*
+ * Faults never rely on colour alone — the fault strip in the UI always carries
+ * the same information as text. See TEAM_PLAN.md, Person D, M3.
+ */
+.part--faulted .part__lead,
+.part--faulted .part__wire {
+  stroke: var(--error);
+}
+.part--faulted rect,
+.part--faulted path:not(.part__hit) {
+  stroke: var(--error);
+  stroke-width: 0.45;
+  stroke-dasharray: 1 0.6;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .breadboard__pending,
+  .part__glow {
+    animation: none;
+  }
+}
+
+/* ── Board skin + calibration ───────────────────────────────────────────── */
+
+.breadboard-wrap { position: relative; }
+
+/* When a real breadboard image is in play, the holes need a touch more
+   contrast to stay findable against photographic detail. */
+.breadboard[data-skinned='true'] .hole__dot {
+  fill: rgba(10, 10, 12, 0.55);
+}
+.breadboard[data-skinned='true'] .hole[data-in-strip='true'] .hole__dot {
+  fill: var(--hole-hover);
+}
+
+.calibrate {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 17rem;
+  background: var(--glass-strong);
+  border: 1px solid var(--glass-edge);
+  border-radius: var(--radius);
+  padding: 0.8rem;
+  font-size: 0.8rem;
+  z-index: 5;
+}
+
+.calibrate__warn { color: var(--warn); margin: 0 0 0.6rem; }
+
+.calibrate__row {
+  display: grid;
+  grid-template-columns: 4.5rem 1fr 2.6rem;
+  align-items: center;
+  gap: 0.4rem;
+  margin-bottom: 0.35rem;
+}
+.calibrate__row output { text-align: right; font-variant-numeric: tabular-nums; }
+
+.calibrate__hint { margin: 0.7rem 0 0.3rem; color: var(--text-dim); }
+
+.calibrate__snippet {
+  margin: 0;
+  padding: 0.5rem;
+  background: rgba(0, 0, 0, 0.45);
+  border-radius: 6px;
+  font-size: 0.7rem;
+  overflow-x: auto;
+}
+
+.calibrate__actions { display: flex; gap: 0.4rem; margin-top: 0.6rem; }
