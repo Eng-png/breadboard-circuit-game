@@ -1,17 +1,31 @@
 /**
  * OWNER: Person C (Game Shell & Story)
  *
- * Level 1 is the whole game for now, so this mounts it directly.
+ * Picks which story + level pair to run. Levels are played in the order they
+ * are registered in content/levels; each level's end beat offers the next one.
  *
- * When level 2 exists, this becomes the place that picks which story + level
- * pair to run. Nothing else needs to change — that is why the story and the
- * puzzle are passed in as data rather than imported inside StoryScreen.
+ * `key` remounts StoryScreen on a level change, so story position and board
+ * state start clean instead of leaking from the previous level.
  */
 
+import { useState } from 'react';
 import { StoryScreen } from './story/StoryScreen.jsx';
-import { level1Story } from './story/level1Story.js';
+import { getStory } from './story/index.js';
 import { LEVELS } from './content/levels/index.js';
 
 export default function App() {
-  return <StoryScreen level={LEVELS[0]} story={level1Story} />;
+  const [levelIndex, setLevelIndex] = useState(0);
+
+  const level = LEVELS[levelIndex];
+  const story = getStory(level.id);
+  const upcoming = LEVELS[levelIndex + 1];
+
+  const nextLevel = upcoming
+    ? {
+        label: `Continue to ${getStory(upcoming.id)?.chapter ?? upcoming.title}`,
+        onSelect: () => setLevelIndex(levelIndex + 1),
+      }
+    : null;
+
+  return <StoryScreen key={level.id} level={level} story={story} nextLevel={nextLevel} />;
 }
