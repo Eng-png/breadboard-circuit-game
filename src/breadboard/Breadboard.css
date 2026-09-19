@@ -1,0 +1,29 @@
+/* OWNER: Person B (structure) / Person D (palette tokens) */
+
+.breadboard {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.breadboard__body {
+  fill: var(--board-surface, #ece7dd);
+  stroke: var(--board-edge, #cfc7b8);
+  stroke-width: 0.3;
+}
+
+.breadboard__channel {
+  fill: var(--board-channel, #ddd6c9);
+}
+
+.breadboard__hole {
+  fill: var(--hole-fill, #2c2c30);
+  cursor: pointer;
+  transition: fill 90ms ease-out;
+}
+
+.breadboard__hole:hover {
+  fill: var(--hole-hover, #3f7de0);
+}
+
+/* TODO(Person B + D): .breadboard__hole--in-strip for the hover strip highlight. */
