@@ -295,6 +295,8 @@
 @keyframes fan-stall {
   to { transform: translateX(1.5px); }
 }
+/* The head is jammed against the end of its travel: the motor on the board stops too. */
+.scene:has(.fan-prop[data-stalled='true']) .part__fan-blades { animation-play-state: paused; }
 
 /* ── Limit switches ─────────────────────────────────────────────────────── */
 
