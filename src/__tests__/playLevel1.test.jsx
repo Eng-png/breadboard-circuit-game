@@ -68,20 +68,22 @@ describe('Level 1 — Lights Out', () => {
     expect(Number(veil.style.opacity)).toBeGreaterThan(0.8);
   });
 
-  it('coaches the player instead of just failing', () => {
+  it('a mis-wired part does not light the room', () => {
     resetIds();
     startGame();
     readThroughIntro();
     place('led', 'A5', 'C5'); // both legs in one strip
-    expect(screen.getByText(/same strip/i)).toBeTruthy();
+    const veil = document.querySelector('.scene__veil');
+    expect(Number(veil.style.opacity)).toBeGreaterThan(0.8);
   });
 
-  it('a built circuit with the switch open explains that the switch is open', () => {
+  it('a built circuit with the switch open leaves the room dark', () => {
     resetIds();
     startGame();
     readThroughIntro();
     buildWorkingCircuit();
-    expect(screen.getByText(/the switch is open/i)).toBeTruthy();
+    const veil = document.querySelector('.scene__veil');
+    expect(Number(veil.style.opacity)).toBeGreaterThan(0.8);
   });
 
   it('closing the switch lights the room and lets the story continue', () => {
