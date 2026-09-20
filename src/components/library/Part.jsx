@@ -12,7 +12,8 @@
  * Person D: keep those three readable and the rest is yours to prettify.
  */
 
-import { holeCenter } from '../../breadboard/geometry.js';
+import { PITCH, holeCenter } from '../../breadboard/geometry.js';
+import { releaseImplicitCapture } from '../../shared/pointer.js';
 
 /** @typedef {import('../../shared/types.js').Placement} Placement */
 /** @typedef {import('../../shared/types.js').PlacementResult} PlacementResult */
@@ -22,9 +23,20 @@ import { holeCenter } from '../../breadboard/geometry.js';
  * @param {Placement} props.placement
  * @param {PlacementResult} [props.result]
  * @param {boolean} [props.faulted]
- * @param {(id: string) => void} [props.onActivate]
+ * @param {boolean} [props.dragging]  This part is the one being dragged
+ * @param {boolean} [props.ghost]     A preview of where a drop would land
+ * @param {(id: string, legIndex: number | null, from: {x: number, y: number}) => void} [props.onGrab]
+ * @param {(id: string, event: KeyboardEvent) => void} [props.onKeyDown]
  */
-export function Part({ placement, result, faulted = false, onActivate }) {
+export function Part({
+  placement,
+  result,
+  faulted = false,
+  dragging = false,
+  ghost = false,
+  onGrab,
+  onKeyDown,
+}) {
   const from = holeCenter(placement.holes[0]);
   const to = holeCenter(placement.holes[1]);
   if (!from || !to) return null;
@@ -37,36 +49,142 @@ export function Part({ placement, result, faulted = false, onActivate }) {
     `part--${placement.type}`,
     faulted ? 'part--faulted' : '',
     result?.energized ? 'part--energized' : '',
+    dragging ? 'part--dragging' : '',
+    ghost ? 'part--ghost' : '',
   ]
     .filter(Boolean)
     .join(' ');
 
-  const handleClick = onActivate
-    ? (event) => {
-        event.stopPropagation();
-        onActivate(placement.id);
-      }
-    : undefined;
+  /**
+   * Pressing the body grabs the whole part; pressing an end handle grabs just
+   * that leg. `legIndex === null` means "the body" — the reducer reads it that
+   * way, so we have to pass null explicitly rather than letting it default.
+   */
+  const grab = (legIndex) => (event) => {
+    if (!onGrab || event.button > 0) return;
+    event.stopPropagation();
+    event.preventDefault();
+    releaseImplicitCapture(event);
+    onGrab(placement.id, legIndex, { x: event.clientX, y: event.clientY });
+  };
+
+  const shared = {
+    className,
+    'data-placement': placement.id,
+    'data-holes': placement.holes.join(','),
+    'data-dragging': dragging || undefined,
+    onPointerDown: ghost ? undefined : grab(null),
+    onKeyDown: ghost || !onKeyDown ? undefined : (event) => onKeyDown(placement.id, event),
+    tabIndex: ghost ? undefined : 0,
+    role: ghost ? undefined : 'button',
+    'aria-label': ghost ? undefined : ariaLabel(placement),
+  };
+
+  const handles = ghost ? null : (
+    <>
+      <LegHandle index={0} at={from} onPointerDown={grab(0)} />
+      <LegHandle index={1} at={to} onPointerDown={grab(1)} />
+    </>
+  );
 
   if (placement.type === 'wire') {
     return (
-      <g className={className} data-placement={placement.id} onClick={handleClick}>
+      <g {...shared}>
         <path d={sag(from, to)} className="part__wire" stroke={wireColour(placement)} />
         <path d={sag(from, to)} className="part__hit" />
+        {handles}
       </g>
     );
   }
 
   return (
-    <g className={className} data-placement={placement.id} onClick={handleClick}>
+    <g {...shared}>
       <line x1={from.x} y1={from.y} x2={to.x} y2={to.y} className="part__lead" />
       <g transform={`translate(${mid.x} ${mid.y}) rotate(${angle})`}>
         <Body placement={placement} result={result} />
       </g>
       <line x1={from.x} y1={from.y} x2={to.x} y2={to.y} className="part__hit" />
+      {handles}
     </g>
   );
 }
+
+/**
+ * The grab dot on each end of a part. Invisible until you hover the part, then
+ * it says "this end moves on its own" without a word of explanation.
+ */
+function LegHandle({ index, at, onPointerDown }) {
+  return (
+    <circle
+      cx={at.x}
+      cy={at.y}
+      r={PITCH * 0.55}
+      className="part__leg"
+      data-leg={index}
+      onPointerDown={onPointerDown}
+    />
+  );
+}
+
+function ariaLabel(placement) {
+  const where = placement.holes.join(' to ');
+  if (placement.type === 'switch') {
+    return `Switch at ${where}, ${placement.state?.closed ? 'closed' : 'open'}. Enter to flip, arrow keys to move, Delete to remove.`;
+  }
+  return `${placement.type} at ${where}. Arrow keys to move, Delete to remove.`;
+}
+
+/**
+ * The same part, drawn on its own instead of on the board — the tray's
+ * stand-in until real component art lands in public/assets/components/.
+ *
+ * It reuses Body, so a tray icon can never drift out of step with the thing
+ * that appears when you drop it.
+ *
+ * @param {object} props
+ * @param {import('../../shared/types.js').ComponentType} props.type
+ * @param {string} [props.className]
+ */
+export function PartIcon({ type, className }) {
+  const placement = { id: `icon-${type}`, type, holes: [], state: { closed: false } };
+
+  return (
+    <svg
+      className={className}
+      viewBox="-9 -5 18 10"
+      role="img"
+      aria-hidden="true"
+      focusable="false"
+    >
+      {type === 'wire' ? (
+        <path
+          d="M -7.5 2.6 Q 0 -5.5 7.5 2.6"
+          className="part__wire"
+          stroke={wireColour(placement)}
+        />
+      ) : (
+        <>
+          <line x1="-7.5" y1="0" x2="7.5" y2="0" className="part__lead" />
+          <g transform={`scale(${ICON_SCALE[type] ?? 1})`}>
+            <Body placement={placement} />
+          </g>
+        </>
+      )}
+    </svg>
+  );
+}
+
+/**
+ * Board art is drawn at true millimetre size, where a 9 V battery dwarfs an
+ * LED. In a row of tray slots that just reads as "the LED is broken", so the
+ * small parts are scaled up to fill their slot.
+ */
+const ICON_SCALE = {
+  battery: 1,
+  switch: 1.7,
+  resistor: 1.9,
+  led: 2.2,
+};
 
 function Body({ placement, result }) {
   switch (placement.type) {
