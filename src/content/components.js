@@ -79,20 +79,6 @@ export const COMPONENTS = {
     electrical: { minOhms: 0, maxOhms: 1000 },
   },
 
-  fan: {
-    type: 'fan',
-    label: 'Desk fan',
-    blurb: 'A small motor. Give it current and it turns — no resistor needed, the motor is its own load.',
-    pins: [
-      { name: 'a', label: 'Lead A' },
-      { name: 'b', label: 'Lead B' },
-    ],
-    polarized: false,
-    // 9 V straight across 300 Ω is 30 mA: full speed. Through the 330 Ω
-    // resistor as well it drops to ~14 mA, a visibly slower fan.
-    electrical: { ohms: 300, minCurrentMa: 5, nominalCurrentMa: 30 },
-  },
-
   switch: {
     type: 'switch',
     label: 'Push switch',

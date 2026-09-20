@@ -26,7 +26,8 @@ const DARK = 0.07;
  * @param {object} props
  * @param {import('../shared/types.js').Level} props.level
  * @param {{ id: string, title: string, chapter?: string, props?: string[], beats: any[] }} props.story
- *   `props` names the room furniture this story uses (currently just 'fan').
+ *   `props` names the room furniture this story uses (currently just 'fan');
+ *   a beat's `fanSpeed` (0..1) runs the fan during that beat.
  * @param {{ label: string, onSelect: () => void } | null} [props.nextLevel]
  *   Offered on the story's end beat. Null on the last level.
  * @param {import('react').ReactNode} [props.levelNav]  Level picker shown in the header.
@@ -50,10 +51,6 @@ export function StoryScreen({ level, story, nextLevel = null, levelNav = null })
    *
    * A lit LED is only as bright as the current through it, so the room follows
    * that too. Level 3's dimmer is built on that.
-   *
-   * A fan motor does not light anything, so a room with only a fan in it keeps
-   * the brightness the beat gives it — but the fan on the floor turns at the
-   * speed of the current through the one on the board. Level 4 is built on that.
    */
   const parts = Object.values(context.result.components);
   const roomLit = parts.some((part) => part.lit === true);
@@ -63,27 +60,17 @@ export function StoryScreen({ level, story, nextLevel = null, levelNav = null })
     0,
   );
 
-  const fanSpeed = parts.reduce(
-    (max, part) => (part.spinning === true ? Math.max(max, part.speed ?? 1) : max),
-    0,
-  );
+  // You may move on once the circuit is right AND the light is actually on.
+  const canContinue = game.won && roomLit;
 
-  // You may move on once the circuit is right AND something is actually running.
-  const canContinue = game.won && (roomLit || fanSpeed > 0);
-
-  const ambient = beat.light ?? DARK;
-  const liveLight = roomGlare
-    ? 1
-    : roomLit
-      ? Math.max(ambient, DARK + (1 - DARK) * brightness)
-      : ambient;
+  const liveLight = roomGlare ? 1 : roomLit ? DARK + (1 - DARK) * brightness : DARK;
   const light = isPuzzle ? liveLight : (beat.light ?? 1);
   const glare = isPuzzle ? (roomGlare ? 1 : 0) : (beat.glare ?? 0);
   const hasFan = story.props?.includes('fan') === true;
 
   return (
     <Scene key={beat.background} name={beat.background} light={light} glare={glare}>
-      {hasFan && <FanProp speed={isPuzzle ? fanSpeed : (beat.fanSpeed ?? 0)} />}
+      {hasFan && <FanProp speed={beat.fanSpeed ?? 0} />}
       <div className="story" data-mode={beat.mode}>
         <header className="story__header">
           <div>

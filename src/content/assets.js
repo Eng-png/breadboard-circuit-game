@@ -91,7 +91,6 @@ export const COMPONENT_IMAGES = {
   switch: `${BASE}/components/switch-open.png`,
   // Shared with COMPONENT_ART below: one drawing of the dimmer does both jobs.
   potentiometer: `${BASE}/components/potentiometer.png`,
-  fan: `${BASE}/components/fan.png`,
 };
 
 /**

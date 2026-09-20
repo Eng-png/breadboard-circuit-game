@@ -2,13 +2,13 @@ import { describe, expect, it, afterEach, vi } from 'vitest';
 import { act, cleanup, fireEvent, screen } from '@testing-library/react';
 import { startGame } from './helpers/startGame.jsx';
 import { resetIds } from '../shared/ids.js';
-import { boardVisible, clickThrough, place, tap } from './boardActions.js';
-import { FRAME_MS_FAST, SWEEP, frameInterval } from '../story/fanSweep.js';
+import { clickThrough } from './boardActions.js';
+import { FAN_FRAMES } from '../content/assets.js';
+import { FRAME_MS_FAST, FRAME_MS_SLOW, SWEEP, frameInterval } from '../story/fanSweep.js';
 
 /**
- * Plays level 4: jump to it from the level picker, wire the switch and the fan
- * into the gap, and watch the fan in the room sweep right → left → right while
- * — and only while — the one on the board is turning.
+ * Level 4 is, for now, a scene that shows the desk fan: still on the first
+ * beat, sweeping right → left → right on the second.
  */
 
 // Only the fan frames "exist" on disk; everything else falls back to SVG.
@@ -29,119 +29,65 @@ function startLevel4() {
 
 const roomFan = () => document.querySelector('.fan-prop');
 const roomFrame = () => Number(roomFan().getAttribute('data-frame'));
-const boardFan = () => document.querySelector('.breadboard .part__fan');
-const switchNode = () => document.querySelector('[data-placement^="switch-"]');
-const continueButton = () => screen.queryByRole('button', { name: /sit in front of it/i });
+const switchOn = () => fireEvent.click(screen.getByRole('button', { name: /switch it on/i }));
 
-/** Wire switch + fan into the gap. The switch starts open. */
-function buildLoop() {
-  place('switch', 'A5', 'A9');
-  place('fan', 'B9', 'B17');
-}
+describe('Level 4 — Fresh Air (fan animation)', () => {
+  it('ships five frames and a right→left→right sweep', () => {
+    expect(FAN_FRAMES.map((f) => f.src)).toEqual([1, 2, 3, 4, 5].map((n) => `/assets/props/fan/fan-${n}.png`));
+    expect(SWEEP).toEqual([0, 1, 2, 3, 4, 3, 2, 1]);
+    expect(frameInterval(1)).toBe(FRAME_MS_FAST);
+    expect(frameInterval(0)).toBe(FRAME_MS_SLOW);
+    expect(frameInterval(0.5)).toBe(Math.round((FRAME_MS_FAST + FRAME_MS_SLOW) / 2));
+  });
 
-describe('Level 4 — Fresh Air', () => {
-  it('opens on a warm, lit room with a still fan, then a board with a gap', () => {
+  it('opens with the fan still on frame 1', () => {
+    vi.useFakeTimers();
     startLevel4();
     expect(screen.getByText(/room, it turns out, is not/i)).toBeTruthy();
     expect(roomFan().getAttribute('data-spinning')).toBe('false');
     expect(roomFrame()).toBe(1);
-
-    clickThrough(boardVisible);
-    expect(Number(document.querySelector('.scene__veil').style.opacity)).toBeCloseTo(0.4);
-    expect(document.querySelector('[data-placement="pre-feed"]')).toBeTruthy();
-    expect(document.querySelector('[data-placement="pre-return"]')).toBeTruthy();
-    expect(document.querySelector('[data-part="fan"]').disabled).toBe(false);
-    expect(boardFan()).toBeNull();
+    act(() => vi.advanceTimersByTime(FRAME_MS_FAST * 10));
+    expect(roomFrame()).toBe(1);
   });
 
-  it('spins the fan on the board and sweeps the one in the room when the switch closes', () => {
+  it('sweeps through every frame and back once switched on', () => {
     vi.useFakeTimers();
     startLevel4();
-    clickThrough(boardVisible);
-    buildLoop();
+    clickThrough(() => Boolean(screen.queryByRole('button', { name: /switch it on/i })));
+    switchOn();
 
-    // Loop built, switch open: nothing moves.
-    expect(boardFan().getAttribute('data-spinning')).toBe('false');
-    expect(roomFan().getAttribute('data-spinning')).toBe('false');
-    expect(continueButton()).toBeNull();
-
-    tap(switchNode());
-    expect(boardFan().getAttribute('data-spinning')).toBe('true');
     expect(roomFan().getAttribute('data-spinning')).toBe('true');
-    // 9 V over 300 Ω = 30 mA = full speed, so frames tick at the fast rate.
-    expect(frameInterval(1)).toBe(FRAME_MS_FAST);
-
-    // Right → left through every frame…
     const seen = [roomFrame()];
     for (let i = 1; i < SWEEP.length; i += 1) {
       act(() => vi.advanceTimersByTime(FRAME_MS_FAST));
       seen.push(roomFrame());
     }
     expect(seen).toEqual([1, 2, 3, 4, 5, 4, 3, 2]);
-    // …and back to the start: a loop, not a one-shot.
     act(() => vi.advanceTimersByTime(FRAME_MS_FAST));
     expect(roomFrame()).toBe(1);
-
-    expect(continueButton()).toBeTruthy();
   });
 
-  it('stops on the current frame when the switch opens again', () => {
-    vi.useFakeTimers();
+  it('draws every frame at one scale, standing on the same spot', () => {
     startLevel4();
-    clickThrough(boardVisible);
-    buildLoop();
-    tap(switchNode());
-    act(() => vi.advanceTimersByTime(FRAME_MS_FAST * 3));
-    expect(roomFrame()).toBe(4);
-
-    tap(switchNode());
-    expect(boardFan().getAttribute('data-spinning')).toBe('false');
-    expect(roomFan().getAttribute('data-spinning')).toBe('false');
-    act(() => vi.advanceTimersByTime(FRAME_MS_FAST * 10));
-    expect(roomFrame()).toBe(4);
-    expect(continueButton()).toBeNull();
+    const imgs = [...document.querySelectorAll('.fan-prop__frame')];
+    expect(imgs.length).toBe(5);
+    imgs.forEach((img, i) => {
+      const { width, height, anchor: [ax, ay] } = FAN_FRAMES[i];
+      expect(Number.parseFloat(img.style.width)).toBeCloseTo((width / 260) * 100);
+      expect(img.style.transform).toBe(
+        `translate(${(-ax / width) * 100}%, ${((height - ay) / height) * 100}%)`,
+      );
+    });
+    expect(imgs.filter((img) => img.style.opacity === '1').length).toBe(1);
   });
 
-  it('turns slower with the resistor in series', () => {
+  it('is the last level: the end beat offers a replay, no Level 5', () => {
     startLevel4();
-    clickThrough(boardVisible);
-    place('switch', 'A5', 'A9');
-    place('resistor', 'B9', 'B13');
-    place('fan', 'C13', 'C17');
-    tap(switchNode());
-
-    // 9 V over 630 Ω ≈ 14.3 mA: spinning, but well under full speed.
-    expect(boardFan().getAttribute('data-spinning')).toBe('true');
-    const duration = document.querySelector('.breadboard .part__fan-blades').style.animationDuration;
-    expect(Number.parseFloat(duration)).toBeGreaterThan(1);
-    expect(continueButton()).toBeTruthy();
-  });
-
-  it('does not count a fan outside the loop', () => {
-    startLevel4();
-    clickThrough(boardVisible);
-    place('switch', 'A5', 'A9');
-    place('wire', 'B9', 'B17');
-    place('fan', 'F20', 'F25');
-    tap(switchNode());
-
-    expect(boardFan().getAttribute('data-spinning')).toBe('false');
-    expect(screen.getByText(/joined \+ straight back to/i)).toBeTruthy();
-    expect(continueButton()).toBeNull();
-  });
-
-  it('keeps the fan running through the ending', () => {
-    vi.useFakeTimers();
-    startLevel4();
-    clickThrough(boardVisible);
-    buildLoop();
-    tap(switchNode());
-    fireEvent.click(continueButton());
-
-    expect(roomFan().getAttribute('data-spinning')).toBe('true');
+    clickThrough(() => Boolean(screen.queryByRole('button', { name: /switch it on/i })));
+    switchOn();
     clickThrough(() => Boolean(screen.queryByText(/End of Level 4/i)));
     expect(roomFan().getAttribute('data-spinning')).toBe('true');
-    expect(screen.getByText(/every level there is/i)).toBeTruthy();
-    expect(screen.queryByRole('button', { name: /continue to level 5/i })).toBeNull();
+    expect(screen.getByRole('button', { name: /play level 4 again/i })).toBeTruthy();
+    expect(screen.queryByRole('button', { name: /continue to/i })).toBeNull();
   });
 });
