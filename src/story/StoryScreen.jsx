@@ -24,9 +24,12 @@ const DARK = 0.07;
 /**
  * @param {object} props
  * @param {import('../shared/types.js').Level} props.level
- * @param {{ id: string, title: string, beats: any[] }} props.story
+ * @param {{ id: string, title: string, chapter?: string, beats: any[] }} props.story
+ * @param {{ label: string, onSelect: () => void } | null} [props.nextLevel]
+ *   Offered on the story's end beat. Null on the last level.
+ * @param {import('react').ReactNode} [props.levelNav]  Level picker shown in the header.
  */
-export function StoryScreen({ level, story }) {
+export function StoryScreen({ level, story, nextLevel = null, levelNav = null }) {
   const { beat, visibleLines, hasMoreLines, advance, restart } = useStory(story);
   const game = useGameState(level);
   const { context } = game;
@@ -38,20 +41,42 @@ export function StoryScreen({ level, story }) {
    * Those are different questions, and conflating them costs the level its
    * point: with a correct circuit and the switch flipped off, the room must go
    * dark again. That is the whole lesson about what a switch is.
+   *
+   * An LED with nothing limiting its current is not dark — it is far too
+   * bright, right up until it dies. So an over-driven LED lights the room too,
+   * with a glare on top. Level 2 is built on that difference.
+   *
+   * A lit LED is only as bright as the current through it, so the room follows
+   * that too. Level 3's dimmer is built on that.
    */
-  const roomLit = Object.values(context.result.components).some((part) => part.lit === true);
+  const parts = Object.values(context.result.components);
+  const roomLit = parts.some((part) => part.lit === true);
+  const roomGlare = parts.some((part) => part.burnedOut === true);
+  const brightness = parts.reduce(
+    (max, part) => (part.lit === true ? Math.max(max, part.brightness ?? 1) : max),
+    0,
+  );
 
-  // You may move on once the circuit is right AND the light is actually on.
-  const canContinue = game.won && roomLit;
+  /*
+   * You may move on once the circuit is right AND the light is actually on.
+   * An over-driven LED counts: level 1 has no resistor to tame it, so its
+   * light arrives as glare, and refusing that would leave the level unfinishable.
+   */
+  const canContinue = game.won && (roomLit || roomGlare);
 
-  const light = isPuzzle ? (roomLit ? 1 : DARK) : (beat.light ?? 1);
+  const liveLight = roomGlare ? 1 : roomLit ? DARK + (1 - DARK) * brightness : DARK;
+  const light = isPuzzle ? liveLight : (beat.light ?? 1);
+  const glare = isPuzzle ? (roomGlare ? 1 : 0) : (beat.glare ?? 0);
 
   return (
-    <Scene key={beat.background} name={beat.background} light={light}>
+    <Scene key={beat.background} name={beat.background} light={light} glare={glare}>
       <div className="story" data-mode={beat.mode}>
         <header className="story__header">
-          <span className="story__chapter">Level 1</span>
-          <h1>{story.title}</h1>
+          <div>
+            <span className="story__chapter">{story.chapter ?? level.title}</span>
+            <h1>{story.title}</h1>
+          </div>
+          {levelNav}
         </header>
 
         {isPuzzle ? (
@@ -60,9 +85,9 @@ export function StoryScreen({ level, story }) {
             <PuzzlePanel level={level} game={game} />
             {canContinue && (
               <div className="story__resolve">
-                <p>The bulb catches. Light spills out of the panel and across the floor.</p>
+                <p>{beat.resolve ?? 'The circuit works.'}</p>
                 <button type="button" onClick={advance}>
-                  Stand up and look around
+                  {beat.resolveLabel ?? 'Continue'}
                 </button>
               </div>
             )}
@@ -76,15 +101,24 @@ export function StoryScreen({ level, story }) {
           />
         )}
 
-        {beat.mode === 'end' && (
+        {beat.mode === 'end' && !hasMoreLines && (
           <div className="story__end">
-            <p className="story__end-label">End of Level 1</p>
+            <p className="story__end-label">End of {story.chapter ?? level.title}</p>
             <p className="story__end-note">
-              Level 2 picks up from here — it is not built yet.
+              {nextLevel
+                ? 'The story continues in the next level.'
+                : 'That is every level there is — for now.'}
             </p>
-            <button type="button" className="button--ghost" onClick={restart}>
-              Play Level 1 again
-            </button>
+            <div className="story__end-actions">
+              {nextLevel && (
+                <button type="button" onClick={nextLevel.onSelect}>
+                  {nextLevel.label}
+                </button>
+              )}
+              <button type="button" className="button--ghost" onClick={restart}>
+                Play {story.chapter ?? level.title} again
+              </button>
+            </div>
           </div>
         )}
       </div>

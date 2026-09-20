@@ -1,5 +1,78 @@
 /* OWNER: Person D (look) / Person C (layout) */
 
+/* ── Intro slides ───────────────────────────────────────────────────────── */
+
+/*
+ * A whole-screen button so click, tap and Enter all move on, and the slide is
+ * announced properly. It has to undo the app's button styling, which is built
+ * for small accent-coloured controls.
+ */
+.intro-slide {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  display: block;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: #05070c;
+  cursor: pointer;
+  overflow: hidden;
+}
+
+/*
+ * The whole picture, at its own proportions, as large as the window allows.
+ *
+ * The box is the full screen and `contain` scales the image down inside it, so
+ * nothing is ever cropped off and nothing is stretched — the slide keeps its
+ * shape and the leftover space on the short sides is just backdrop.
+ *
+ * Positioned rather than laid out: as a grid or flex item an image gets an
+ * automatic minimum size of its own pixel dimensions, so a slide wider than
+ * the window pushed the box past the screen and the picture came out cropped
+ * and zoomed in no matter what `object-fit` said. Out of flow it cannot.
+ */
+.intro-slide__image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  object-fit: contain;
+  object-position: center;
+}
+
+/*
+ * On its own pill: the slide now covers the whole screen, and a slide can be
+ * light or dark, so the hint cannot rely on what is behind it.
+ */
+.intro-slide__hint {
+  position: absolute;
+  bottom: 1.6rem;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 0.4rem 0.9rem;
+  border-radius: 999px;
+  background: rgba(5, 7, 12, 0.72);
+  backdrop-filter: blur(6px);
+  font-size: 0.85rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text);
+  animation: intro-hint 1.8s ease-in-out infinite;
+}
+
+@keyframes intro-hint {
+  50% { opacity: 0.35; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .intro-slide__hint { animation: none; }
+}
+
 /* ── Scene ──────────────────────────────────────────────────────────────── */
 
 .scene {
@@ -13,7 +86,8 @@
 .scene__fallback,
 .scene__image,
 .scene__veil,
-.scene__glow {
+.scene__glow,
+.scene__glare {
   position: absolute;
   inset: 0;
 }
@@ -48,6 +122,18 @@
   pointer-events: none;
 }
 
+/* Over-driven: a bleached, slightly cold wash that hurts to look at. */
+.scene__glare {
+  background: radial-gradient(
+    ellipse 90% 75% at 50% 35%,
+    rgba(255, 255, 255, 0.92) 0%,
+    rgba(255, 250, 235, 0.7) 40%,
+    rgba(255, 245, 220, 0.35) 100%
+  );
+  transition: opacity 900ms cubic-bezier(0.22, 1, 0.36, 1);
+  pointer-events: none;
+}
+
 .scene__content {
   position: relative;
   z-index: 1;
@@ -77,7 +163,76 @@
   max-width: 54rem;
 }
 
-.story__header { margin-bottom: auto; }
+.story__header {
+  margin-bottom: auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+/* ── Level picker ────────────────────────────────────────────────────────────── */
+
+.level-nav {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.3rem 0.5rem 0.3rem 0.75rem;
+  background: var(--glass-strong);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--glass-edge);
+  border-radius: 999px;
+}
+
+.level-nav__menu {
+  padding: 0.25rem 0.6rem;
+  border-radius: 999px;
+  border: 1px solid var(--glass-edge);
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+.level-nav__menu:hover { border-color: var(--accent); }
+
+.level-nav__label {
+  font-size: 0.72rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.level-nav__list {
+  display: flex;
+  gap: 0.3rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.level-nav__item {
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  border-radius: 50%;
+  border: 1px solid var(--glass-edge);
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.level-nav__item:hover { border-color: var(--accent); }
+
+.level-nav__item[aria-current='page'] {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #101318;
+  cursor: default;
+}
 
 .story__chapter {
   display: block;
@@ -175,9 +330,16 @@
   font-size: 0.88rem;
 }
 
+.story__end-actions {
+  display: flex;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .scene__veil,
-  .scene__glow { transition: none; }
+  .scene__glow,
+  .scene__glare { transition: none; }
   .dialogue__line[data-latest='true'],
   .story__resolve,
   .story__end { animation: none; }

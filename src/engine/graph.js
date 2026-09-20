@@ -21,6 +21,8 @@ export const IDEAL_OHMS = 0;
 
 /**
  * @typedef {object} Edge
+ * @property {string} key       Unique per edge, NOT per placement — a
+ *                              potentiometer is one placement but two edges.
  * @property {Placement} placement
  * @property {import('../shared/types.js').ComponentType} type
  * @property {number} a          net id at pins[0]
@@ -30,6 +32,7 @@ export const IDEAL_OHMS = 0;
  * @property {number} ohms
  * @property {number} forwardVolts  voltage this part drops before Ohm's law
  * @property {number} volts         batteries only
+ * @property {'a-wiper'|'wiper-b'} [segment]  potentiometer halves only
  */
 
 /**
@@ -45,6 +48,41 @@ export function buildGraph(placements, netOf, switchMode) {
   for (const placement of placements) {
     if (placement.type === 'wire') continue;
 
+    const electrical = getComponent(placement.type).electrical ?? {};
+
+    /*
+     * A potentiometer is one part but two resistances, split at the wiper.
+     * Both go in: whichever pins the player actually wired decide which half
+     * (or halves) the current ends up crossing, exactly as on a real one.
+     */
+    if (placement.type === 'potentiometer') {
+      const [aHole, wiperHole, bHole] = placement.holes;
+      const { lower, upper } = potentiometerTrack(placement, electrical);
+      const half = (name, from, to, ohms) => {
+        const a = netOf(from);
+        const b = netOf(to);
+        // Either pin unplugged, or both in one strip — a shorted-out half is
+        // not a resistance any more, it is a piece of wire.
+        if (a === -1 || b === -1 || a === b) return;
+        edges.push({
+          key: `${placement.id}:${name}`,
+          placement,
+          type: 'potentiometer',
+          segment: name,
+          a,
+          b,
+          conducts: true,
+          directional: false,
+          ohms,
+          forwardVolts: 0,
+          volts: 0,
+        });
+      };
+      half('a-wiper', aHole, wiperHole, lower);
+      half('wiper-b', wiperHole, bHole, upper);
+      continue;
+    }
+
     const [first, second] = placement.holes;
     if (!first || !second) continue;
 
@@ -52,16 +90,15 @@ export function buildGraph(placements, netOf, switchMode) {
     const b = netOf(second);
     if (a === -1 || b === -1) continue;
 
-    const electrical = getComponent(placement.type).electrical ?? {};
-
     edges.push({
+      key: placement.id,
       placement,
       type: placement.type,
       a,
       b,
       conducts: isConducting(placement, switchMode),
       directional: placement.type === 'led',
-      ohms: resistanceOf(placement.type, electrical),
+      ohms: resistanceOf(placement, electrical),
       forwardVolts: placement.type === 'led' ? (electrical.forwardVolts ?? 0) : 0,
       volts: electrical.volts ?? 0,
     });
@@ -84,11 +121,39 @@ function isConducting(placement, switchMode) {
   return Boolean(placement.state?.closed);
 }
 
-/** @param {import('../shared/types.js').ComponentType} type */
-function resistanceOf(type, electrical) {
-  if (type === 'resistor') return electrical.ohms ?? 0;
-  if (type === 'led') return LED_INTERNAL_OHMS;
+/** @param {Placement} placement */
+function resistanceOf(placement, electrical) {
+  if (placement.type === 'resistor') return electrical.ohms ?? 0;
+  if (placement.type === 'led') return LED_INTERNAL_OHMS;
   return IDEAL_OHMS; // switch, battery
+}
+
+/**
+ * Where the knob has left the wiper, as two resistances that always add up to
+ * the whole track. Turned fully "bright" (turn 0) the wiper sits against end A,
+ * so the A-to-wiper half is nothing at all and the whole track is on the other
+ * side of it.
+ *
+ * @param {Placement} placement
+ * @returns {{ lower: number, upper: number, total: number }}
+ *   lower = end A to wiper, upper = wiper to end B
+ */
+export function potentiometerTrack(placement, electrical) {
+  const turn = Math.min(1, Math.max(0, placement.state?.turn ?? 0));
+  const total = electrical.trackOhms ?? 0;
+  const lower = turn * total;
+  return { lower, upper: total - lower, total };
+}
+
+/**
+ * What the knob is worth on its own: the A-to-wiper half, which is the one a
+ * dimmer puts in the path. Used for the read-out before the part is wired into
+ * anything, where there is no path to measure.
+ *
+ * @param {Placement} placement
+ */
+export function potentiometerOhms(placement, electrical) {
+  return potentiometerTrack(placement, electrical).lower;
 }
 
 /**
@@ -113,6 +178,8 @@ export function findPath(edges, from, to, options = {}) {
     (edge) => edge.type !== 'battery' && (edge.conducts || (ignoreSwitches && edge.type === 'switch')),
   );
 
+  // Keyed per edge, not per placement: the two halves of a potentiometer are
+  // separate resistances and a path is allowed to cross both of them.
   const visitedEdges = new Set();
 
   /**
@@ -124,7 +191,7 @@ export function findPath(edges, from, to, options = {}) {
     if (net === to) return trail;
 
     for (const edge of usable) {
-      if (visitedEdges.has(edge.placement.id)) continue;
+      if (visitedEdges.has(edge.key)) continue;
 
       let next = null;
       if (edge.a === net) next = edge.b;
@@ -132,10 +199,10 @@ export function findPath(edges, from, to, options = {}) {
 
       if (next === null) continue;
 
-      visitedEdges.add(edge.placement.id);
+      visitedEdges.add(edge.key);
       const found = walk(next, [...trail, edge]);
       if (found) return found;
-      visitedEdges.delete(edge.placement.id);
+      visitedEdges.delete(edge.key);
     }
 
     return null;

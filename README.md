@@ -20,12 +20,60 @@ npm install
 npm run dev
 ```
 
+### Devin circuit helper
+
+The in-game **Ask Watt** panel sends circuit questions through a server-side
+Devin proxy. Copy `.env.example` to `.env.local` and set a dedicated service
+user key, organization ID, and tutor session ID:
+
+```env
+DEVIN_API_KEY=cog_...
+DEVIN_ORG_ID=org-...
+DEVIN_SESSION_ID=devin-...
+```
+
+The service user needs `ManageOrgSessions` and `ViewOrgSessions`. Never use a
+`VITE_` variable for the key: Vite exposes those values to the browser. Restart
+`npm run dev` after changing `.env.local`.
+
+For a local demo using the personal key offered on Devin's **Devin API** page,
+set `DEVIN_API_VERSION=v1` and `DEVIN_API_KEY=apk_user_...`. The organization
+and session values are optional in this mode; the proxy creates a private tutor
+session when the first question is asked. Personal v1 keys are a legacy option,
+so use the v3 service-user configuration above for a deployed app.
+
 | Command | What it does |
 | --- | --- |
 | `npm run dev` | Dev server with hot reload |
-| `npm test` | 35 tests: the solver, and a full playthrough of Level 1 |
+| `npm test` | The solver, the main menu, full playthroughs of Levels 1, 2 and 3, and the level picker |
 | `npm run lint` | Static checks |
 | `npm run build` | Production build into `dist/` |
+| `npm start` | Serves `dist/` plus the Devin proxy, reading `.env.local` |
+
+### Deploying with Ask Watt
+
+Ask Watt needs a server: the browser never holds the key, it posts to
+`/api/devin-chat`, which only exists in `npm run dev`, `npm run preview` and
+`npm start`. A static host such as GitHub Pages serves `dist/` with no such
+route, so the panel reports that the helper service is not running. Deploy to a
+Node host instead — `npm ci && npm run build`, start with `npm start`, and set
+`DEVIN_API_KEY` (plus `DEVIN_ORG_ID` and `DEVIN_SESSION_ID` on v3) in the host's
+environment.
+
+## How you play
+
+The game opens on the *Watt's Wrong?* title screen: **Start game** begins
+Level 1, **How to play** shows the basics, and the level list jumps straight to
+any level. Start game sends the mouse running into the house before Level 1
+opens. In play, the header has a **Menu** button and a 1/2/3 level picker. The
+cursor is a paw everywhere, closing while a button is held.
+
+Drag a part out of the tray and drop it on a hole — it lands spanning that hole
+plus its own width, so one gesture places a whole component. After that, drag
+its body to move it, drag either end to re-seat a single leg, and drag it off
+the board to take it away. Tap a switch to flip it. Everything also works from
+the keyboard: Enter on a tray part drops it, then arrow keys move it and Delete
+removes it.
 
 ## The breadboard is real
 
@@ -42,7 +90,13 @@ series solve for current. No simulation library. Writing it is part of the point
 Drop files into `public/assets/` using the names in
 [public/assets/README.md](public/assets/README.md) and they appear on refresh —
 no imports, no code changes. Until a file exists the game draws a styled
-placeholder, so art and code never block each other.
+placeholder, so art and code never block each other. The title screen's pixel
+background lives at `public/assets/menu-background-pixel.png`; the mouse sprite
+at `public/assets/mouse-sprite.png` and the paw cursors at
+`public/assets/cursor-paw-64.png` / `cursor-paw-pressed-64.png`.
+
+The standalone menu prototype (`menu-index.html`, `app.js`, `styles.css`,
+`server.js`) is kept for reference; the React port lives in `src/menu/`.
 
 For the breadboard image specifically, load the game with `?calibrate=1` and
 drag the sliders until the holes line up, then paste the numbers into
@@ -72,5 +126,16 @@ Read [TEAM_PLAN.md](TEAM_PLAN.md) — the 24-hour sprint, who owns what, and the
 cut list. Then [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the contracts
 between layers.
 
-**Level 2 is not built.** The story ends on the hook for it (the room is too
-bright, nothing is limiting the current). Leave it there.
+**Level 2 — Turn It Down.** The room is too bright: the Level 1 loop is already
+on the board with a plain jumper where the resistor should be, so the LED is
+being over-driven. Pull the jumper, drop the resistor in its place, and the
+glare settles into a light you can live with.
+
+**Level 3 — Reading Light.** The safe loop is back with a gap after the LED and
+a potentiometer in the tray. Bridge the gap and a knob appears under the board:
+more resistance, less current, dimmer room — live, as you drag. Settle on a soft
+reading light to finish. The part is drawn as a blue SVG placeholder until
+`public/assets/components/potentiometer.png` exists (see `public/assets/README.md`).
+
+To add a Level 4, register a level in `src/content/levels/` and a story in
+`src/story/` — the end beat of Level 3 will offer it automatically.

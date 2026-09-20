@@ -27,7 +27,7 @@
 
 /**
  * The kind of thing a player can place on the board.
- * @typedef {'wire' | 'battery' | 'led' | 'resistor' | 'switch'} ComponentType
+ * @typedef {'wire' | 'battery' | 'led' | 'resistor' | 'switch' | 'potentiometer'} ComponentType
  */
 
 /**
@@ -43,6 +43,11 @@
  * @property {object} [electrical]     Engine-relevant numbers (see below)
  * @property {number} [electrical.volts]           battery only
  * @property {number} [electrical.ohms]            resistor only
+ * @property {number} [electrical.trackOhms]       potentiometer only — the whole
+ *                                                 track, end pin to end pin. The
+ *                                                 knob decides how it splits
+ *                                                 either side of the wiper.
+ * @property {number} [electrical.nominalCurrentMa] led only — current at which brightness is 1
  * @property {number} [electrical.forwardVolts]    led only
  * @property {number} [electrical.minCurrentMa]    led only — below this it won't glow
  * @property {number} [electrical.maxCurrentMa]    led only — above this it burns out
@@ -72,6 +77,7 @@
  * @typedef {object} PlacementState
  * @property {boolean} [closed]   switch only — true when the switch is pressed/flipped on
  * @property {boolean} [burnedOut] led only — set by the engine, persists until reset
+ * @property {number} [turn]      potentiometer only — knob position, 0 (min ohms) .. 1 (max ohms)
  */
 
 /**
@@ -103,6 +109,15 @@
  * @property {boolean} [lit]          led only — energized AND correct polarity AND enough current
  * @property {boolean} [reverseBiased] led only — wired backwards
  * @property {boolean} [burnedOut]    led only — too much current, no resistor
+ * @property {number} [brightness]    led only — 0 (dark) .. 1 (full), scales with current
+ * @property {number} [ohms]          potentiometer only — the resistance it is
+ *                                    actually contributing: the half the current
+ *                                    crosses, or the whole track if it went in
+ *                                    one end and out the other
+ * @property {boolean} [viaWiper]     potentiometer only — the current enters or
+ *                                    leaves at the wiper, so the knob is in
+ *                                    charge. False means it ran end to end past
+ *                                    the wiper and turning the knob does nothing.
  */
 
 /**
@@ -123,6 +138,7 @@
  *   | 'SWITCH_OPEN'
  *   | 'FLOATING_PIN'
  *   | 'PINS_SAME_NET'
+ *   | 'POT_ENDS_ONLY'
  * } FaultCode
  */
 

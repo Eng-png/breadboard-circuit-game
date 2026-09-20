@@ -14,7 +14,7 @@
 
 import { getComponent } from '../content/components.js';
 import { buildNetlist } from './netlist.js';
-import { buildGraph, findPath } from './graph.js';
+import { buildGraph, findPath, potentiometerOhms } from './graph.js';
 
 /** @typedef {import('../shared/types.js').Placement} Placement */
 /** @typedef {import('../shared/types.js').CircuitResult} CircuitResult */
@@ -48,7 +48,16 @@ export function simulate(placements, options = {}) {
   // of going through the part, so the part does nothing and nothing says why.
   for (const placement of placements) {
     if (placement.type === 'wire') continue;
-    const [first, second] = placement.holes;
+    /*
+     * A potentiometer is judged on its two OUTER pins. Tying its wiper to one
+     * end is not the mistake this fault is about — it is the normal way to
+     * wire one as a dimmer — but joining the two ends really does short the
+     * whole track out.
+     */
+    const [first, second] =
+      placement.type === 'potentiometer'
+        ? [placement.holes[0], placement.holes[2]]
+        : placement.holes;
     if (!first || !second) continue;
     if (netOf(first) !== -1 && netOf(first) === netOf(second)) {
       faults.push({
@@ -115,7 +124,7 @@ export function simulate(placements, options = {}) {
   const totalOhms = path.reduce((sum, edge) => sum + edge.ohms, 0);
   const totalForwardVolts = path.reduce((sum, edge) => sum + edge.forwardVolts, 0);
 
-  const hasResistor = path.some((edge) => edge.type === 'resistor');
+  const hasResistor = path.some((edge) => edge.type === 'resistor' || edge.type === 'potentiometer');
   const hasLed = path.some((edge) => edge.type === 'led');
 
   // A loop with no load at all: the battery is shorted across itself.
@@ -155,17 +164,49 @@ export function simulate(placements, options = {}) {
 
       result.burnedOut = currentMa > max;
       result.lit = !result.burnedOut && currentMa >= min;
+      result.brightness = result.lit ? ledBrightness(currentMa, spec) : 0;
 
       if (result.burnedOut) {
         faults.push({
           code: 'LED_BURNED_OUT',
           message:
+            // No "add a resistor" here: level 1 is not given one, and telling a
+            // player to place a part they do not have is worse than saying nothing.
+            // The level that hands out a resistor asks for it in its own briefing.
             `Too much current — about ${Math.round(currentMa)} mA, and this LED can only ` +
-            `take ${max} mA. Nothing in the loop is slowing the electricity down. Add the ` +
-            `resistor in series with the LED.`,
+            `take ${max} mA. Nothing in the loop is slowing the electricity down, so it is ` +
+            `running far harder than it was built for.`,
           placementIds: [edge.placement.id],
         });
       }
+    }
+  }
+
+  /*
+   * A potentiometer is worth whichever of its halves the current actually
+   * crossed. One half means the current enters or leaves at the wiper, so the
+   * knob sets the resistance — that is a dimmer. Both halves means the loop
+   * ran end to end straight past the wiper: the whole track, every time, and
+   * turning the knob does nothing.
+   */
+  for (const placement of placements) {
+    if (placement.type !== 'potentiometer') continue;
+    const crossed = path.filter((edge) => edge.placement.id === placement.id);
+    if (crossed.length === 0) continue;
+    const result = components[placement.id];
+    result.ohms = crossed.reduce((sum, edge) => sum + edge.ohms, 0);
+    result.viaWiper = crossed.length === 1;
+
+    if (!result.viaWiper) {
+      faults.push({
+        code: 'POT_ENDS_ONLY',
+        message:
+          'The current is going in one end of the dimmer and out the other, straight past ' +
+          'the middle pin. That is the whole track no matter where the knob is — which is ' +
+          'why turning it changes nothing. The middle pin (the wiper) is the one that has ' +
+          'to carry the current.',
+        placementIds: [placement.id],
+      });
     }
   }
 
@@ -231,6 +272,18 @@ function diagnoseBrokenLoop(edges, posNet, negNet, placements) {
   };
 }
 
+/**
+ * How bright a lit LED looks, 0..1. Linear from the minimum current it needs to
+ * glow up to its nominal current, then pinned at 1 — the eye cannot tell 20 mA
+ * from 28 mA, but it can tell 5 from 20.
+ */
+function ledBrightness(currentMa, spec) {
+  const min = spec.minCurrentMa ?? 0;
+  const nominal = spec.nominalCurrentMa ?? spec.maxCurrentMa ?? min + 1;
+  if (nominal <= min) return 1;
+  return Math.min(1, Math.max(0, (currentMa - min) / (nominal - min)));
+}
+
 /** Every component starts off doing nothing. */
 function blankResults(placements) {
   /** @type {Record<string, import('../shared/types.js').PlacementResult>} */
@@ -241,6 +294,15 @@ function blankResults(placements) {
       components[placement.id].lit = false;
       components[placement.id].reverseBiased = false;
       components[placement.id].burnedOut = false;
+      components[placement.id].brightness = 0;
+    }
+    if (placement.type === 'potentiometer') {
+      // What the knob is worth until the circuit says otherwise: the wiper tap.
+      components[placement.id].ohms = potentiometerOhms(
+        placement,
+        getComponent('potentiometer').electrical ?? {},
+      );
+      components[placement.id].viaWiper = false;
     }
   }
   return components;

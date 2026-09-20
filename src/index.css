@@ -81,3 +81,31 @@ button {
 .button--ghost:disabled { opacity: 0.35; cursor: not-allowed; }
 
 :focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+
+/*
+ * The paw cursor: open by default, closed while any pointer button is held.
+ * !important so per-control `cursor: pointer` rules don't swap the paw out;
+ * SVG parts (which set their own drag/resize hints) are not matched.
+ */
+body, button, a, input, label {
+  cursor: url('/assets/cursor-paw-64.png') 31 16, auto !important;
+}
+body.paw-pressed, body.paw-pressed * {
+  cursor: url('/assets/cursor-paw-pressed-64.png') 31 20, grabbing !important;
+}
+
+/*
+ * Present for screen readers, gone for everyone else. Used where a picture
+ * already says the thing a heading would, e.g. the toolbox tray.
+ */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}

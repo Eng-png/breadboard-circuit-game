@@ -20,7 +20,8 @@ export function useStory(story) {
   const beat = story.beats.find((candidate) => candidate.id === beatId) ?? story.beats[0];
 
   // Puzzle beats show their whole briefing at once — it is instructions, not drama.
-  const revealAll = beat.mode !== 'narrative';
+  // Everything else, the closing beat included, is read a line at a time.
+  const revealAll = beat.mode === 'puzzle';
   const visibleLines = revealAll ? beat.lines : beat.lines.slice(0, lineIndex + 1);
   const hasMoreLines = !revealAll && lineIndex < beat.lines.length - 1;
 

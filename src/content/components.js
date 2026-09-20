@@ -50,6 +50,7 @@ export const COMPONENTS = {
       forwardVolts: 2,
       minCurrentMa: 2,
       maxCurrentMa: 30,
+      nominalCurrentMa: 20,
     },
   },
 
@@ -63,6 +64,36 @@ export const COMPONENTS = {
     ],
     polarized: false,
     electrical: { ohms: 330 },
+  },
+
+  /*
+   * Three pins, like the real part: one resistive track running between the
+   * two outer pins, and a wiper in the middle that slides along it. The knob
+   * moves the wiper, which is what splits the track into two halves —
+   *
+   *   pin A ──/\/\/\──┬──/\/\/\── pin B
+   *                   wiper
+   *
+   * Take your output from an end and the wiper and you get part of the track,
+   * and the knob changes how much: that is a rheostat, and it is how a dimmer
+   * is wired. Use the two ends alone and you get the whole track, fixed,
+   * whatever the knob says — which is the mistake worth making once.
+   */
+  potentiometer: {
+    type: 'potentiometer',
+    label: 'Dimmer (potentiometer)',
+    blurb:
+      'A resistive track with a sliding contact. The outer pins are the ends of ' +
+      'the track; the middle pin is the wiper the knob moves along it.',
+    pins: [
+      { name: 'a', label: 'End A (the side current comes in)' },
+      { name: 'wiper', label: 'Wiper — the middle pin the knob moves' },
+      { name: 'b', label: 'End B (the side that goes to ground)' },
+    ],
+    polarized: false,
+    // The whole track. In series with the 330 Ω resistor that is ~21 mA with
+    // the wiper at one end, ~5 mA with it at the other.
+    electrical: { trackOhms: 1000 },
   },
 
   switch: {

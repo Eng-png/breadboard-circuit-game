@@ -6,20 +6,40 @@
  * by the open panel, and it should read as the brightest thing on screen.
  */
 
+/*
+ * The board is docked to the bottom left of the room and the toolbox sits
+ * beside it, both resting on the same line — the player is looking down at a
+ * bench, not at a page. `align-items: end` is what does the docking; the story
+ * frame above already pushes this whole block to the bottom of the screen.
+ */
 .puzzle {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 19rem;
+  grid-template-columns: minmax(0, 1fr) 15rem;
   gap: 1.1rem;
-  align-items: start;
+  align-items: end;
   width: 100%;
 }
 
-.puzzle__board { min-width: 0; }
+/*
+ * Capped rather than stretched: left to fill the column the board grows to
+ * nearly a metre of screen on a wide monitor, which makes 2.54 mm hole spacing
+ * look nothing like 2.54 mm. `margin-right: auto` keeps it against the left.
+ */
+.puzzle__board {
+  min-width: 0;
+  max-width: 46rem;
+  margin-right: auto;
+}
 
+/*
+ * The toolbox stands upright beside the bench rather than resting on it, so it
+ * is centred against the board's height instead of sharing its bottom line.
+ */
 .puzzle__sidebar {
   display: flex;
   flex-direction: column;
   gap: 0.7rem;
+  align-self: center;
 }
 
 .puzzle__toolbar {
@@ -31,6 +51,42 @@
 }
 
 .puzzle__tip { color: var(--text-dim); font-size: 0.8rem; }
+
+/* ── Knobs ──────────────────────────────────────────────────────────────── */
+
+.puzzle__knobs {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 0.6rem;
+}
+
+.knob {
+  padding: 0.55rem 0.85rem;
+  border-radius: var(--radius);
+  border: 1px solid var(--glass-edge);
+  background: var(--glass);
+  backdrop-filter: blur(6px);
+  max-width: 64ch;
+}
+
+.knob__label {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+.knob__reading { color: var(--text-dim); font-variant-numeric: tabular-nums; font-weight: 400; }
+
+.knob__row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-top: 0.3rem;
+}
+.knob__end { font-size: 0.75rem; color: var(--text-dim); flex: none; }
+.knob__input { flex: 1; accent-color: var(--accent); min-width: 0; }
 
 .puzzle__status {
   margin: 0.6rem 0 0;
@@ -56,37 +112,141 @@
   padding: 0.75rem;
 }
 
-.tray__list, .objectives ul, .hints__list { list-style: none; margin: 0; padding: 0; }
-.tray__list { display: flex; flex-direction: column; gap: 0.35rem; }
+.tray__slots, .objectives ul, .hints__list { list-style: none; margin: 0; padding: 0; }
 
-.tray__item {
-  width: 100%;
-  text-align: left;
+/* ── The toolbox ────────────────────────────────────────────────────────── */
+
+/*
+ * The tray IS the toolbox: the box keeps toolbox.png's exact aspect ratio, so
+ * every percentage below lands on the same pixel of the artwork at any size.
+ *
+ * The drawing is a case standing on end, with the pink strip running down its
+ * middle. The parts are laid out as two columns which
+ * `align-content: space-between` pushes apart to either side of that strip —
+ * so the number of parts a level gives you can change without the layout
+ * caring. Three to a column.
+ *
+ * NOTHING MAY SIT ON THE STRIP. Measured off the artwork, it runs from 40.6%
+ * to 55.0% of the box width, and the recessed panels either side of it are
+ * 17.9%-36.2% and 63.2%-82.4%. --shelf-left/right plus --column-width below
+ * are what hold the columns clear of it: the left column runs from
+ * --shelf-left for --column-width of the space between the shelves, and the
+ * right column ends at --shelf-right. Widen either and the parts creep onto
+ * the strip. If the artwork is ever replaced, re-measure and retune these.
+ */
+.tray__box[data-toolbox='true'] {
+  --shelf-left: 15%;
+  --shelf-right: 15%;
+  --shelf-top: 13%;
+  --shelf-bottom: 13%;
+  /* Of the space between the shelves. Leaves the columns at 15%-37.4% and
+     62.6%-85% of the box: clear of the strip at both ends. */
+  --column-width: 32%;
+
+  position: relative;
+  aspect-ratio: 318 / 512;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 100% 100%;
+  /* Pixel art. Let it stay pixels rather than smearing it. */
+  image-rendering: pixelated;
+}
+
+.tray__box[data-toolbox='true'] .tray__slots {
+  position: absolute;
+  inset: var(--shelf-top) var(--shelf-right) var(--shelf-bottom) var(--shelf-left);
   display: flex;
   flex-direction: column;
-  gap: 0.1rem;
-  background: transparent;
-  color: var(--text);
-  border: 1px solid var(--glass-edge);
-  padding: 0.45rem 0.55rem;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-content: space-between;
+  row-gap: 6%;
+  column-gap: 2%;
 }
-.tray__item:hover:not(:disabled) { border-color: var(--accent); }
-.tray__item[data-armed='true'] {
-  border-color: var(--accent);
-  background: color-mix(in srgb, var(--accent) 22%, transparent);
-}
-.tray__item:disabled { opacity: 0.35; cursor: not-allowed; }
 
-.tray__head {
-  display: flex;
-  justify-content: space-between;
-  gap: 0.5rem;
-  font-weight: 600;
-  font-size: 0.9rem;
+/* Two columns, one either side of the strip. Height follows from the square. */
+.tray__box[data-toolbox='true'] .tray__slot {
+  flex: 0 0 auto;
+  width: var(--column-width);
 }
-.tray__count { color: var(--text-dim); font-variant-numeric: tabular-nums; }
-.tray__blurb { font-size: 0.76rem; color: var(--text-dim); font-weight: 400; line-height: 1.35; }
-.tray__how { margin: 0.6rem 0 0; font-size: 0.8rem; color: var(--accent); }
+
+/* A part can ask for a smaller slot than the rest — see SLOT_SCALE. */
+.tray__slot {
+  display: grid;
+  place-items: center;
+}
+
+/* No toolbox.png yet: fall back to a plain grid on the glass panel. */
+.tray__box[data-toolbox='false'] .tray__slots {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(3.2rem, 1fr));
+  gap: 0.4rem;
+}
+
+/* ── Part slots ─────────────────────────────────────────────────────────── */
+
+.tray__item {
+  position: relative;
+  width: calc(100% * var(--slot-scale, 1));
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+  padding: 5%;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  /* A dark cut-out, like foam in a real toolbox — and it keeps the parts
+     readable against bright red pixel art. */
+  background: rgba(8, 10, 14, 0.62);
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.6);
+  cursor: grab;
+  touch-action: none;
+  transition: transform 90ms ease-out, border-color 90ms ease-out;
+}
+.tray__item:hover:not(:disabled) {
+  border-color: var(--accent);
+  transform: translateY(-2px);
+}
+.tray__item[data-dragging='true'] {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 26%, rgba(8, 10, 14, 0.62));
+  cursor: grabbing;
+}
+.tray__item:disabled { opacity: 0.3; cursor: not-allowed; }
+
+.tray__art {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  pointer-events: none;
+}
+/* Only the PNGs are pixel art; the drawn fallback is vector and stays smooth. */
+img.tray__art { image-rendering: pixelated; }
+
+.tray__count {
+  position: absolute;
+  right: 0.12rem;
+  bottom: 0;
+  font-size: 0.62rem;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--text);
+  text-shadow: 0 0 3px #000, 0 0 3px #000;
+  font-variant-numeric: tabular-nums;
+  pointer-events: none;
+}
+
+/*
+ * The text the slots do not show. Fixed height, so naming a part never shoves
+ * the objectives list down the screen.
+ */
+.tray__caption {
+  margin: 0.35rem 0 0;
+  min-height: 3.4rem;
+  font-size: 0.78rem;
+  line-height: 1.35;
+  color: var(--text-dim);
+}
+.tray__name { color: var(--text); display: block; }
 
 .objectives__score { color: var(--text-dim); font-weight: 400; }
 .objectives li {

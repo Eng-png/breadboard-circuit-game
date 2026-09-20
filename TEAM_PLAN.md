@@ -15,11 +15,11 @@ and getting it onto a URL someone can open. That is what these 24 hours are for.
 | Piece | State |
 | --- | --- |
 | Circuit solver | Done. Series solver, LED polarity, burnout, shorts, teaching fault messages. 27 tests. |
-| Breadboard | Done. Real 2.54 mm pitch, strip-highlight on hover, click-to-place, undo/reset. |
+| Breadboard | Done. Real 2.54 mm pitch, strip-highlight on hover, drag-and-drop placement, undo/reset. |
 | Story engine | Done. Data-driven beats, line-by-line reveal, dark→lit room driven live by the circuit. |
 | Level 1 | Done. Battery + switch + resistor + LED. Win = dark with switch open, lit with it closed. |
-| Playthrough test | Done. 8 tests that play the level like a human. |
-| Art | **Placeholders.** Every asset slot exists with a CSS fallback. |
+| Playthrough test | Done. 21 tests that play the level like a human. |
+| Art | **Placeholders.** Every asset slot exists with a fallback. Toolbox tray art is in; component PNGs still to come. |
 | Deploy | **Not done.** |
 
 Run `npm run dev` before you read any further. Ten minutes of playing it is

@@ -10,8 +10,10 @@
  */
 
 import { Breadboard } from '../breadboard/Breadboard.jsx';
-import { HintPanel } from '../ui/HintPanel.jsx';
-import { ObjectiveList } from '../ui/ObjectiveList.jsx';
+// Paired with the commented-out panels in the sidebar below — put both back together.
+// import { HintPanel } from '../ui/HintPanel.jsx';
+// import { ObjectiveList } from '../ui/ObjectiveList.jsx';
+import { Knob } from '../ui/Knob.jsx';
 import { Tray } from '../ui/Tray.jsx';
 import './PuzzlePanel.css';
 
@@ -21,17 +23,34 @@ import './PuzzlePanel.css';
  * @param {ReturnType<typeof import('./useGameState.js').useGameState>} props.game
  */
 export function PuzzlePanel({ level, game }) {
-  const { state, dispatch, context, objectives } = game;
+  // `objectives` comes back out of here too — the ObjectiveList below is
+  // commented out for now, so nothing reads it in this file.
+  const { state, dispatch, context, preview } = game;
 
-  /** Clicking a switch flips it; clicking anything else takes it back off the board. */
-  const handlePartClick = (id) => {
-    const placement = state.placements.find((item) => item.id === id);
-    if (!placement) return;
-    if (placement.type === 'switch') dispatch({ type: 'toggleSwitch', id });
-    else dispatch({ type: 'remove', id });
+  /**
+   * The keyboard equivalent of dragging: arrows nudge, Delete removes, Enter
+   * flips a switch. Everything a pointer can do to a placed part, minus speed.
+   */
+  const handlePartKeyDown = (id, event) => {
+    const step = NUDGE[event.key];
+    if (step) {
+      event.preventDefault();
+      dispatch({ type: 'nudge', id, ...step });
+      return;
+    }
+    if (event.key === 'Delete' || event.key === 'Backspace') {
+      event.preventDefault();
+      dispatch({ type: 'remove', id });
+      return;
+    }
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      dispatch({ type: 'toggleSwitch', id });
+    }
   };
 
   const status = state.notice ?? statusLine(context.result);
+  const knobs = state.placements.filter((placement) => placement.type === 'potentiometer');
 
   return (
     <div className="puzzle">
@@ -39,10 +58,26 @@ export function PuzzlePanel({ level, game }) {
         <Breadboard
           placements={state.placements}
           result={context.result}
-          pending={state.pending}
-          onHoleClick={(hole) => dispatch({ type: 'holeClick', hole })}
-          onPartClick={handlePartClick}
+          drag={state.drag}
+          preview={preview}
+          onHoleOver={(hole) => dispatch({ type: 'dragOver', hole })}
+          onGrabPart={(id, legIndex, from) => dispatch({ type: 'grabPart', id, legIndex, from })}
+          onPartKeyDown={handlePartKeyDown}
+          onPartTurn={(id, turn) => dispatch({ type: 'setTurn', id, turn })}
         />
+
+        {knobs.length > 0 && (
+          <div className="puzzle__knobs">
+            {knobs.map((placement) => (
+              <Knob
+                key={placement.id}
+                placement={placement}
+                result={context.result.components[placement.id]}
+                onTurn={(turn) => dispatch({ type: 'setTurn', id: placement.id, turn })}
+              />
+            ))}
+          </div>
+        )}
 
         <div className="puzzle__toolbar">
           <button
@@ -62,7 +97,8 @@ export function PuzzlePanel({ level, game }) {
             Clear board
           </button>
           <span className="puzzle__tip">
-            Click a switch to flip it. Click any other part to take it off.
+            Drag parts to move them. Drag one off the board to remove it. Tap a switch to flip it.
+            {knobs.length > 0 && ' Drag the dimmer up for brighter, down for dimmer.'}
           </span>
         </div>
 
@@ -79,15 +115,24 @@ export function PuzzlePanel({ level, game }) {
         <Tray
           level={level}
           placements={state.placements}
-          pending={state.pending}
-          onArm={(componentType) => dispatch({ type: 'arm', componentType })}
+          drag={state.drag}
+          onGrab={(componentType, from) => dispatch({ type: 'dragFromTray', componentType, from })}
+          onPlace={(componentType) => dispatch({ type: 'placeFromTray', componentType })}
         />
+        {/*
+          TEMPORARILY OFF — the sidebar is the toolbox and nothing else while the
+          art is being worked out. Both panels still work; uncomment them (and
+          their imports at the top of this file) to bring them back. The state
+          behind them is untouched: useGameState still tracks objectives and
+          hintsRevealed, and the story still reads `won` to unblock itself.
+
         <ObjectiveList objectives={objectives} />
         <HintPanel
           hints={level.hints}
           revealed={state.hintsRevealed}
           onReveal={() => dispatch({ type: 'revealHint' })}
         />
+        */}
       </aside>
     </div>
   );
@@ -104,6 +149,14 @@ function statusLine(result) {
   if (result.complete) return 'Current is flowing all the way round the loop.';
   return 'The board is empty. Start with the battery — nothing moves without it.';
 }
+
+/** Arrow keys, in board terms: rows down the board, columns across it. */
+const NUDGE = {
+  ArrowUp: { rows: -1, cols: 0 },
+  ArrowDown: { rows: 1, cols: 0 },
+  ArrowLeft: { rows: 0, cols: -1 },
+  ArrowRight: { rows: 0, cols: 1 },
+};
 
 function toneOf(result, notice) {
   if (notice) return 'warn';

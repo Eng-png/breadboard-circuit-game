@@ -1,9 +1,14 @@
 /**
  * OWNER: Person B (Breadboard & Interaction)
  *
- * Draws the board and turns clicks into hole ids. It knows nothing about game
- * rules and nothing about electricity — it renders whatever CircuitResult it is
- * handed and never computes one. Keep it that way.
+ * Draws the board and turns pointer movement into hole ids. It knows nothing
+ * about game rules and nothing about electricity — it renders whatever
+ * CircuitResult it is handed and never computes one. Keep it that way.
+ *
+ * Dragging is deliberately split in two: this file only ever reports "the
+ * pointer is over hole X" and "the player grabbed part Y". What that means —
+ * where the part lands, whether it fits — is the game's business, in
+ * game/useGameState.js. That is why there is no coordinate maths here.
  *
  * The one feature here that does the most teaching is the strip highlight:
  * hover any hole and every hole already joined to it by the copper inside the
@@ -15,7 +20,7 @@
  * it up. With no image present the drawn board is used and nothing breaks.
  */
 
-import { useMemo, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { COLUMNS, MAIN_ROWS, RAILS, hole, internalStrips, railHole } from '../shared/holes.js';
 import { Part } from '../components/library/Part.jsx';
 import { CalibrationPanel } from './CalibrationPanel.jsx';
@@ -39,14 +44,30 @@ const PAD = 7;
  * @param {object} props
  * @param {import('../shared/types.js').Placement[]} props.placements
  * @param {import('../shared/types.js').CircuitResult} props.result
- * @param {{ type: string, firstHole: string | null } | null} [props.pending]
- * @param {(hole: string) => void} [props.onHoleClick]
- * @param {(id: string) => void} [props.onPartClick]
+ * @param {import('../game/useGameState.js').Drag | null} [props.drag]
+ * @param {string[] | null} [props.preview]  Where the dragged part would land
+ * @param {(hole: string | null) => void} [props.onHoleOver]
+ * @param {(id: string, legIndex: number | null, from: object) => void} [props.onGrabPart]
+ * @param {(id: string, event: KeyboardEvent) => void} [props.onPartKeyDown]
+ * @param {(id: string, turn: number) => void} [props.onPartTurn]
  */
-export function Breadboard({ placements = [], result, pending, onHoleClick, onPartClick }) {
+export function Breadboard({
+  placements = [],
+  result,
+  drag = null,
+  preview = null,
+  onHoleOver,
+  onGrabPart,
+  onPartKeyDown,
+  onPartTurn,
+}) {
   const [hovered, setHovered] = useState(null);
   const [skin, setSkin] = useState(loadSkin);
   const calibrating = useMemo(() => calibrationRequested(), []);
+  const boardRef = useRef(null);
+
+  // A drag that has travelled far enough to be aiming at a hole.
+  const aiming = Boolean(drag?.moved);
 
   const imageAvailable = useImageAvailable(SKIN_IMAGE);
   const skinned = imageAvailable === true;
@@ -74,28 +95,51 @@ export function Breadboard({ placements = [], result, pending, onHoleClick, onPa
     [result],
   );
 
+  const targeted = useMemo(() => new Set(preview ?? []), [preview]);
+
+  /**
+   * One handler for both jobs a hole has: lighting up its strip on hover, and
+   * telling the drag where it is aiming. They are the same gesture.
+   */
+  const enterHole = (id) => {
+    setHovered(id);
+    onHoleOver?.(id);
+  };
+
+  /**
+   * pointerout bubbles, so this fires for every hole. Only the one that leaves
+   * the board entirely counts — otherwise moving between two holes would look
+   * like dropping the part in mid-air.
+   */
+  const handlePointerOut = (event) => {
+    const next = event.relatedTarget;
+    if (next && boardRef.current?.contains(next)) return;
+    setHovered(null);
+    onHoleOver?.(null);
+  };
+
   const renderHole = (id) => (
     <Hole
       key={id}
       id={id}
       inStrip={highlighted?.has(id) ?? false}
-      isPending={pending?.firstHole === id}
-      armed={Boolean(pending)}
-      onEnter={setHovered}
-      onLeave={() => setHovered(null)}
-      onClick={onHoleClick}
+      isTarget={targeted.has(id)}
+      armed={aiming}
+      onEnter={enterHole}
     />
   );
 
   return (
     <div className="breadboard-wrap">
       <svg
+        ref={boardRef}
         className="breadboard"
         viewBox={`${-PAD} ${-PAD} ${BOARD_WIDTH + PAD * 2} ${BOARD_HEIGHT + PAD * 2}`}
         role="group"
         aria-label="Breadboard"
-        data-armed={Boolean(pending)}
+        data-armed={aiming}
         data-skinned={skinned}
+        onPointerOut={handlePointerOut}
       >
         <defs>
           <filter id="led-glow" x="-200%" y="-200%" width="500%" height="500%">
@@ -202,13 +246,20 @@ export function Breadboard({ placements = [], result, pending, onHoleClick, onPa
               placement={placement}
               result={result?.components?.[placement.id]}
               faulted={faultedIds.has(placement.id)}
-              onActivate={onPartClick}
+              dragging={drag?.id === placement.id && aiming}
+              onGrab={onGrabPart}
+              onKeyDown={onPartKeyDown}
+              onTurn={onPartTurn}
             />
           ))}
         </g>
 
-        {/* Ghost of the leg you have already put down */}
-        {pending?.firstHole && <PendingLeg hole={pending.firstHole} />}
+        {/* Where it would land if you let go now. */}
+        {preview && (
+          <g className="breadboard__ghost">
+            <Part ghost placement={{ id: 'drop-preview', type: drag.type, holes: preview }} />
+          </g>
+        )}
       </svg>
 
       {calibrating && <CalibrationPanel skin={skin} onChange={updateSkin} imageFound={skinned} />}
@@ -216,7 +267,7 @@ export function Breadboard({ placements = [], result, pending, onHoleClick, onPa
   );
 }
 
-function Hole({ id, inStrip, isPending, armed, onEnter, onLeave, onClick }) {
+function Hole({ id, inStrip, isTarget, armed, onEnter }) {
   const center = holeCenter(id);
   if (!center) return null;
   return (
@@ -224,21 +275,16 @@ function Hole({ id, inStrip, isPending, armed, onEnter, onLeave, onClick }) {
       className="hole"
       data-hole={id}
       data-in-strip={inStrip}
-      data-pending={isPending}
-      onMouseEnter={() => onEnter(id)}
-      onMouseLeave={onLeave}
-      onClick={onClick ? () => onClick(id) : undefined}
+      data-target={isTarget}
+      onPointerOver={() => onEnter(id)}
     >
       {/* Generous invisible hit target — the real hole is under 1 mm across. */}
       <circle cx={center.x} cy={center.y} r={PITCH * 0.5} className="hole__hit" data-armed={armed} />
       <circle cx={center.x} cy={center.y} r={PITCH * 0.28} className="hole__dot" />
+      {isTarget && (
+        <circle cx={center.x} cy={center.y} r={PITCH * 0.45} className="hole__target" />
+      )}
       <title>{id}</title>
     </g>
   );
-}
-
-function PendingLeg({ hole: id }) {
-  const center = holeCenter(id);
-  if (!center) return null;
-  return <circle cx={center.x} cy={center.y} r={PITCH * 0.42} className="breadboard__pending" />;
 }
