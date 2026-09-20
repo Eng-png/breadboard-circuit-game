@@ -32,6 +32,42 @@
 
 .puzzle__tip { color: var(--text-dim); font-size: 0.8rem; }
 
+/* ── Knobs ──────────────────────────────────────────────────────────────── */
+
+.puzzle__knobs {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 0.6rem;
+}
+
+.knob {
+  padding: 0.55rem 0.85rem;
+  border-radius: var(--radius);
+  border: 1px solid var(--glass-edge);
+  background: var(--glass);
+  backdrop-filter: blur(6px);
+  max-width: 64ch;
+}
+
+.knob__label {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+.knob__reading { color: var(--text-dim); font-variant-numeric: tabular-nums; font-weight: 400; }
+
+.knob__row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-top: 0.3rem;
+}
+.knob__end { font-size: 0.75rem; color: var(--text-dim); flex: none; }
+.knob__input { flex: 1; accent-color: var(--accent); min-width: 0; }
+
 .puzzle__status {
   margin: 0.6rem 0 0;
   padding: 0.65rem 0.85rem;

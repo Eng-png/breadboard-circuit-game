@@ -19,9 +19,10 @@ import { background } from '../content/assets.js';
  * @param {object} props
  * @param {string} props.name    key into BACKGROUNDS
  * @param {number} props.light   0..1
+ * @param {number} [props.glare] 0..1 — harsh white wash from an over-driven bulb
  * @param {React.ReactNode} [props.children]
  */
-export function Scene({ name, light, children }) {
+export function Scene({ name, light, glare = 0, children }) {
   const spec = background(name);
   const [imageFailed, setImageFailed] = useState(false);
 
@@ -49,6 +50,13 @@ export function Scene({ name, light, children }) {
       <div
         className="scene__glow"
         style={{ opacity: clamp(light) * 0.55 }}
+        aria-hidden="true"
+      />
+
+      {/* Too much light: the bleached-out wash of a bulb driven past its limit. */}
+      <div
+        className="scene__glare"
+        style={{ opacity: clamp(glare) }}
         aria-hidden="true"
       />
 

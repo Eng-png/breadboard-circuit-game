@@ -10,8 +10,12 @@
  *      you dropped it on plus its own footprint (see footprint.js).
  *   2. Drag a part's body to move the whole thing, keeping its span.
  *   3. Drag either end handle to re-seat one leg on its own.
- *   4. Drag a part off the board to take it away.
+ *   4. Drag a part off the board, by body or by leg, to take it away.
  *   Tap a switch to flip it. Escape cancels a drag in progress.
+ *
+ *   The potentiometer is the one exception: its body is a knob, so dragging it
+ *   turns it rather than moving it. Move one by its end handles or the arrow
+ *   keys. It also gets a slider under the board, which is the keyboard path.
  *
  * The one subtlety worth knowing: a press only becomes a *drag* once the
  * pointer has travelled DRAG_THRESHOLD pixels. Below that it is a tap, which
@@ -134,7 +138,7 @@ function reducer(state, action) {
       if (remainingOf(action.level, state.placements, action.componentType) <= 0) {
         return {
           ...state,
-          notice: `You have used all the ${action.componentType}s this level gives you.`,
+          notice: `You have used every ${label(action.componentType)} this level gives you.`,
         };
       }
       return {
@@ -206,15 +210,17 @@ function reducer(state, action) {
         return clearDrag();
       }
 
-      // Dropped off the board.
+      /*
+       * Dropped off the board: anything already placed comes away, whether you
+       * had it by the body or by one leg. One rule, and it is the only way to
+       * unplug a potentiometer with a pointer — its body is a knob, so it
+       * cannot be grabbed. Undo puts it straight back.
+       */
       if (!drag.hole) {
-        if (drag.source === 'move') {
-          return commit(
-            state.placements.filter((placement) => placement.id !== drag.id),
-            { notice: `Took the ${label(drag.type)} off the board.` },
-          );
-        }
-        return clearDrag(); // a leg, or a part never placed — snap back
+        if (drag.source === 'tray') return clearDrag(); // never placed — no-op
+        // No notice: the player watched it happen, and saying so would hide the
+        // fault line explaining what removing it did to the circuit.
+        return commit(state.placements.filter((placement) => placement.id !== drag.id));
       }
 
       const holes = previewHoles(drag);
@@ -230,7 +236,7 @@ function reducer(state, action) {
             id: makeId(drag.type),
             type: drag.type,
             holes,
-            state: drag.type === 'switch' ? { closed: false } : {},
+            state: initialPartState(drag.type),
           },
         ]);
       }
@@ -248,7 +254,7 @@ function reducer(state, action) {
       if (remainingOf(action.level, state.placements, action.componentType) <= 0) {
         return {
           ...state,
-          notice: `You have used all the ${action.componentType}s this level gives you.`,
+          notice: `You have used every ${label(action.componentType)} this level gives you.`,
         };
       }
       const holes = firstFreeFootprint(action.componentType, state.placements);
@@ -259,7 +265,7 @@ function reducer(state, action) {
           id: makeId(action.componentType),
           type: action.componentType,
           holes,
-          state: action.componentType === 'switch' ? { closed: false } : {},
+          state: initialPartState(action.componentType),
         },
       ]);
     }
@@ -275,6 +281,20 @@ function reducer(state, action) {
 
     case 'remove':
       return commit(state.placements.filter((placement) => placement.id !== action.id));
+
+    /** The knob on a potentiometer, 0 (no resistance) to 1 (all of it). */
+    case 'setTurn': {
+      const turn = Math.min(1, Math.max(0, Number(action.turn) || 0));
+      return {
+        ...state,
+        placements: state.placements.map((placement) =>
+          placement.id === action.id && placement.type === 'potentiometer'
+            ? { ...placement, state: { ...placement.state, turn } }
+            : placement,
+        ),
+        notice: null,
+      };
+    }
 
     case 'toggleSwitch':
       return {
@@ -308,6 +328,18 @@ function reducer(state, action) {
     default:
       return state;
   }
+}
+
+/**
+ * What a freshly placed part starts out as. A switch starts open; a dimmer
+ * starts turned all the way down, which is its brightest setting.
+ *
+ * @param {string} type
+ */
+function initialPartState(type) {
+  if (type === 'switch') return { closed: false };
+  if (type === 'potentiometer') return { turn: 0 };
+  return {};
 }
 
 /** The player-facing name of a part, for messages. */

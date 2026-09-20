@@ -49,6 +49,7 @@ const PAD = 7;
  * @param {(hole: string | null) => void} [props.onHoleOver]
  * @param {(id: string, legIndex: number | null, from: object) => void} [props.onGrabPart]
  * @param {(id: string, event: KeyboardEvent) => void} [props.onPartKeyDown]
+ * @param {(id: string, turn: number) => void} [props.onPartTurn]
  */
 export function Breadboard({
   placements = [],
@@ -58,6 +59,7 @@ export function Breadboard({
   onHoleOver,
   onGrabPart,
   onPartKeyDown,
+  onPartTurn,
 }) {
   const [hovered, setHovered] = useState(null);
   const [skin, setSkin] = useState(loadSkin);
@@ -247,6 +249,7 @@ export function Breadboard({
               dragging={drag?.id === placement.id && aiming}
               onGrab={onGrabPart}
               onKeyDown={onPartKeyDown}
+              onTurn={onPartTurn}
             />
           ))}
         </g>

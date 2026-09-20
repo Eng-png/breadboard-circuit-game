@@ -13,6 +13,7 @@ import { Breadboard } from '../breadboard/Breadboard.jsx';
 // Paired with the commented-out panels in the sidebar below — put both back together.
 // import { HintPanel } from '../ui/HintPanel.jsx';
 // import { ObjectiveList } from '../ui/ObjectiveList.jsx';
+import { Knob } from '../ui/Knob.jsx';
 import { Tray } from '../ui/Tray.jsx';
 import './PuzzlePanel.css';
 
@@ -49,6 +50,7 @@ export function PuzzlePanel({ level, game }) {
   };
 
   const status = state.notice ?? statusLine(context.result);
+  const knobs = state.placements.filter((placement) => placement.type === 'potentiometer');
 
   return (
     <div className="puzzle">
@@ -61,7 +63,21 @@ export function PuzzlePanel({ level, game }) {
           onHoleOver={(hole) => dispatch({ type: 'dragOver', hole })}
           onGrabPart={(id, legIndex, from) => dispatch({ type: 'grabPart', id, legIndex, from })}
           onPartKeyDown={handlePartKeyDown}
+          onPartTurn={(id, turn) => dispatch({ type: 'setTurn', id, turn })}
         />
+
+        {knobs.length > 0 && (
+          <div className="puzzle__knobs">
+            {knobs.map((placement) => (
+              <Knob
+                key={placement.id}
+                placement={placement}
+                result={context.result.components[placement.id]}
+                onTurn={(turn) => dispatch({ type: 'setTurn', id: placement.id, turn })}
+              />
+            ))}
+          </div>
+        )}
 
         <div className="puzzle__toolbar">
           <button
@@ -82,6 +98,7 @@ export function PuzzlePanel({ level, game }) {
           </button>
           <span className="puzzle__tip">
             Drag parts to move them. Drag one off the board to remove it. Tap a switch to flip it.
+            {knobs.length > 0 && ' Drag the dimmer up for brighter, down for dimmer.'}
           </span>
         </div>
 

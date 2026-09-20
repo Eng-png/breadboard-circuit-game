@@ -13,7 +13,8 @@
 .scene__fallback,
 .scene__image,
 .scene__veil,
-.scene__glow {
+.scene__glow,
+.scene__glare {
   position: absolute;
   inset: 0;
 }
@@ -44,6 +45,18 @@
     transparent 72%
   );
   mix-blend-mode: screen;
+  transition: opacity 900ms cubic-bezier(0.22, 1, 0.36, 1);
+  pointer-events: none;
+}
+
+/* Over-driven: a bleached, slightly cold wash that hurts to look at. */
+.scene__glare {
+  background: radial-gradient(
+    ellipse 90% 75% at 50% 35%,
+    rgba(255, 255, 255, 0.92) 0%,
+    rgba(255, 250, 235, 0.7) 40%,
+    rgba(255, 245, 220, 0.35) 100%
+  );
   transition: opacity 900ms cubic-bezier(0.22, 1, 0.36, 1);
   pointer-events: none;
 }
@@ -175,9 +188,16 @@
   font-size: 0.88rem;
 }
 
+.story__end-actions {
+  display: flex;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .scene__veil,
-  .scene__glow { transition: none; }
+  .scene__glow,
+  .scene__glare { transition: none; }
   .dialogue__line[data-latest='true'],
   .story__resolve,
   .story__end { animation: none; }

@@ -2,6 +2,16 @@ import { describe, expect, it, afterEach } from 'vitest';
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import App from '../App.jsx';
 import { resetIds } from '../shared/ids.js';
+import {
+  dragLeg,
+  dragOver,
+  drop,
+  dropFromTray,
+  holesOf,
+  lastPlaced,
+  place,
+  tap,
+} from './boardActions.js';
 
 /**
  * Plays level 1 the way a person would: read the story, drag the parts into
@@ -22,61 +32,6 @@ function readThroughIntro() {
     fireEvent.click(advance);
   }
   throw new Error('Never reached the puzzle');
-}
-
-const holeNode = (id) => {
-  const node = document.querySelector(`[data-hole="${id}"]`);
-  if (!node) throw new Error(`No hole ${id} on the board`);
-  return node;
-};
-
-/** Move the pointer far enough that a press counts as a drag, then over a hole. */
-function dragOver(id) {
-  fireEvent.pointerMove(window, { clientX: 200, clientY: 200 });
-  if (id) fireEvent.pointerOver(holeNode(id));
-  else fireEvent.pointerOut(document.querySelector('.breadboard'), { relatedTarget: document.body });
-}
-
-/** Let go wherever the pointer currently is. */
-const drop = () => fireEvent.pointerUp(window);
-
-/** Drag a part out of the tray and drop it with one leg on `anchor`. */
-function dropFromTray(type, anchor) {
-  const button = document.querySelector(`[data-part="${type}"]`);
-  if (!button) throw new Error(`No ${type} in the tray`);
-  fireEvent.pointerDown(button, { clientX: 0, clientY: 0 });
-  dragOver(anchor);
-  drop();
-}
-
-/** The most recently placed part of this type. */
-function lastPlaced(type) {
-  const nodes = document.querySelectorAll(`[data-placement^="${type}-"]`);
-  if (nodes.length === 0) throw new Error(`No ${type} on the board`);
-  return nodes[nodes.length - 1];
-}
-
-/** Drag one end of a placed part into another hole. */
-function dragLeg(part, legIndex, target) {
-  const handle = part.querySelector(`[data-leg="${legIndex}"]`);
-  if (!handle) throw new Error(`No leg ${legIndex} handle`);
-  fireEvent.pointerDown(handle, { clientX: 0, clientY: 0 });
-  dragOver(target);
-  drop();
-}
-
-/** Drop a part, then pull its far leg to where we actually want it. */
-function place(type, first, second) {
-  dropFromTray(type, first);
-  const part = lastPlaced(type);
-  if (part.getAttribute('data-holes').split(',')[1] === second) return;
-  dragLeg(part, 1, second);
-}
-
-/** Press and release without moving — a tap, not a drag. */
-function tap(node) {
-  fireEvent.pointerDown(node, { clientX: 0, clientY: 0 });
-  drop();
 }
 
 function buildWorkingCircuit() {
@@ -187,8 +142,6 @@ describe('Dragging parts around', () => {
     render(<App />);
     readThroughIntro();
   };
-
-  const holesOf = (node) => node.getAttribute('data-holes').split(',');
 
   it('a part dropped on the main grid lies along its row', () => {
     start();
