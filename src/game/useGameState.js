@@ -225,8 +225,8 @@ function reducer(state, action) {
 
       const holes = previewHoles(drag);
       if (!holes) return clearDrag('That does not fit on the board. Try further in.');
-      if (holes[0] === holes[1]) {
-        return clearDrag('Both legs cannot go in the same hole. Drop it somewhere with room.');
+      if (new Set(holes).size !== holes.length) {
+        return clearDrag('Two legs cannot go in the same hole. Drop it somewhere with room.');
       }
 
       if (drag.source === 'tray') {

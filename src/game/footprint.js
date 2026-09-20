@@ -15,7 +15,9 @@
  *   - Drop on the main grid: the part lies along its row, spanning its own
  *     body width in columns. Near the right edge it reaches left instead.
  *
- * Nothing here knows about pixels. A footprint is two hole ids.
+ * Nothing here knows about pixels. A footprint is a list of hole ids — two for
+ * most parts, three for a potentiometer, which has a pin at each end of its
+ * track and a wiper in the middle.
  */
 
 import { COLUMNS, hole, parseHole, railHole } from '../shared/holes.js';
@@ -38,9 +40,30 @@ const SPAN = {
 
 const DEFAULT_SPAN = 3;
 
+/**
+ * Where a part's pins sit, in columns from the first one. Two-pin parts are
+ * just [0, span]; the potentiometer's three pins are evenly spaced, like the
+ * three legs on the real thing.
+ *
+ * @type {Record<string, number[]>}
+ */
+const PIN_OFFSETS = {
+  potentiometer: [0, 2, 4],
+};
+
 /** @param {ComponentType} type */
 export function spanOf(type) {
   return SPAN[type] ?? DEFAULT_SPAN;
+}
+
+/** @param {ComponentType} type @returns {number[]} */
+export function pinOffsets(type) {
+  return PIN_OFFSETS[type] ?? [0, spanOf(type)];
+}
+
+/** How many holes this part needs. @param {ComponentType} type */
+export function pinCount(type) {
+  return pinOffsets(type).length;
 }
 
 /** The other half of a rail pair: + and − of the same end of the board. */
@@ -50,28 +73,36 @@ const RAIL_PARTNER = { TP: 'TN', TN: 'TP', BP: 'BN', BN: 'BP' };
 const RAIL_NEIGHBOUR_ROW = { TP: 'A', TN: 'A', BP: 'J', BN: 'J' };
 
 /**
- * The pair of holes a part occupies when dropped with one leg on `anchor`.
+ * The holes a part occupies when dropped with its first leg on `anchor`.
  *
  * @param {ComponentType} type
  * @param {HoleId} anchor
- * @returns {[HoleId, HoleId] | null} null when it will not fit
+ * @returns {HoleId[] | null} null when it will not fit
  */
 export function footprintFor(type, anchor) {
   const parsed = parseHole(anchor);
   if (!parsed) return null;
+  const offsets = pinOffsets(type);
 
   if (parsed.kind === 'rail') {
-    const partner =
-      type === 'battery'
-        ? railHole(RAIL_PARTNER[parsed.row], parsed.col)
-        : hole(RAIL_NEIGHBOUR_ROW[parsed.row], parsed.col);
-    return [anchor, partner];
+    if (type === 'battery') return [anchor, railHole(RAIL_PARTNER[parsed.row], parsed.col)];
+    /*
+     * Everything else steps off the rail into the main grid, which is the move
+     * that gets power onto the board. A three-pin part lands its remaining
+     * legs along that row, spaced as they are anywhere else.
+     */
+    const row = RAIL_NEIGHBOUR_ROW[parsed.row];
+    const tail = offsets.slice(1);
+    const cols = tail.map((offset) => parsed.col + (offset - tail[0]));
+    if (cols.some((col) => col < 1 || col > COLUMNS)) return null;
+    return [anchor, ...cols.map((col) => hole(row, col))];
   }
 
-  const span = spanOf(type);
-  const col = parsed.col + span <= COLUMNS ? parsed.col + span : parsed.col - span;
-  if (col < 1) return null;
-  return [anchor, hole(parsed.row, col)];
+  const reach = offsets[offsets.length - 1];
+  const forwards = parsed.col + reach <= COLUMNS;
+  const cols = offsets.map((offset) => (forwards ? parsed.col + offset : parsed.col - offset));
+  if (cols.some((col) => col < 1 || col > COLUMNS)) return null;
+  return cols.map((col) => hole(parsed.row, col));
 }
 
 /**
@@ -83,7 +114,7 @@ export function footprintFor(type, anchor) {
  *
  * @param {ComponentType} type
  * @param {import('../shared/types.js').Placement[]} placements
- * @returns {[HoleId, HoleId] | null}
+ * @returns {HoleId[] | null}
  */
 export function firstFreeFootprint(type, placements) {
   const taken = new Set(placements.flatMap((placement) => placement.holes));
@@ -91,7 +122,7 @@ export function firstFreeFootprint(type, placements) {
   for (const row of ['A', 'F', 'B', 'G', 'C', 'H', 'D', 'I', 'E', 'J']) {
     for (let col = 1; col <= COLUMNS; col += 1) {
       const spot = footprintFor(type, hole(row, col));
-      if (spot && !taken.has(spot[0]) && !taken.has(spot[1])) return spot;
+      if (spot && spot.every((id) => !taken.has(id))) return spot;
     }
   }
   return null;

@@ -20,7 +20,14 @@ const BASE = '/assets';
  * @property {string} fallback   CSS background used until the file exists
  */
 
-/** @type {Record<string, AssetSpec>} */
+/**
+ * The key is what a story beat asks for; `src` is the file on disk. They do not
+ * have to match, and currently do not — drop a file in and point `src` at it.
+ * A missing file is not an error: the scene draws `fallback` instead, which is
+ * exactly what you are looking at if a background seems not to have loaded.
+ *
+ * @type {Record<string, AssetSpec>}
+ */
 export const BACKGROUNDS = {
   'house-exterior-night': {
     src: `${BASE}/backgrounds/house-exterior-night.png`,
@@ -28,12 +35,12 @@ export const BACKGROUNDS = {
     fallback: 'linear-gradient(180deg, #141c2e 0%, #1e2a44 55%, #0d1220 100%)',
   },
   'living-room-dark': {
-    src: `${BASE}/backgrounds/living-room-dark.png`,
+    src: `${BASE}/backgrounds/backgrounddark.png`,
     alt: 'A living room in near-total darkness, shapes barely visible',
     fallback: 'linear-gradient(180deg, #0c0f16 0%, #151a26 100%)',
   },
   'living-room-lit': {
-    src: `${BASE}/backgrounds/living-room-lit.png`,
+    src: `${BASE}/backgrounds/background.png`,
     alt: 'The same living room, warmly lit',
     fallback: 'linear-gradient(180deg, #4a3a22 0%, #6b5233 60%, #3a2c19 100%)',
   },
@@ -47,6 +54,30 @@ export const PROPS = {
     fallback: 'linear-gradient(180deg, #2a2f3a 0%, #1b1f28 100%)',
   },
 };
+
+/**
+ * Shown full screen, one at a time, between pressing start and the story
+ * beginning. The player clicks through them.
+ *
+ * These are pictures of something else — a phone screen, a note — rather than
+ * rooms the player stands in, so they are shown whole rather than cropped, and
+ * none of the room's lighting touches them. Add `introslidetwo.png` and so on
+ * here in order.
+ *
+ * @type {{ src: string, alt: string }[]}
+ */
+export const INTRO_SLIDES = [
+  {
+    src: `${BASE}/backgrounds/introslideone.png`,
+    alt:
+      'A phone conversation. A friend asks how your week is going; you answer ' +
+      'that you have just moved into a new house; she asks whether she can come over.',
+  },
+  {
+    src: `${BASE}/backgrounds/intoslidetwo.png`,
+    alt: 'The dark, broken house you have just moved into.',
+  },
+];
 
 export const BREADBOARD_IMAGE = `${BASE}/breadboard/breadboard.png`;
 

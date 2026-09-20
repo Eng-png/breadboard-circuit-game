@@ -31,39 +31,14 @@ export const level1Story = {
   beats: [
     {
       id: 'arrive',
-      background: 'house-exterior-night',
+      background: 'living-room-dark',
       light: 0.5,
       mode: 'narrative',
       lines: [
-        'Home. It took longer than it should have.',
-        'The porch light is dead. That is new — it was working this morning.',
-      ],
-      advance: 'Go inside',
-      next: 'enter',
-    },
-
-    {
-      id: 'enter',
-      background: 'living-room-dark',
-      light: 0.08,
-      mode: 'narrative',
-      lines: [
-        'You reach for the switch by the door out of pure habit. Click. Click.',
-        'Nothing. The whole room stays black.',
-      ],
-      advance: 'Feel along the wall',
-      next: 'panel',
-    },
-
-    {
-      id: 'panel',
-      background: 'living-room-dark',
-      light: 0.1,
-      mode: 'narrative',
-      lines: [
-        'Your hand finds a panel cover, slightly warm, hanging open on one hinge.',
-        'Inside there is a breadboard. Someone has pulled every part out of it.',
-        'If you want light tonight, you are going to have to put the circuit back together.',
+        ' Oh shoot',
+        'forgot my house is broken :(((((',
+        'gotta fix this before fine shyte gets here or shell dump me :>',
+        'ill start with fixing the lights',
       ],
       advance: 'Get to work',
       next: 'puzzle',
@@ -79,20 +54,6 @@ export const level1Story = {
       ],
       resolve: 'The bulb catches. Light spills out of the panel and across the floor.',
       resolveLabel: 'Stand up and look around',
-      next: 'solved',
-    },
-
-    {
-      id: 'solved',
-      background: 'living-room-lit',
-      light: 1,
-      mode: 'narrative',
-      lines: [
-        'The room comes up all at once. Furniture, a rug, your own coat on the floor.',
-        'You flick the switch off, then on again, just to watch it obey you.',
-        'That is all a light switch has ever been: a gap in a loop that you control.',
-      ],
-      advance: 'Look around',
       next: 'toobright',
     },
 
@@ -109,11 +70,7 @@ export const level1Story = {
       light: 1,
       glare: 1,
       mode: 'end',
-      lines: [
-        'Except — it is too much. The bulb is running flat out and the glare is painful.',
-        'There is nothing in the circuit telling the electricity to slow down.',
-        'You look back at the breadboard. There has to be a way to turn it down.',
-      ],
+      lines: [],
       advance: null,
       next: null,
     },
