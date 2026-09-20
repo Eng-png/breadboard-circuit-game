@@ -7,9 +7,13 @@
 /** Frame indices in sweep order: face right, turn to the left, come back. */
 export const SWEEP = [0, 1, 2, 3, 4, 3, 2, 1];
 
-/** Milliseconds per frame at full speed and at the slowest it still turns. */
-export const FRAME_MS_FAST = 140;
-export const FRAME_MS_SLOW = 520;
+/**
+ * Milliseconds per frame at full speed and at the slowest it still turns. A
+ * real oscillating fan is unhurried: at full speed one right→left→right pass
+ * takes about four seconds.
+ */
+export const FRAME_MS_FAST = 500;
+export const FRAME_MS_SLOW = 1200;
 
 /** @param {number} speed 0..1 */
 export function frameInterval(speed) {
