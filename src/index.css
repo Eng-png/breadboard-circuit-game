@@ -50,6 +50,14 @@ body {
   line-height: 1.5;
 }
 
+/* The paw cursor: open by default, closed while any pointer button is held. */
+body, button, a, input {
+  cursor: url('/assets/cursor-paw-64.png') 31 16, auto;
+}
+body.paw-pressed, body.paw-pressed * {
+  cursor: url('/assets/cursor-paw-pressed-64.png') 31 20, grabbing;
+}
+
 h1 { font-size: 1.5rem; margin: 0 0 0.25rem; }
 
 h2 {
