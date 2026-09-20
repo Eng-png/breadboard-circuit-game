@@ -11,14 +11,15 @@ export function usePawCursor() {
   useEffect(() => {
     const press = () => document.body.classList.add('paw-pressed');
     const release = () => document.body.classList.remove('paw-pressed');
-    window.addEventListener('pointerdown', press);
-    window.addEventListener('pointerup', release);
-    window.addEventListener('pointercancel', release);
+    // Capture phase: parts stop propagation of pointerdown to own their drags.
+    window.addEventListener('pointerdown', press, true);
+    window.addEventListener('pointerup', release, true);
+    window.addEventListener('pointercancel', release, true);
     window.addEventListener('blur', release);
     return () => {
-      window.removeEventListener('pointerdown', press);
-      window.removeEventListener('pointerup', release);
-      window.removeEventListener('pointercancel', release);
+      window.removeEventListener('pointerdown', press, true);
+      window.removeEventListener('pointerup', release, true);
+      window.removeEventListener('pointercancel', release, true);
       window.removeEventListener('blur', release);
       release();
     };
