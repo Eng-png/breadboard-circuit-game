@@ -1,7 +1,7 @@
 /**
  * OWNER: Person D (Content) / Person C (format)
  *
- * LEVEL 3 — "Reading Light"
+ * LEVEL 3 — "Variable Control"
  *
  * The level 2 circuit is back on the board, working and safe — but fixed at
  * one brightness. Between the LED and the return wire there is a gap, and the
@@ -41,7 +41,7 @@ const potOf = (placements) => placements.find((p) => p.type === 'potentiometer')
 /** @type {import('../../shared/types.js').Level} */
 export const level3 = {
   id: 'level-3',
-  title: 'Reading Light',
+  title: 'Variable Control',
   brief:
     'The light is fine now — for cooking. For reading it is still a spotlight. ' +
     'There is a gap after the LED and a dimmer in the tray. The dimmer has three ' +

@@ -154,6 +154,19 @@
  * @property {Objective[]} objectives   ALL must pass to win
  * @property {string[]} hints           Revealed one at a time, in order
  * @property {RealWorldNote} realWorld  Shown after winning — the "why this matters" payoff
+ * @property {Tutorial} [tutorial]      What the mouse says beside the toolbox.
+ *                                      Only level 1 sets it: after that they know.
+ */
+
+/**
+ * The two things the tutorial mouse has to say, in the order it says them.
+ * @typedef {object} Tutorial
+ * @property {string[]} placing  Until the player drags their first part
+ * @property {string[]} placed   Once there is a wire on the board
+ * @property {string[]} board    Once the battery is across the power rails —
+ *                               shown over the board rather than beside it
+ * @property {string[]} feed     Once a wire carries the + rail into the main
+ *                               grid. Same place as `board`, new words.
  */
 
 /**

@@ -15,6 +15,13 @@
  * ends on and the reason the player goes looking for a resistor next.
  */
 
+import {
+  TUTORIAL_BOARD,
+  TUTORIAL_FEED,
+  TUTORIAL_PLACED,
+  TUTORIAL_PLACING,
+} from '../tutorial.js';
+
 /** @typedef {import('../../shared/types.js').Level} Level */
 
 /** @type {Level} */
@@ -34,6 +41,18 @@ export const level1 = {
   ],
 
   preplaced: [],
+
+  /*
+   * The only level that gets the mouse. It teaches working the toolbox, which
+   * is a thing you learn once — by level 2 it would just be a picture standing
+   * in front of the board.
+   */
+  tutorial: {
+    placing: TUTORIAL_PLACING,
+    placed: TUTORIAL_PLACED,
+    board: TUTORIAL_BOARD,
+    feed: TUTORIAL_FEED,
+  },
 
   objectives: [
     {

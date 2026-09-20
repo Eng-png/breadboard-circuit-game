@@ -16,7 +16,7 @@ describe('Level navigation', () => {
     const buttons = navButtons();
     expect(buttons.length).toBe(3);
     expect(current().textContent).toBe('1');
-    expect(screen.getByRole('button', { name: /level 3: reading light/i })).toBeTruthy();
+    expect(screen.getByRole('button', { name: /level 3: variable control/i })).toBeTruthy();
   });
 
   it('jumps straight to level 3 and back to level 1, starting each fresh', () => {

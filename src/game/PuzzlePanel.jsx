@@ -10,10 +10,12 @@
  */
 
 import { Breadboard } from '../breadboard/Breadboard.jsx';
+import { TUTORIAL_LAYOUT, tutorialStageFor } from './tutorialStage.js';
 // Paired with the commented-out panels in the sidebar below — put both back together.
 // import { HintPanel } from '../ui/HintPanel.jsx';
 // import { ObjectiveList } from '../ui/ObjectiveList.jsx';
 import { Knob } from '../ui/Knob.jsx';
+import { TutorialMouse } from './TutorialMouse.jsx';
 import { Tray } from '../ui/Tray.jsx';
 import './PuzzlePanel.css';
 
@@ -50,6 +52,14 @@ export function PuzzlePanel({ level, game }) {
   };
 
   const status = state.notice ?? statusLine(context.result);
+  /*
+   * Which of the mouse's speeches is due, and where it stands to give it. The
+   * rules live in tutorialStage.js; all this needs to know is that an 'over'
+   * layout belongs inside the board and the rest belong in the sidebar.
+   */
+  const tutorialStage = level.tutorial ? tutorialStageFor(state.placements, state.touched) : null;
+  const tutorialLines = tutorialStage ? level.tutorial[tutorialStage] : null;
+  const tutorialLayout = tutorialStage ? TUTORIAL_LAYOUT[tutorialStage] : null;
   const knobs = state.placements.filter((placement) => placement.type === 'potentiometer');
 
   return (
@@ -65,6 +75,9 @@ export function PuzzlePanel({ level, game }) {
           onPartKeyDown={handlePartKeyDown}
           onPartTurn={(id, turn) => dispatch({ type: 'setTurn', id, turn })}
         />
+
+        {/* The speeches about the board are laid over the board. */}
+        {tutorialLayout === 'over' && <TutorialMouse layout="over" lines={tutorialLines} />}
 
         {knobs.length > 0 && (
           <div className="puzzle__knobs">
@@ -112,6 +125,12 @@ export function PuzzlePanel({ level, game }) {
       </div>
 
       <aside className="puzzle__sidebar">
+        {/* The rest stand beside the toolbox they are talking about. Which
+            levels get a mouse at all is the level's own business: it is there
+            if the level wrote lines for it. */}
+        {tutorialLayout && tutorialLayout !== 'over' && (
+          <TutorialMouse layout={tutorialLayout} lines={tutorialLines} />
+        )}
         <Tray
           level={level}
           placements={state.placements}
