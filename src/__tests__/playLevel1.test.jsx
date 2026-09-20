@@ -239,8 +239,10 @@ describe('The toolbox tray', () => {
     expect(slots.length).toBe(5);
     for (const slot of slots) {
       expect(slot.querySelector('.tray__art')).toBeTruthy();
-      // The name lives in the caption and the label, not on the slot itself.
-      expect(slot.textContent.trim()).toMatch(/^(\d+|∞)$/);
+      // A count, and whatever tiny lettering is drawn into the art itself —
+      // but never the part's name or its blurb. Those live in the caption.
+      expect(slot.textContent).not.toMatch(/battery|resistor|jumper|dimmer/i);
+      expect(slot.querySelector('.tray__count')).toBeTruthy();
     }
   });
 

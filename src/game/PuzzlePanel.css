@@ -100,21 +100,22 @@
  * The tray IS the toolbox: the box keeps toolbox.png's exact aspect ratio, so
  * every percentage below lands on the same pixel of the artwork at any size.
  *
- * The --slot-* numbers were measured off the picture: the front face of the box
- * runs from roughly (65, 200) to (342, 297) in its 468x333 pixels, and its
- * bottom edge falls about 10 degrees to the right. If the artwork is ever
- * replaced, retune these five values and nothing else.
+ * The drawing is a box seen front-on with two shelves, split by the pink band
+ * across its middle. The parts are laid out as two centred rows which
+ * `align-content: space-between` pushes apart onto those shelves — so the
+ * number of parts a level gives you can change without the layout caring.
+ *
+ * The --shelf-* numbers mark the inside of the frame. If the artwork is ever
+ * replaced, retune those four and nothing else.
  */
 .tray__box[data-toolbox='true'] {
-  --slot-left: 14%;
-  --slot-right: 27%;
-  --slot-top: 48%;
-  --slot-bottom: 12%;
-  /* The box is drawn in perspective, so the row of parts leans with it. */
-  --slot-slope: 10deg;
+  --shelf-left: 13%;
+  --shelf-right: 13%;
+  --shelf-top: 13%;
+  --shelf-bottom: 15%;
 
   position: relative;
-  aspect-ratio: 468 / 333;
+  aspect-ratio: 512 / 318;
   background-repeat: no-repeat;
   background-position: center;
   background-size: 100% 100%;
@@ -124,24 +125,27 @@
 
 .tray__box[data-toolbox='true'] .tray__slots {
   position: absolute;
-  left: var(--slot-left);
-  right: var(--slot-right);
-  top: var(--slot-top);
-  bottom: var(--slot-bottom);
+  inset: var(--shelf-top) var(--shelf-right) var(--shelf-bottom) var(--shelf-left);
   display: flex;
-  align-items: center;
-  gap: 3%;
-  transform: skewY(var(--slot-slope));
+  flex-wrap: wrap;
+  justify-content: center;
+  align-content: space-between;
+  column-gap: 6%;
+  row-gap: 2%;
 }
 
-/* The row follows the box; each part stands upright inside it. */
+/* Three to a shelf: 3 x 22% plus two 6% gaps fills the width, a fourth wraps. */
 .tray__box[data-toolbox='true'] .tray__slot {
-  flex: 1 1 0;
+  flex: 0 0 22%;
   min-width: 0;
-  transform: skewY(calc(-1 * var(--slot-slope)));
 }
 
-
+/* No toolbox.png yet: fall back to a plain grid on the glass panel. */
+.tray__box[data-toolbox='false'] .tray__slots {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(3.2rem, 1fr));
+  gap: 0.4rem;
+}
 
 /* ── Part slots ─────────────────────────────────────────────────────────── */
 
@@ -151,7 +155,7 @@
   aspect-ratio: 1;
   display: grid;
   place-items: center;
-  padding: 8%;
+  padding: 5%;
   border-radius: 6px;
   border: 1px solid rgba(255, 255, 255, 0.22);
   /* A dark cut-out, like foam in a real toolbox — and it keeps the parts
