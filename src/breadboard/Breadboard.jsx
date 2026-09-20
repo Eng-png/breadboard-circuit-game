@@ -42,8 +42,16 @@ const PAD = 7;
  * @param {{ type: string, firstHole: string | null } | null} [props.pending]
  * @param {(hole: string) => void} [props.onHoleClick]
  * @param {(id: string) => void} [props.onPartClick]
+ * @param {(id: string, turn: number) => void} [props.onPartTurn]
  */
-export function Breadboard({ placements = [], result, pending, onHoleClick, onPartClick }) {
+export function Breadboard({
+  placements = [],
+  result,
+  pending,
+  onHoleClick,
+  onPartClick,
+  onPartTurn,
+}) {
   const [hovered, setHovered] = useState(null);
   const [skin, setSkin] = useState(loadSkin);
   const calibrating = useMemo(() => calibrationRequested(), []);
@@ -203,6 +211,7 @@ export function Breadboard({ placements = [], result, pending, onHoleClick, onPa
               result={result?.components?.[placement.id]}
               faulted={faultedIds.has(placement.id)}
               onActivate={onPartClick}
+              onTurn={onPartTurn}
             />
           ))}
         </g>

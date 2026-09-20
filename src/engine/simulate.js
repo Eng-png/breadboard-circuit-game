@@ -14,7 +14,7 @@
 
 import { getComponent } from '../content/components.js';
 import { buildNetlist } from './netlist.js';
-import { buildGraph, findPath } from './graph.js';
+import { buildGraph, findPath, potentiometerOhms } from './graph.js';
 
 /** @typedef {import('../shared/types.js').Placement} Placement */
 /** @typedef {import('../shared/types.js').CircuitResult} CircuitResult */
@@ -115,7 +115,7 @@ export function simulate(placements, options = {}) {
   const totalOhms = path.reduce((sum, edge) => sum + edge.ohms, 0);
   const totalForwardVolts = path.reduce((sum, edge) => sum + edge.forwardVolts, 0);
 
-  const hasResistor = path.some((edge) => edge.type === 'resistor');
+  const hasResistor = path.some((edge) => edge.type === 'resistor' || edge.type === 'potentiometer');
   const hasLed = path.some((edge) => edge.type === 'led');
 
   // A loop with no load at all: the battery is shorted across itself.
@@ -155,6 +155,7 @@ export function simulate(placements, options = {}) {
 
       result.burnedOut = currentMa > max;
       result.lit = !result.burnedOut && currentMa >= min;
+      result.brightness = result.lit ? ledBrightness(currentMa, spec) : 0;
 
       if (result.burnedOut) {
         faults.push({
@@ -231,6 +232,18 @@ function diagnoseBrokenLoop(edges, posNet, negNet, placements) {
   };
 }
 
+/**
+ * How bright a lit LED looks, 0..1. Linear from the minimum current it needs to
+ * glow up to its nominal current, then pinned at 1 — the eye cannot tell 20 mA
+ * from 28 mA, but it can tell 5 from 20.
+ */
+function ledBrightness(currentMa, spec) {
+  const min = spec.minCurrentMa ?? 0;
+  const nominal = spec.nominalCurrentMa ?? spec.maxCurrentMa ?? min + 1;
+  if (nominal <= min) return 1;
+  return Math.min(1, Math.max(0, (currentMa - min) / (nominal - min)));
+}
+
 /** Every component starts off doing nothing. */
 function blankResults(placements) {
   /** @type {Record<string, import('../shared/types.js').PlacementResult>} */
@@ -241,6 +254,13 @@ function blankResults(placements) {
       components[placement.id].lit = false;
       components[placement.id].reverseBiased = false;
       components[placement.id].burnedOut = false;
+      components[placement.id].brightness = 0;
+    }
+    if (placement.type === 'potentiometer') {
+      components[placement.id].ohms = potentiometerOhms(
+        placement,
+        getComponent('potentiometer').electrical ?? {},
+      );
     }
   }
   return components;

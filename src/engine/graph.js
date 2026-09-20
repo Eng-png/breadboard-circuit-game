@@ -61,7 +61,7 @@ export function buildGraph(placements, netOf, switchMode) {
       b,
       conducts: isConducting(placement, switchMode),
       directional: placement.type === 'led',
-      ohms: resistanceOf(placement.type, electrical),
+      ohms: resistanceOf(placement, electrical),
       forwardVolts: placement.type === 'led' ? (electrical.forwardVolts ?? 0) : 0,
       volts: electrical.volts ?? 0,
     });
@@ -84,11 +84,23 @@ function isConducting(placement, switchMode) {
   return Boolean(placement.state?.closed);
 }
 
-/** @param {import('../shared/types.js').ComponentType} type */
-function resistanceOf(type, electrical) {
-  if (type === 'resistor') return electrical.ohms ?? 0;
-  if (type === 'led') return LED_INTERNAL_OHMS;
+/** @param {Placement} placement */
+function resistanceOf(placement, electrical) {
+  if (placement.type === 'resistor') return electrical.ohms ?? 0;
+  if (placement.type === 'potentiometer') return potentiometerOhms(placement, electrical);
+  if (placement.type === 'led') return LED_INTERNAL_OHMS;
   return IDEAL_OHMS; // switch, battery
+}
+
+/**
+ * A potentiometer's resistance follows its knob: linear from minOhms to maxOhms.
+ * @param {Placement} placement
+ */
+export function potentiometerOhms(placement, electrical) {
+  const turn = Math.min(1, Math.max(0, placement.state?.turn ?? 0));
+  const min = electrical.minOhms ?? 0;
+  const max = electrical.maxOhms ?? min;
+  return min + turn * (max - min);
 }
 
 /**
