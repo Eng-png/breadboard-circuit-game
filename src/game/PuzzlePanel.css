@@ -26,6 +26,7 @@
  * look nothing like 2.54 mm. `margin-right: auto` keeps it against the left.
  */
 .puzzle__board {
+  width: 100%;
   min-width: 0;
   max-width: 46rem;
   margin-right: auto;
