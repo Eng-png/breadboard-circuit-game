@@ -90,7 +90,76 @@
   max-width: 54rem;
 }
 
-.story__header { margin-bottom: auto; }
+.story__header {
+  margin-bottom: auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+/* ── Level picker ────────────────────────────────────────────────────────────── */
+
+.level-nav {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.3rem 0.5rem 0.3rem 0.75rem;
+  background: var(--glass-strong);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--glass-edge);
+  border-radius: 999px;
+}
+
+.level-nav__menu {
+  padding: 0.25rem 0.6rem;
+  border-radius: 999px;
+  border: 1px solid var(--glass-edge);
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+.level-nav__menu:hover { border-color: var(--accent); }
+
+.level-nav__label {
+  font-size: 0.72rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.level-nav__list {
+  display: flex;
+  gap: 0.3rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.level-nav__item {
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  border-radius: 50%;
+  border: 1px solid var(--glass-edge);
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.level-nav__item:hover { border-color: var(--accent); }
+
+.level-nav__item[aria-current='page'] {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #101318;
+  cursor: default;
+}
 
 .story__chapter {
   display: block;

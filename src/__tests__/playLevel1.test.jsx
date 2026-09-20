@@ -1,6 +1,6 @@
 import { describe, expect, it, afterEach } from 'vitest';
-import { cleanup, fireEvent, render, screen } from '@testing-library/react';
-import App from '../App.jsx';
+import { cleanup, fireEvent, screen } from '@testing-library/react';
+import { startGame } from './helpers/startGame.jsx';
 import { resetIds } from '../shared/ids.js';
 import {
   dragLeg,
@@ -46,14 +46,14 @@ function buildWorkingCircuit() {
 describe('Level 1 — Lights Out', () => {
   it('opens on the story, not the puzzle', () => {
     resetIds();
-    render(<App />);
+    startGame();
     expect(screen.getByText(/Home\. It took longer/i)).toBeTruthy();
     expect(document.querySelector('[data-hole]')).toBeNull();
   });
 
   it('reaches the breadboard after the intro', () => {
     resetIds();
-    render(<App />);
+    startGame();
     readThroughIntro();
     expect(document.querySelector('[data-hole="A1"]')).toBeTruthy();
     expect(document.querySelector('[data-part="battery"]')).toBeTruthy();
@@ -61,7 +61,7 @@ describe('Level 1 — Lights Out', () => {
 
   it('the room stays dark until the circuit works', () => {
     resetIds();
-    render(<App />);
+    startGame();
     readThroughIntro();
     const veil = document.querySelector('.scene__veil');
     // opacity = 1 - light, so a dark room is close to 1.
@@ -70,7 +70,7 @@ describe('Level 1 — Lights Out', () => {
 
   it('coaches the player instead of just failing', () => {
     resetIds();
-    render(<App />);
+    startGame();
     readThroughIntro();
     place('led', 'A5', 'C5'); // both legs in one strip
     expect(screen.getByText(/same strip/i)).toBeTruthy();
@@ -78,7 +78,7 @@ describe('Level 1 — Lights Out', () => {
 
   it('a built circuit with the switch open explains that the switch is open', () => {
     resetIds();
-    render(<App />);
+    startGame();
     readThroughIntro();
     buildWorkingCircuit();
     expect(screen.getByText(/the switch is open/i)).toBeTruthy();
@@ -86,7 +86,7 @@ describe('Level 1 — Lights Out', () => {
 
   it('closing the switch lights the room and lets the story continue', () => {
     resetIds();
-    render(<App />);
+    startGame();
     readThroughIntro();
     buildWorkingCircuit();
 
@@ -102,7 +102,7 @@ describe('Level 1 — Lights Out', () => {
 
   it('flipping the switch back off makes the room dark again', () => {
     resetIds();
-    render(<App />);
+    startGame();
     readThroughIntro();
     buildWorkingCircuit();
 
@@ -116,7 +116,7 @@ describe('Level 1 — Lights Out', () => {
 
   it('reaches the end of level 1 — and stops there', () => {
     resetIds();
-    render(<App />);
+    startGame();
     readThroughIntro();
     buildWorkingCircuit();
     tap(document.querySelector('[data-placement^="switch-"]'));
@@ -139,7 +139,7 @@ describe('Level 1 — Lights Out', () => {
 describe('Dragging parts around', () => {
   const start = () => {
     resetIds();
-    render(<App />);
+    startGame();
     readThroughIntro();
   };
 
@@ -229,7 +229,7 @@ describe('Dragging parts around', () => {
 describe('The toolbox tray', () => {
   const start = () => {
     resetIds();
-    render(<App />);
+    startGame();
     readThroughIntro();
   };
 

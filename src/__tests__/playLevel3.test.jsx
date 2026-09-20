@@ -1,6 +1,6 @@
 import { describe, expect, it, afterEach } from 'vitest';
-import { cleanup, fireEvent, render, screen } from '@testing-library/react';
-import App from '../App.jsx';
+import { cleanup, fireEvent, screen } from '@testing-library/react';
+import { startGame } from './helpers/startGame.jsx';
 import { resetIds } from '../shared/ids.js';
 import {
   boardVisible,
@@ -29,7 +29,7 @@ function finishLevel2() {
 
 function startLevel3() {
   resetIds();
-  render(<App />);
+  startGame();
   finishLevel1();
   finishLevel2();
   fireEvent.click(screen.getByRole('button', { name: /continue to level 3/i }));
