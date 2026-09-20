@@ -80,6 +80,12 @@
 /* ── Parts ──────────────────────────────────────────────────────────────── */
 
 .part { cursor: grab; }
+/*
+ * Never the browser's own ring: on an SVG <g> it is drawn round the whole
+ * bounding box, leads and all. Keyboard focus gets a thickened lead instead,
+ * which points at the part rather than boxing it in.
+ */
+.part:focus,
 .part:focus-visible { outline: none; }
 .part:focus-visible .part__hit { stroke: var(--accent); stroke-width: 1.6; }
 

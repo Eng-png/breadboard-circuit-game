@@ -20,7 +20,7 @@
 
 import { useState } from 'react';
 import { PartIcon } from '../components/library/Part.jsx';
-import { TOOLBOX_IMAGE, componentImage } from '../content/assets.js';
+import { TOOLBOX_IMAGE, componentImage, slotScale } from '../content/assets.js';
 import { getComponent } from '../content/components.js';
 import { useImageAvailable } from '../breadboard/useImageAvailable.js';
 import { remainingOf } from '../game/useGameState.js';
@@ -59,7 +59,11 @@ export function Tray({ level, placements, drag, onGrab, onPlace }) {
             const dragging = drag?.source === 'tray' && drag.type === item.type;
 
             return (
-              <li className="tray__slot" key={item.type}>
+              <li
+                className="tray__slot"
+                key={item.type}
+                style={{ '--slot-scale': slotScale(item.type) }}
+              >
                 <button
                   type="button"
                   className="tray__item"

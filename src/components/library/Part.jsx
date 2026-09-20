@@ -421,6 +421,13 @@ function useKnobDrag(placement, onTurn) {
     onPointerDown(event) {
       if (event.button !== 0) return;
       event.stopPropagation();
+      /*
+       * Same as the placement grab: without this the press focuses the <g> and
+       * the browser paints its own focus ring round the whole part — which,
+       * since the knob is the one part you press and hold, is the one place it
+       * would sit there staring at you. Keyboard focus still works.
+       */
+      event.preventDefault();
       event.currentTarget.setPointerCapture?.(event.pointerId);
       ref.current = {
         down: true,

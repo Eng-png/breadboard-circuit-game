@@ -74,6 +74,15 @@ When the two holes are further apart than the drawing's own legs — and they
 usually are — the body stays the size it should be and the leads splay out to
 reach, the way bending a real component's legs looks. Nothing is stretched.
 
+### Save with a hard alpha edge
+
+Every pixel should be fully opaque or fully transparent. All this art is drawn
+with `image-rendering: pixelated`, so a soft anti-aliased edge — and especially
+the near-invisible halo some exporters leave around a sprite — is magnified
+into a visible dark fringe round the part. Exporting from a pixel-art tool at
+1x gives you this for free; exporting an upscaled or generated image usually
+does not.
+
 ## Format
 
 - **PNG** with transparency where it matters, or JPG for full-bleed backgrounds.
