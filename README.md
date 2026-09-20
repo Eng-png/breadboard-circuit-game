@@ -58,7 +58,13 @@ Ask Watt needs a server: the browser never holds the key, it posts to
 route, so the panel reports that the helper service is not running. Deploy to a
 Node host instead — `npm ci && npm run build`, start with `npm start`, and set
 `DEVIN_API_KEY` (plus `DEVIN_ORG_ID` and `DEVIN_SESSION_ID` on v3) in the host's
-environment.
+environment. `server.js` listens on `$PORT`, so it runs unchanged on Render,
+Railway, Fly or any other Node host.
+
+`render.yaml` describes that service for Render: create a **Blueprint** from
+this repo, then paste the key into the `DEVIN_API_KEY` field Render prompts for
+(it is the one variable not stored in the file). Everyone who plays the deployed
+game spends credits on that single key, so use a key you are happy to share.
 
 ## How you play
 
