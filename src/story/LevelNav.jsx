@@ -13,10 +13,16 @@ import { getStory } from './index.js';
  * @param {import('../shared/types.js').Level[]} props.levels
  * @param {number} props.current  index into levels
  * @param {(index: number) => void} props.onSelect
+ * @param {() => void} [props.onMenu]  back to the title screen
  */
-export function LevelNav({ levels, current, onSelect }) {
+export function LevelNav({ levels, current, onSelect, onMenu }) {
   return (
     <nav className="level-nav" aria-label="Levels">
+      {onMenu && (
+        <button type="button" className="level-nav__menu" onClick={onMenu}>
+          ← Menu
+        </button>
+      )}
       <span className="level-nav__label">Levels</span>
       <ol className="level-nav__list">
         {levels.map((level, index) => {

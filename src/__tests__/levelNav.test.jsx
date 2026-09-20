@@ -1,17 +1,17 @@
 import { describe, expect, it, afterEach } from 'vitest';
-import { cleanup, fireEvent, render, screen } from '@testing-library/react';
-import App from '../App.jsx';
+import { cleanup, fireEvent, screen } from '@testing-library/react';
+import { startGame } from './helpers/startGame.jsx';
 import { resetIds } from '../shared/ids.js';
 
 afterEach(cleanup);
 
-const navButtons = () => screen.getByRole('navigation', { name: /levels/i }).querySelectorAll('button');
+const navButtons = () => screen.getByRole('navigation', { name: /levels/i }).querySelectorAll('.level-nav__item');
 const current = () => document.querySelector('.level-nav__item[aria-current="page"]');
 
 describe('Level navigation', () => {
   it('lists every level and marks the one being played', () => {
     resetIds();
-    render(<App />);
+    startGame();
 
     const buttons = navButtons();
     expect(buttons.length).toBe(3);
@@ -21,7 +21,7 @@ describe('Level navigation', () => {
 
   it('jumps straight to level 3 and back to level 1, starting each fresh', () => {
     resetIds();
-    render(<App />);
+    startGame();
 
     fireEvent.click(screen.getByRole('button', { name: /level 3/i }));
     expect(current().textContent).toBe('3');
@@ -39,7 +39,7 @@ describe('Level navigation', () => {
 
   it('clicking the current level does nothing', () => {
     resetIds();
-    render(<App />);
+    startGame();
     fireEvent.click(document.querySelector('.dialogue__advance'));
     const before = document.querySelector('.dialogue').textContent;
 

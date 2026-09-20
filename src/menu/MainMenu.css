@@ -1,0 +1,169 @@
+/* OWNER: Person D (look) — lifted from the Menu prototype's styles.css. */
+
+.menu-screen {
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-height: 100vh;
+  min-height: 100svh;
+  padding: 28px;
+  overflow: auto;
+  color: white;
+  background: #25133f radial-gradient(circle at 70% 40%, #4d286c, #170b22 70%);
+  isolation: isolate;
+}
+
+.menu-screen[data-background='true'] {
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+  image-rendering: pixelated;
+}
+
+.menu-screen::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(90deg, rgba(19, 8, 35, 0.42), transparent 58%);
+}
+
+.menu-card {
+  width: min(520px, 92vw);
+  margin-right: min(42vw, 620px);
+  padding: clamp(24px, 4vw, 44px);
+}
+
+.menu-kicker {
+  margin: 0 0 10px;
+  color: #ffe36a;
+  font-family: 'Courier New', monospace;
+  font-size: 0.76rem;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  text-shadow: 2px 2px #321646;
+}
+
+.menu-card h1 {
+  margin: 0;
+  max-width: 440px;
+  color: #e98198;
+  font-family: 'Cooper Black', 'Cooper Std', 'Arial Rounded MT Bold', ui-rounded, cursive;
+  font-size: clamp(3.6rem, 7vw, 6.4rem);
+  font-weight: 900;
+  line-height: 0.83;
+  letter-spacing: -0.055em;
+  -webkit-text-stroke: 2px #6e2b59;
+  paint-order: stroke fill;
+  text-shadow: 4px 4px 0 #351545, 8px 8px 0 rgba(18, 7, 31, 0.55);
+}
+
+.menu-card h1 span { display: block; color: #e98198; }
+
+.menu-actions {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 12px;
+  margin-top: 30px;
+}
+
+.menu-actions button {
+  min-height: 54px;
+  padding: 12px 18px;
+  border-radius: 0;
+  cursor: pointer;
+  font-family: 'Cooper Black', 'Cooper Std', 'Arial Rounded MT Bold', ui-rounded, cursive;
+  font-size: 1rem;
+  font-weight: 900;
+  text-transform: none;
+  transition: transform 0.08s;
+}
+
+.menu-actions button:hover { transform: translate(-2px, -2px); }
+.menu-actions button:focus-visible { outline: 4px solid #fff; outline-offset: 4px; }
+
+.menu-primary {
+  border: 4px solid #51284d;
+  color: #321638;
+  background: #ffd95a;
+  box-shadow: 6px 6px 0 #51284d;
+}
+.menu-primary:hover { background: #ffe680; box-shadow: 8px 8px 0 #51284d; }
+.menu-primary span { padding-left: 8px; }
+
+.menu-secondary {
+  border: 4px solid #8b63aa;
+  color: white;
+  background: #4d286c;
+  box-shadow: 6px 6px 0 #251039;
+}
+
+.menu-instructions {
+  margin-top: 20px;
+  padding: 15px 17px;
+  border: 3px solid #e98198;
+  color: #fff5ce;
+  background: #251039;
+  box-shadow: 5px 5px 0 #12091c;
+  font-family: 'Courier New', monospace;
+  font-weight: 700;
+  line-height: 1.5;
+}
+
+.menu-level {
+  margin: 25px 0 8px;
+  color: #d9b6ef;
+  font-family: 'Cooper Black', 'Cooper Std', 'Arial Rounded MT Bold', ui-rounded, cursive;
+  font-size: 0.86rem;
+  font-weight: 900;
+  letter-spacing: 0.025em;
+  text-shadow: 2px 2px #251039;
+}
+
+.menu-levels__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.menu-levels__item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px;
+  border: 3px solid #8b63aa;
+  border-radius: 0;
+  color: #fff5ce;
+  background: rgba(37, 16, 57, 0.85);
+  box-shadow: 4px 4px 0 #12091c;
+  font: inherit;
+  font-weight: 700;
+  text-align: left;
+  cursor: pointer;
+  transition: transform 0.08s;
+}
+.menu-levels__item:hover { transform: translate(-2px, -2px); border-color: #e98198; }
+.menu-levels__item:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
+
+.menu-levels__num {
+  flex: none;
+  width: 1.8rem;
+  height: 1.8rem;
+  display: grid;
+  place-items: center;
+  background: #ffd95a;
+  color: #321638;
+  font-family: 'Cooper Black', 'Cooper Std', 'Arial Rounded MT Bold', ui-rounded, cursive;
+  font-weight: 900;
+}
+
+@media (max-width: 760px) {
+  .menu-screen { align-items: end; padding: 18px; background-position: 68% center; }
+  .menu-card { width: 100%; margin: 0 0 24px; padding: 24px 18px; }
+  .menu-card h1 { font-size: clamp(3.2rem, 16vw, 5rem); }
+  .menu-actions { grid-template-columns: 1fr; }
+}

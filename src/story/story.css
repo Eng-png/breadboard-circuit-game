@@ -112,6 +112,18 @@
   border-radius: 999px;
 }
 
+.level-nav__menu {
+  padding: 0.25rem 0.6rem;
+  border-radius: 999px;
+  border: 1px solid var(--glass-edge);
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+.level-nav__menu:hover { border-color: var(--accent); }
+
 .level-nav__label {
   font-size: 0.72rem;
   letter-spacing: 0.18em;

@@ -1,6 +1,6 @@
 import { describe, expect, it, afterEach } from 'vitest';
-import { cleanup, fireEvent, render, screen } from '@testing-library/react';
-import App from '../App.jsx';
+import { cleanup, fireEvent, screen } from '@testing-library/react';
+import { startGame } from './helpers/startGame.jsx';
 import { resetIds } from '../shared/ids.js';
 import {
   boardVisible,
@@ -20,7 +20,7 @@ afterEach(cleanup);
 
 function startLevel2() {
   resetIds();
-  render(<App />);
+  startGame();
   finishLevel1();
   fireEvent.click(screen.getByRole('button', { name: /continue to level 2/i }));
 }
@@ -31,7 +31,7 @@ const glareOpacity = () => Number(document.querySelector('.scene__glare').style.
 describe('Level 2 — Turn It Down', () => {
   it('level 1 ends with a way into level 2', () => {
     resetIds();
-    render(<App />);
+    startGame();
     finishLevel1();
     expect(screen.getByRole('button', { name: /continue to level 2/i })).toBeTruthy();
   });
