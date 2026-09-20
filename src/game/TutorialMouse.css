@@ -42,7 +42,7 @@
   user-select: none;
 }
 
-/* ── First go: beside the toolbox, text above the mouse ─────────────────── */
+/* ── Beside the toolbox, text above the mouse ───────────────────────────── */
 
 .tutor--beside {
   display: flex;
@@ -56,13 +56,13 @@
   width: 8.25rem;
 }
 
-.tutor__box--placing {
+.tutor__box--beside {
   /* Clear of the point, which hangs below the box. */
   margin-bottom: 0.5rem;
 }
 
 /* Down at the mouse standing under it. */
-.tutor__box--placing::after {
+.tutor__box--beside::after {
   bottom: -7px;
   left: 50%;
   transform: translateX(-50%) rotate(45deg);
@@ -70,15 +70,15 @@
   border-bottom: 1px solid var(--glass-edge);
 }
 
-/* ── Second go: text left of the toolbox, mouse on top of it ────────────── */
+/* ── Perched on the toolbox, text to the left of it ─────────────────────── */
 
-.tutor__box--placed {
+.tutor__box--perched {
   flex: 0 1 12.5rem;
   align-self: center;
 }
 
 /* Across at the toolbox the mouse is sat on. */
-.tutor__box--placed::after {
+.tutor__box--perched::after {
   top: 1rem;
   right: -7px;
   transform: rotate(45deg);
@@ -107,7 +107,7 @@
   width: 6.5rem;
 }
 
-/* ── Third go: laid over the board itself ───────────────────────────────── */
+/* ── Laid over the board itself ─────────────────────────────────────────── */
 
 /*
  * A layer over the breadboard rather than an item beside it, because this one
@@ -115,7 +115,7 @@
  * player to look in two places at once. .puzzle__board is the positioned
  * ancestor it measures itself against.
  */
-.tutor--board {
+.tutor--over {
   position: absolute;
   inset: 0;
   z-index: 4;
@@ -123,7 +123,7 @@
   pointer-events: none;
 }
 
-.tutor__box--board {
+.tutor__box--over {
   position: absolute;
   left: 0;
   right: 0;
@@ -140,18 +140,18 @@
 }
 
 /* Nothing to point at: the mouse is stood right there in the same box. */
-.tutor__box--board::after {
+.tutor__box--over::after {
   display: none;
 }
 
-.tutor--board .tutor__mouse {
+.tutor--over .tutor__mouse {
   position: absolute;
   left: 0.75rem;
   bottom: 0.4rem;
   width: 8rem;
 }
 
-.tutor__box--board .tutor__line {
+.tutor__box--over .tutor__line {
   font-size: 0.9rem;
 }
 
@@ -159,13 +159,13 @@
 
 @media (max-width: 62rem) {
   .tutor--beside,
-  .tutor__box--placed {
+  .tutor__box--perched {
     flex: 0 0 auto;
     width: min(20rem, 100%);
   }
 
   /* Nothing to aim sideways at once the toolbox is below the text. */
-  .tutor__box--placed::after {
+  .tutor__box--perched::after {
     display: none;
   }
 
@@ -176,10 +176,10 @@
   }
 
   /* A narrow board has no room for a mouse beside the words. */
-  .tutor__box--board {
+  .tutor__box--over {
     padding-left: 1.1rem;
   }
-  .tutor--board .tutor__mouse {
+  .tutor--over .tutor__mouse {
     display: none;
   }
 }

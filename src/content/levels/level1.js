@@ -15,7 +15,12 @@
  * ends on and the reason the player goes looking for a resistor next.
  */
 
-import { TUTORIAL_BOARD, TUTORIAL_PLACED, TUTORIAL_PLACING } from '../tutorial.js';
+import {
+  TUTORIAL_BOARD,
+  TUTORIAL_FEED,
+  TUTORIAL_PLACED,
+  TUTORIAL_PLACING,
+} from '../tutorial.js';
 
 /** @typedef {import('../../shared/types.js').Level} Level */
 
@@ -46,6 +51,7 @@ export const level1 = {
     placing: TUTORIAL_PLACING,
     placed: TUTORIAL_PLACED,
     board: TUTORIAL_BOARD,
+    feed: TUTORIAL_FEED,
   },
 
   objectives: [

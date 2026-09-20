@@ -165,6 +165,8 @@
  * @property {string[]} placed   Once there is a wire on the board
  * @property {string[]} board    Once the battery is across the power rails —
  *                               shown over the board rather than beside it
+ * @property {string[]} feed     Once a wire carries the + rail into the main
+ *                               grid. Same place as `board`, new words.
  */
 
 /**

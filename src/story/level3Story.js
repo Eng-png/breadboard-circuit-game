@@ -1,7 +1,7 @@
 /**
  * OWNER: Person D (writing) / Person C (beat structure)
  *
- * LEVEL 3 — "Reading Light"
+ * LEVEL 3 — "Variable Control"
  *
  * The room is safely lit after level 2. Now it is about *how* lit. Same beat
  * shape as the other stories. During the puzzle the room's brightness is driven
@@ -10,7 +10,7 @@
 
 export const level3Story = {
   id: 'level-3',
-  title: 'Reading Light',
+  title: 'Variable Control',
   chapter: 'Level 3',
 
   beats: [

@@ -9,6 +9,8 @@
  *            toolbox now, so this one is about what to do with a wire.
  *   BOARD    once the battery is across the power rails. This one is about
  *            the board itself, so it is shown on the board, not beside it.
+ *   FEED     once a wire carries the + rail into the main grid. Same place on
+ *            the board as BOARD — only the words change.
  *
  * THIS IS PLACEHOLDER COPY. Rewrite the strings and nothing else changes —
  * TutorialMouse renders whatever lines it is handed, however many.
@@ -32,4 +34,14 @@ export const TUTORIAL_PLACED = [
 export const TUTORIAL_BOARD = [
   'PLACEHOLDER — Holes in the same column strip are already joined inside the board.',
   'PLACEHOLDER — The gap down the middle splits every column in two, so the halves are not connected.',
+];
+
+/**
+ * Once a wire runs from a positive rail into the main grid. Shown in the same
+ * place as TUTORIAL_BOARD — this stage changes the words, not the position.
+ * @type {string[]}
+ */
+export const TUTORIAL_FEED = [
+  'PLACEHOLDER — That wire brings power off the + rail and onto the board itself.',
+  'PLACEHOLDER — Everything in that column strip is now live. Build the rest of the loop from there.',
 ];

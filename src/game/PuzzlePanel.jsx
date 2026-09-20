@@ -10,7 +10,7 @@
  */
 
 import { Breadboard } from '../breadboard/Breadboard.jsx';
-import { isRailHole } from '../shared/holes.js';
+import { TUTORIAL_LAYOUT, tutorialStageFor } from './tutorialStage.js';
 // Paired with the commented-out panels in the sidebar below — put both back together.
 // import { HintPanel } from '../ui/HintPanel.jsx';
 // import { ObjectiveList } from '../ui/ObjectiveList.jsx';
@@ -53,23 +53,13 @@ export function PuzzlePanel({ level, game }) {
 
   const status = state.notice ?? statusLine(context.result);
   /*
-   * The mouse's three goes, in order: how to get a part out of the toolbox;
-   * then, once a wire proves they can, what a wire is doing; then, once the
-   * battery is across the rails, how the board is joined up underneath. In
-   * the gaps between them it has nothing to add and stays off.
+   * Which of the mouse's speeches is due, and where it stands to give it. The
+   * rules live in tutorialStage.js; all this needs to know is that an 'over'
+   * layout belongs inside the board and the rest belong in the sidebar.
    */
-  const wirePlaced = state.placements.some((placement) => placement.type === 'wire');
-  const batteryOnRails = state.placements.some(
-    (placement) =>
-      placement.type === 'battery' && placement.holes.length > 0 && placement.holes.every(isRailHole),
-  );
-  const tutorialStage = batteryOnRails
-    ? 'board'
-    : wirePlaced
-      ? 'placed'
-      : state.touched
-        ? null
-        : 'placing';
+  const tutorialStage = level.tutorial ? tutorialStageFor(state.placements, state.touched) : null;
+  const tutorialLines = tutorialStage ? level.tutorial[tutorialStage] : null;
+  const tutorialLayout = tutorialStage ? TUTORIAL_LAYOUT[tutorialStage] : null;
   const knobs = state.placements.filter((placement) => placement.type === 'potentiometer');
 
   return (
@@ -86,10 +76,8 @@ export function PuzzlePanel({ level, game }) {
           onPartTurn={(id, turn) => dispatch({ type: 'setTurn', id, turn })}
         />
 
-        {/* The last go is about the board, so it is laid over the board. */}
-        {level.tutorial && tutorialStage === 'board' && (
-          <TutorialMouse stage="board" lines={level.tutorial.board} />
-        )}
+        {/* The speeches about the board are laid over the board. */}
+        {tutorialLayout === 'over' && <TutorialMouse layout="over" lines={tutorialLines} />}
 
         {knobs.length > 0 && (
           <div className="puzzle__knobs">
@@ -137,11 +125,11 @@ export function PuzzlePanel({ level, game }) {
       </div>
 
       <aside className="puzzle__sidebar">
-        {/* The first two go beside the toolbox they are talking about.
-            Which levels get a mouse at all is the level's own business:
-            it is there if the level wrote lines for it. */}
-        {level.tutorial && tutorialStage && tutorialStage !== 'board' && (
-          <TutorialMouse stage={tutorialStage} lines={level.tutorial[tutorialStage]} />
+        {/* The rest stand beside the toolbox they are talking about. Which
+            levels get a mouse at all is the level's own business: it is there
+            if the level wrote lines for it. */}
+        {tutorialLayout && tutorialLayout !== 'over' && (
+          <TutorialMouse layout={tutorialLayout} lines={tutorialLines} />
         )}
         <Tray
           level={level}

@@ -43,7 +43,7 @@ const knob = () => document.querySelector('.knob__input');
 const turnTo = (percent) => fireEvent.change(knob(), { target: { value: String(percent) } });
 const continueButton = () => screen.queryByRole('button', { name: /sit back down/i });
 
-describe('Level 3 — Reading Light', () => {
+describe('Level 3 — Variable Control', () => {
   it('opens on the story, then a board with a gap after the LED', () => {
     startLevel3();
     expect(screen.getByText(/found a book/i)).toBeTruthy();
