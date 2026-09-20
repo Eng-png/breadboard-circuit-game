@@ -12,7 +12,7 @@
  * fallback in src/content/assets.js, so art and code never block each other.
  */
 
-import { forwardRef, useState } from 'react';
+import { useState } from 'react';
 import { background } from '../content/assets.js';
 
 /**
@@ -22,12 +22,12 @@ import { background } from '../content/assets.js';
  * @param {number} [props.glare] 0..1 — harsh white wash from an over-driven bulb
  * @param {React.ReactNode} [props.children]
  */
-export const Scene = forwardRef(function Scene({ name, light, glare = 0, children }, ref) {
+export function Scene({ name, light, glare = 0, children }) {
   const spec = background(name);
   const [imageFailed, setImageFailed] = useState(false);
 
   return (
-    <div className="scene" ref={ref}>
+    <div className="scene">
       <div className="scene__fallback" style={{ background: spec.fallback }} />
 
       {spec.src && !imageFailed && (
@@ -63,6 +63,6 @@ export const Scene = forwardRef(function Scene({ name, light, glare = 0, childre
       <div className="scene__content">{children}</div>
     </div>
   );
-});
+}
 
 const clamp = (value) => Math.max(0, Math.min(1, value ?? 0));

@@ -179,7 +179,7 @@ describe('Level 3 — Reading Light', () => {
     expect(continueButton()).toBeNull();
   });
 
-  it('ends the chapter and offers level 4', () => {
+  it('reaches the end of the game', () => {
     startLevel3();
     clickThrough(boardVisible);
     place('potentiometer', 'C17', 'C21');
@@ -187,8 +187,8 @@ describe('Level 3 — Reading Light', () => {
     fireEvent.click(continueButton());
     clickThrough(() => Boolean(screen.queryByText(/End of Level 3/i)));
 
-    expect(screen.getByText(/continues in the next level/i)).toBeTruthy();
-    expect(screen.getByRole('button', { name: /continue to level 4/i })).toBeTruthy();
+    expect(screen.getByText(/every level there is/i)).toBeTruthy();
+    expect(screen.queryByRole('button', { name: /continue to/i })).toBeNull();
     expect(screen.getByRole('button', { name: /play level 3 again/i })).toBeTruthy();
   });
 });

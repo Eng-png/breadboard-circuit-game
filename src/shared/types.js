@@ -27,7 +27,7 @@
 
 /**
  * The kind of thing a player can place on the board.
- * @typedef {'wire' | 'battery' | 'led' | 'resistor' | 'switch' | 'potentiometer' | 'fan'} ComponentType
+ * @typedef {'wire' | 'battery' | 'led' | 'resistor' | 'switch' | 'potentiometer'} ComponentType
  */
 
 /**
@@ -42,12 +42,12 @@
  * @property {boolean} polarized       True if plugging it in backwards matters
  * @property {object} [electrical]     Engine-relevant numbers (see below)
  * @property {number} [electrical.volts]           battery only
- * @property {number} [electrical.ohms]            resistor, fan — the motor's winding resistance
+ * @property {number} [electrical.ohms]            resistor only
  * @property {number} [electrical.minOhms]         potentiometer only — resistance at turn 0
  * @property {number} [electrical.maxOhms]         potentiometer only — resistance at turn 1
- * @property {number} [electrical.nominalCurrentMa] led, fan — current at which brightness/speed is 1
+ * @property {number} [electrical.nominalCurrentMa] led only — current at which brightness is 1
  * @property {number} [electrical.forwardVolts]    led only
- * @property {number} [electrical.minCurrentMa]    led, fan — below this it won't glow / turn
+ * @property {number} [electrical.minCurrentMa]    led only — below this it won't glow
  * @property {number} [electrical.maxCurrentMa]    led only — above this it burns out
  */
 
@@ -109,8 +109,6 @@
  * @property {boolean} [burnedOut]    led only — too much current, no resistor
  * @property {number} [brightness]    led only — 0 (dark) .. 1 (full), scales with current
  * @property {number} [ohms]          potentiometer only — resistance at the current knob position
- * @property {boolean} [spinning]     fan only — enough current to turn the motor
- * @property {number} [speed]         fan only — 0 (still) .. 1 (full), scales with current
  */
 
 /**

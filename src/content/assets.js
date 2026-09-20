@@ -48,32 +48,6 @@ export const PROPS = {
   },
 };
 
-/**
- * The desk fan in the room, one frame per head position. Frame 1 faces right,
- * frame 5 faces left; played 1→5→1 it sweeps like an oscillating fan.
- *
- * The PNG canvases are all slightly different sizes, so each frame carries its
- * pixel size and the bottom-centre of the fan's base (`anchor`). FanProp draws
- * every frame at the same scale (relative to `FAN_REF_WIDTH` source pixels)
- * and pins the anchor to one spot, so only the head moves between frames.
- * If you re-export the art, update these numbers to the new base position.
- */
-export const FAN_REF_WIDTH = 260;
-export const FAN_FRAMES = [
-  { src: `${BASE}/props/fan/fan-1.png`, width: 247, height: 334, anchor: [128, 316] },
-  { src: `${BASE}/props/fan/fan-2.png`, width: 239, height: 358, anchor: [118, 316] },
-  { src: `${BASE}/props/fan/fan-3.png`, width: 232, height: 342, anchor: [123, 316] },
-  { src: `${BASE}/props/fan/fan-4.png`, width: 245, height: 343, anchor: [109, 316] },
-  { src: `${BASE}/props/fan/fan-5.png`, width: 217, height: 369, anchor: [102, 311] },
-];
-
-/**
- * Level 4's control gear. Both are drawn as SVG placeholders until the PNG is
- * on disk (see public/assets/README.md).
- */
-export const ARDUINO_IMAGE = `${BASE}/props/arduino.png`;
-export const LIMIT_SWITCH_IMAGE = `${BASE}/props/limit-switch.png`;
-
 export const BREADBOARD_IMAGE = `${BASE}/breadboard/breadboard.png`;
 
 /** The open toolbox the parts tray is drawn inside. */
@@ -98,7 +72,6 @@ export const COMPONENT_IMAGES = {
   switch: `${BASE}/components/switch-open.png`,
   // Shared with COMPONENT_ART below: one drawing of the dimmer does both jobs.
   potentiometer: `${BASE}/components/potentiometer.png`,
-  fan: `${BASE}/components/fan.png`,
 };
 
 /**

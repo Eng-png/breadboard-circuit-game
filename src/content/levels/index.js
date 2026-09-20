@@ -8,10 +8,9 @@
 import { level1 } from './level1.js';
 import { level2 } from './level2.js';
 import { level3 } from './level3.js';
-import { level4 } from './level4.js';
 
 /** @type {import('../../shared/types.js').Level[]} */
-export const LEVELS = [level1, level2, level3, level4];
+export const LEVELS = [level1, level2, level3];
 
 /** @param {string} id */
 export function getLevel(id) {

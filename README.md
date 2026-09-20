@@ -104,18 +104,5 @@ more resistance, less current, dimmer room — live, as you drag. Settle on a so
 reading light to finish. The part is drawn as a blue SVG placeholder until
 `public/assets/components/potentiometer.png` exists (see `public/assets/README.md`).
 
-**Level 4 — Fresh Air.** Limit switches and an Arduino. The board half is
-battery → switch → fan (the fan motor is an ordinary part with 300 Ω of
-windings, no resistor needed). Once it turns, the pink desk fan in the corner
-(`src/story/FanProp.jsx`, five frames in `public/assets/props/fan/`) sweeps
-until it reaches the end of its travel and stalls there. Two limit switches hang
-loose in the room (`src/story/LimitSwitches.jsx`, `useLimitSwitches.js`) —
-unlike every other part they never snap to breadboard holes; drag one up against
-the end the head is stuck at and the head presses it, the Arduino docked above
-the board (`src/game/ArduinoDock.jsx`) sees the input and reverses the fan. Both
-ends guarded and the fan sweeps back and forth; that finishes the level. The
-Arduino and limit switches are SVG placeholders until their PNGs exist (see
-`public/assets/README.md`).
-
-To add a Level 5, register a level in `src/content/levels/` and a story in
-`src/story/` — the end beat of Level 4 will offer it automatically.
+To add a Level 4, register a level in `src/content/levels/` and a story in
+`src/story/` — the end beat of Level 3 will offer it automatically.

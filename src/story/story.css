@@ -263,79 +263,7 @@
   flex-wrap: wrap;
 }
 
-/* ── The fan in the room ────────────────────────────────────────────────── */
-
-/*
- * Sits on the floor at the right of the room, under the darkness veil like
- * the furniture, and behind everything the player touches.
- */
-.fan-prop {
-  position: absolute;
-  right: clamp(1rem, 6vw, 5rem);
-  bottom: 6%;
-  width: clamp(120px, 14vw, 220px);
-  aspect-ratio: 2 / 3;
-  z-index: 0;
-  pointer-events: none;
-  filter: drop-shadow(0 10px 14px rgba(0, 0, 0, 0.55));
-}
-
-/* Each frame sets its own width/transform inline so all five share one scale
-   and stand on the same floor point (see FAN_FRAMES). */
-.fan-prop__frame {
-  position: absolute;
-  left: 50%;
-  bottom: 0;
-  height: auto;
-  image-rendering: pixelated;
-}
-
-/* Stalled against an end with nothing to turn it round: a nervous judder. */
-.fan-prop[data-stalled='true'] { animation: fan-stall 260ms ease-in-out infinite alternate; }
-@keyframes fan-stall {
-  to { transform: translateX(1.5px); }
-}
-/* The head is jammed against the end of its travel: the motor on the board stops too. */
-.scene:has(.fan-prop[data-stalled='true']) .part__fan-blades { animation-play-state: paused; }
-
-/* ── Limit switches ─────────────────────────────────────────────────────── */
-
-/*
- * Loose in the room, on top of everything so they can be dragged over the
- * puzzle. Positioned by their centre, in percent of the scene (see
- * useLimitSwitches). No hole snapping: they sit exactly where they are put.
- */
-.limit-switch {
-  position: absolute;
-  z-index: 3;
-  width: clamp(48px, 5vw, 72px);
-  padding: 0;
-  margin: 0;
-  border: 0;
-  background: none;
-  transform: translate(-50%, -50%);
-  touch-action: none;
-  filter: drop-shadow(0 6px 8px rgba(0, 0, 0, 0.5));
-  transition: filter 160ms ease;
-}
-.limit-switch:focus-visible { outline: 2px solid var(--accent, #ffd166); outline-offset: 4px; border-radius: 6px; }
-.limit-switch[data-dragging='true'] { filter: drop-shadow(0 14px 16px rgba(0, 0, 0, 0.6)); transition: none; }
-.limit-switch[data-side='left'],
-.limit-switch[data-side='right'] { filter: drop-shadow(0 0 6px rgba(120, 220, 160, 0.8)); }
-.limit-switch[data-pressed='true'] { filter: drop-shadow(0 0 10px rgba(255, 230, 120, 1)); }
-.limit-switch img,
-.limit-switch__art { display: block; width: 100%; height: auto; overflow: visible; }
-
-.limit-switch__body { fill: #3a3f4b; stroke: #14171d; stroke-width: 1; }
-.limit-switch__screw { fill: #9aa2b1; }
-.limit-switch__button { fill: #d64545; }
-.limit-switch__lever { stroke: #c9ced8; stroke-width: 2.5; stroke-linecap: round; fill: none; }
-.limit-switch__roller { fill: #e8ebf0; stroke: #14171d; stroke-width: 1; }
-.limit-switch__wire { stroke: #d64545; stroke-width: 2; fill: none; stroke-linecap: round; }
-.limit-switch__wire--alt { stroke: #2b2b2b; }
-
 @media (prefers-reduced-motion: reduce) {
-  .fan-prop[data-stalled='true'] { animation: none; }
   .scene__veil,
   .scene__glow,
   .scene__glare { transition: none; }

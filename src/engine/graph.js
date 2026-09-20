@@ -86,7 +86,7 @@ function isConducting(placement, switchMode) {
 
 /** @param {Placement} placement */
 function resistanceOf(placement, electrical) {
-  if (placement.type === 'resistor' || placement.type === 'fan') return electrical.ohms ?? 0;
+  if (placement.type === 'resistor') return electrical.ohms ?? 0;
   if (placement.type === 'potentiometer') return potentiometerOhms(placement, electrical);
   if (placement.type === 'led') return LED_INTERNAL_OHMS;
   return IDEAL_OHMS; // switch, battery

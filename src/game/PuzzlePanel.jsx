@@ -21,9 +21,8 @@ import './PuzzlePanel.css';
  * @param {object} props
  * @param {import('../shared/types.js').Level} props.level
  * @param {ReturnType<typeof import('./useGameState.js').useGameState>} props.game
- * @param {import('react').ReactNode} [props.dock]  Gear docked above the board (Level 4's Arduino)
  */
-export function PuzzlePanel({ level, game, dock = null }) {
+export function PuzzlePanel({ level, game }) {
   // `objectives` comes back out of here too — the ObjectiveList below is
   // commented out for now, so nothing reads it in this file.
   const { state, dispatch, context, preview } = game;
@@ -56,7 +55,6 @@ export function PuzzlePanel({ level, game, dock = null }) {
   return (
     <div className="puzzle">
       <div className="puzzle__board">
-        {dock && <div className="puzzle__dock">{dock}</div>}
         <Breadboard
           placements={state.placements}
           result={context.result}
