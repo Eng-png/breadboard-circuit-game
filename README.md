@@ -36,6 +36,10 @@ The service user needs `ManageOrgSessions` and `ViewOrgSessions`. Never use a
 `VITE_` variable for the key: Vite exposes those values to the browser. Restart
 `npm run dev` after changing `.env.local`.
 
+On Vercel the same endpoint is served by the function in `api/devin-chat.js`.
+Set the same `DEVIN_*` variables under the project's Environment Variables and
+redeploy; nothing else is needed.
+
 For a local demo using the personal key offered on Devin's **Devin API** page,
 set `DEVIN_API_VERSION=v1` and `DEVIN_API_KEY=apk_user_...`. The organization
 and session values are optional in this mode; the proxy creates a private tutor
