@@ -37,7 +37,12 @@ export default function App() {
   };
 
   if (levelIndex === null) {
-    return <><MainMenu levels={LEVELS} onStart={start} /><CircuitChat /></>;
+    return (
+      <>
+        <MainMenu levels={LEVELS} onStart={start} />
+        <CircuitChat />
+      </>
+    );
   }
 
   if (showIntro) {
