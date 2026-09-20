@@ -83,7 +83,7 @@ export const level4Story = {
       mode: 'end',
       lines: [
         'Light you can read by. Air you can breathe. The fan sweeps the room like it is keeping watch.',
-        'Slip the resistor into the loop and the fan slows to a lazy turn; pull it out and it races. Every level there is more you can do with the same handful of parts.',
+        'Slip the resistor into the loop and the fan slows to a lazy turn; pull it out and it races. Same handful of parts, and still more to learn from them.',
       ],
       advance: null,
       next: null,
