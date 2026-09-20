@@ -18,6 +18,7 @@ art is still in progress.
 | `backgrounds/living-room-lit.png` | The same room, lights on | **Same camera angle as the dark one** — the whole payoff is the cut between them |
 | `breadboard/breadboard.png` | The breadboard itself | See calibration note below |
 | `props/panel-closed.png` | Wall panel, shut | Optional |
+| `backgrounds/toolbox.png` | The open toolbox the parts tray is drawn inside | Transparent PNG. Any aspect ratio works — the tray matches it |
 
 ## Level 3
 
@@ -25,13 +26,31 @@ art is still in progress.
 | --- | --- | --- |
 | `components/potentiometer.png` | The dimmer knob part, seen from above | **Square, transparent background**, roughly 512×512. Drawn 9 mm wide on the board (about 3.5 hole pitches) with the leads running left–right. Until the file exists a blue SVG placeholder is drawn instead. The black pointer that shows the knob position is drawn on top of your image, so leave the centre of the dial clear. Size/alt live in `src/content/assets.js` (`COMPONENT_ART`). |
 
-## Component art (optional)
+## Component art
 
-`components/battery.png`, `led-off.png`, `led-on.png`, `resistor.png`,
-`switch-open.png`, `switch-closed.png`
+One picture per part, shown in the tray. These are the slots the tray reads:
 
-These are optional. There is already working SVG art for every part that scales
-cleanly and shows polarity. Only add PNGs if they look better.
+| Path | Part |
+| --- | --- |
+| `components/wire.png` | Jumper wire |
+| `components/battery.png` | 9 V battery |
+| `components/led-off.png` | LED |
+| `components/resistor.png` | 330 Ω resistor |
+| `components/switch-open.png` | Push switch |
+| `components/potentiometer.png` | Dimmer — shared with the board art above |
+
+Square, transparent PNGs. They are letterboxed into a square slot, so anything
+roughly 1:1 (128×128 is plenty) looks right.
+
+Until a file exists the slot draws the part's own SVG art — the same art that
+appears on the board — so the tray is never empty and never wrong.
+
+### Where the slots sit in the toolbox
+
+The parts row is positioned as a percentage of `toolbox.png`, so it tracks the
+artwork at any size. If you swap the picture for one with a differently shaped
+compartment, retune the four `--slot-*` values at the top of the toolbox block
+in `src/game/PuzzlePanel.css` and nothing else.
 
 ## Format
 

@@ -83,7 +83,7 @@ export const level2 = {
 
   hints: [
     'Follow the loop with your finger. Between the switch and the LED there is a plain jumper wire — that is the shortcut letting all the current through.',
-    'Click the jumper between the switch and the LED to take it off the board. The loop breaks, and that is fine — you are about to fill the gap.',
+    'Drag the jumper between the switch and the LED off the board to take it away. The loop breaks, and that is fine — you are about to fill the gap.',
     'Put the resistor where the jumper was, one leg in the switch’s strip and one in the LED’s. It does not care which way round it goes.',
     'A resistor works like a narrow section of pipe: the same push from the battery moves less current through it, so the LED gets what it needs and no more.',
   ],

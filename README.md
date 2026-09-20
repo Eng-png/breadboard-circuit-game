@@ -23,9 +23,18 @@ npm run dev
 | Command | What it does |
 | --- | --- |
 | `npm run dev` | Dev server with hot reload |
-| `npm test` | 51 tests: the solver, and full playthroughs of Levels 1, 2 and 3 |
+| `npm test` | The solver, and full playthroughs of Levels 1, 2 and 3 |
 | `npm run lint` | Static checks |
 | `npm run build` | Production build into `dist/` |
+
+## How you play
+
+Drag a part out of the tray and drop it on a hole — it lands spanning that hole
+plus its own width, so one gesture places a whole component. After that, drag
+its body to move it, drag either end to re-seat a single leg, and drag it off
+the board to take it away. Tap a switch to flip it. Everything also works from
+the keyboard: Enter on a tray part drops it, then arrow keys move it and Delete
+removes it.
 
 ## The breadboard is real
 

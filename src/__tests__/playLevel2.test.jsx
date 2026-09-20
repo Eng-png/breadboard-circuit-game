@@ -2,6 +2,13 @@ import { describe, expect, it, afterEach } from 'vitest';
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import App from '../App.jsx';
 import { resetIds } from '../shared/ids.js';
+import {
+  boardVisible,
+  clickThrough,
+  finishLevel1,
+  place,
+  pullOff,
+} from './boardActions.js';
 
 /**
  * Plays level 2 the way a person would: finish level 1, step into level 2,
@@ -10,47 +17,6 @@ import { resetIds } from '../shared/ids.js';
  */
 
 afterEach(cleanup);
-
-const clickHole = (id) => {
-  const node = document.querySelector(`[data-hole="${id}"]`);
-  if (!node) throw new Error(`No hole ${id} on the board`);
-  fireEvent.click(node);
-};
-
-function place(type, first, second) {
-  const button = document.querySelector(`[data-part="${type}"]`);
-  if (!button) throw new Error(`No ${type} in the tray`);
-  fireEvent.click(button);
-  clickHole(first);
-  clickHole(second);
-}
-
-/** Click every advance button until one stops appearing (or the board shows). */
-function clickThrough(stopWhen) {
-  for (let guard = 0; guard < 30; guard += 1) {
-    if (stopWhen()) return;
-    const advance = document.querySelector('.dialogue__advance');
-    if (!advance) break;
-    fireEvent.click(advance);
-  }
-  if (!stopWhen()) throw new Error('Story did not reach the expected point');
-}
-
-const boardVisible = () => Boolean(document.querySelector('[data-hole]'));
-
-/** Play level 1 to its end beat. */
-function finishLevel1() {
-  clickThrough(boardVisible);
-  place('battery', 'TP1', 'TN1');
-  place('wire', 'TP5', 'A5');
-  place('switch', 'A5', 'A9');
-  place('resistor', 'B9', 'B13');
-  place('led', 'B13', 'B17');
-  place('wire', 'A17', 'TN5');
-  fireEvent.click(document.querySelector('[data-placement^="switch-"]'));
-  fireEvent.click(screen.getByRole('button', { name: /stand up and look around/i }));
-  clickThrough(() => Boolean(screen.queryByText(/End of Level 1/i)));
-}
 
 function startLevel2() {
   resetIds();
@@ -102,7 +68,7 @@ describe('Level 2 — Turn It Down', () => {
     startLevel2();
     clickThrough(boardVisible);
 
-    fireEvent.click(document.querySelector('[data-placement="pre-bridge"]'));
+    pullOff(document.querySelector('[data-placement="pre-bridge"]'));
 
     expect(document.querySelector('[data-placement="pre-bridge"]')).toBeNull();
     expect(screen.getByText(/gap in your loop/i)).toBeTruthy();
@@ -114,7 +80,7 @@ describe('Level 2 — Turn It Down', () => {
     startLevel2();
     clickThrough(boardVisible);
 
-    fireEvent.click(document.querySelector('[data-placement="pre-bridge"]'));
+    pullOff(document.querySelector('[data-placement="pre-bridge"]'));
     place('resistor', 'B9', 'B13');
 
     expect(veilOpacity()).toBe(0);
@@ -136,7 +102,7 @@ describe('Level 2 — Turn It Down', () => {
   it('ends with a way into level 3', () => {
     startLevel2();
     clickThrough(boardVisible);
-    fireEvent.click(document.querySelector('[data-placement="pre-bridge"]'));
+    pullOff(document.querySelector('[data-placement="pre-bridge"]'));
     place('resistor', 'B9', 'B13');
     fireEvent.click(screen.getByRole('button', { name: /lower your hand/i }));
     clickThrough(() => Boolean(screen.queryByText(/End of Level 2/i)));

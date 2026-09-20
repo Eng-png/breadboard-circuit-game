@@ -20,6 +20,13 @@ export const MAIN_ROWS = [...TOP_ROWS, ...BOTTOM_ROWS];
 /** The four power rails. TP = top positive, BN = bottom negative, etc. */
 export const RAILS = ['TP', 'TN', 'BP', 'BN'];
 
+/**
+ * Every row on the board, top to bottom, rails included. Dragging works in
+ * whole rows and whole columns, so it needs one ordered list to count along —
+ * this is it. Physical order only; it says nothing about what is connected.
+ */
+export const ROW_ORDER = ['TP', 'TN', ...TOP_ROWS, ...BOTTOM_ROWS, 'BP', 'BN'];
+
 /** @typedef {import('./types.js').HoleId} HoleId */
 
 /**
@@ -59,6 +66,46 @@ export function parseHole(id) {
 /** @param {HoleId} id */
 export function isRailHole(id) {
   return parseHole(id)?.kind === 'rail';
+}
+
+/**
+ * Move a hole id by whole rows and columns. Returns null if that would walk off
+ * the edge of the board, which is how the drag code says "you cannot put it
+ * there" without needing to know anything about pixels.
+ *
+ * @param {HoleId} id
+ * @param {number} rows  Positive = down the board
+ * @param {number} cols  Positive = to the right
+ * @returns {HoleId | null}
+ */
+export function shiftHole(id, rows, cols) {
+  const parsed = parseHole(id);
+  if (!parsed) return null;
+
+  const rowIndex = ROW_ORDER.indexOf(parsed.row) + rows;
+  const col = parsed.col + cols;
+  if (rowIndex < 0 || rowIndex >= ROW_ORDER.length) return null;
+  if (col < 1 || col > COLUMNS) return null;
+
+  return `${ROW_ORDER[rowIndex]}${col}`;
+}
+
+/**
+ * How far you would have to move to get from one hole to another.
+ * Inverse of shiftHole.
+ *
+ * @param {HoleId} from
+ * @param {HoleId} to
+ * @returns {{ rows: number, cols: number } | null}
+ */
+export function holeDelta(from, to) {
+  const a = parseHole(from);
+  const b = parseHole(to);
+  if (!a || !b) return null;
+  return {
+    rows: ROW_ORDER.indexOf(b.row) - ROW_ORDER.indexOf(a.row),
+    cols: b.col - a.col,
+  };
 }
 
 /**

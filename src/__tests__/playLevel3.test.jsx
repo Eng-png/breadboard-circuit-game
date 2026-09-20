@@ -2,6 +2,14 @@ import { describe, expect, it, afterEach } from 'vitest';
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import App from '../App.jsx';
 import { resetIds } from '../shared/ids.js';
+import {
+  boardVisible,
+  clickThrough,
+  finishLevel1,
+  place,
+  pullOff,
+  tap,
+} from './boardActions.js';
 
 /**
  * Plays level 3 the way a person would: finish levels 1 and 2, bridge the gap
@@ -10,49 +18,10 @@ import { resetIds } from '../shared/ids.js';
 
 afterEach(cleanup);
 
-const clickHole = (id) => {
-  const node = document.querySelector(`[data-hole="${id}"]`);
-  if (!node) throw new Error(`No hole ${id} on the board`);
-  fireEvent.click(node);
-};
-
-function place(type, first, second) {
-  const button = document.querySelector(`[data-part="${type}"]`);
-  if (!button) throw new Error(`No ${type} in the tray`);
-  fireEvent.click(button);
-  clickHole(first);
-  clickHole(second);
-}
-
-function clickThrough(stopWhen) {
-  for (let guard = 0; guard < 30; guard += 1) {
-    if (stopWhen()) return;
-    const advance = document.querySelector('.dialogue__advance');
-    if (!advance) break;
-    fireEvent.click(advance);
-  }
-  if (!stopWhen()) throw new Error('Story did not reach the expected point');
-}
-
-const boardVisible = () => Boolean(document.querySelector('[data-hole]'));
-
-function finishLevel1() {
-  clickThrough(boardVisible);
-  place('battery', 'TP1', 'TN1');
-  place('wire', 'TP5', 'A5');
-  place('switch', 'A5', 'A9');
-  place('resistor', 'B9', 'B13');
-  place('led', 'B13', 'B17');
-  place('wire', 'A17', 'TN5');
-  fireEvent.click(document.querySelector('[data-placement^="switch-"]'));
-  fireEvent.click(screen.getByRole('button', { name: /stand up and look around/i }));
-  clickThrough(() => Boolean(screen.queryByText(/End of Level 1/i)));
-}
-
 function finishLevel2() {
   fireEvent.click(screen.getByRole('button', { name: /continue to level 2/i }));
   clickThrough(boardVisible);
-  fireEvent.click(document.querySelector('[data-placement="pre-bridge"]'));
+  pullOff(document.querySelector('[data-placement="pre-bridge"]'));
   place('resistor', 'B9', 'B13');
   fireEvent.click(screen.getByRole('button', { name: /lower your hand/i }));
   clickThrough(() => Boolean(screen.queryByText(/End of Level 2/i)));
@@ -129,11 +98,11 @@ describe('Level 3 — Reading Light', () => {
     expect(document.querySelector('.part__pot').dataset.turn).toBe('0.75');
   });
 
-  it('dragging the part down dims it, up brightens it, and a plain click still removes it', () => {
+  it('dragging the part down dims it and up brightens it', () => {
     startLevel3();
     clickThrough(boardVisible);
     place('potentiometer', 'C17', 'C21');
-    const pot = () => document.querySelector('[data-placement^="potentiometer-"]');
+    const pot = () => document.querySelector('.breadboard [data-placement^="potentiometer-"]');
 
     fireEvent.pointerDown(pot(), { button: 0, pointerId: 1, clientY: 100 });
     fireEvent.pointerMove(pot(), { pointerId: 1, clientY: 180 });
@@ -158,11 +127,25 @@ describe('Level 3 — Reading Light', () => {
     fireEvent.click(pot());
     expect(knob().value).toBe('0');
 
+    // A press that goes nowhere changes nothing: the dimmer is not a switch,
+    // and its body is a knob, so it cannot be grabbed and moved either.
     fireEvent.pointerDown(pot(), { button: 0, pointerId: 1, clientY: 100 });
     fireEvent.pointerUp(pot(), { pointerId: 1, clientY: 101 });
-    fireEvent.click(pot());
-    expect(pot()).toBeNull();
+    expect(pot()).toBeTruthy();
+    expect(knob().value).toBe('0');
+  });
+
+  it('the dimmer comes off the board by its legs, like everything else', () => {
+    startLevel3();
+    clickThrough(boardVisible);
+    place('potentiometer', 'C17', 'C21');
+    expect(knob()).toBeTruthy();
+
+    pullOff(document.querySelector('.breadboard [data-placement^="potentiometer-"]'));
+
+    expect(document.querySelector('.breadboard [data-placement^="potentiometer-"]')).toBeNull();
     expect(knob()).toBeNull();
+    expect(screen.getByText(/gap in your loop/i)).toBeTruthy();
   });
 
   it('a soft setting completes the level; a spotlight does not', () => {
@@ -177,7 +160,7 @@ describe('Level 3 — Reading Light', () => {
     expect(continueButton()).toBeNull();
 
     turnTo(50);
-    fireEvent.click(document.querySelector('[data-placement="pre-switch"]'));
+    tap(document.querySelector('[data-placement="pre-switch"]'));
     expect(veilOpacity()).toBeGreaterThan(0.9);
     expect(continueButton()).toBeNull();
   });

@@ -50,6 +50,38 @@ export const PROPS = {
 
 export const BREADBOARD_IMAGE = `${BASE}/breadboard/breadboard.png`;
 
+/** The open toolbox the parts tray is drawn inside. */
+export const TOOLBOX_IMAGE = `${BASE}/backgrounds/toolbox.png`;
+
+/**
+ * One picture per part, shown in the tray.
+ *
+ * Drop a PNG at any of these paths and it replaces the drawn placeholder on
+ * refresh — no code change. Until then the tray draws the part's own SVG art,
+ * which is the same art the board uses, so the tray and the board always agree.
+ *
+ * Square images work best; they are letterboxed into a square slot.
+ *
+ * @type {Record<import('../shared/types.js').ComponentType, string>}
+ */
+export const COMPONENT_IMAGES = {
+  wire: `${BASE}/components/wire.png`,
+  battery: `${BASE}/components/battery.png`,
+  led: `${BASE}/components/led-off.png`,
+  resistor: `${BASE}/components/resistor.png`,
+  switch: `${BASE}/components/switch-open.png`,
+  // Shared with COMPONENT_ART below: one drawing of the dimmer does both jobs.
+  potentiometer: `${BASE}/components/potentiometer.png`,
+};
+
+/**
+ * @param {string} type
+ * @returns {string} '' when this part has no image slot at all
+ */
+export function componentImage(type) {
+  return COMPONENT_IMAGES[type] ?? '';
+}
+
 /**
  * Optional bitmap art for parts on the board. A part with an entry here is
  * drawn from the PNG when the file exists and from its SVG placeholder when it

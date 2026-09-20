@@ -93,7 +93,7 @@ export const level3 = {
 
   hints: [
     'Follow the loop from the LED’s short leg. It reaches column 17 and stops — the return wire starts four columns later, at 21. That gap is where the dimmer goes.',
-    'Click the dimmer in the tray, then one hole in column 17 and one in column 21 (rows A to E share a strip, so any row works). It has no + or −.',
+    'Drag the dimmer out of the tray onto column 17, then pull its far end to column 21 (rows A to E share a strip, so any row works). It has no + or −.',
     'Once the dimmer is on the board, press on it and drag down to dim, up to brighten. There is a slider under the board too. Watch the room, the LED, and the ohms reading change together.',
     'The 330 Ω resistor is still in the loop, so even fully down the dimmer cannot hurt the LED. In real dimmers that fixed resistor is there for exactly that reason.',
   ],
