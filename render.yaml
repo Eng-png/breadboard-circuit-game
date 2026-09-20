@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: watts-wrong
+    runtime: node
+    plan: free
+    buildCommand: npm ci && npm run build
+    startCommand: npm start
+    healthCheckPath: /
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+      - key: DEVIN_API_VERSION
+        value: v1
+      - key: DEVIN_API_KEY
+        sync: false
