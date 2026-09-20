@@ -5,15 +5,18 @@ import { resetIds } from '../shared/ids.js';
 import {
   boardVisible,
   clickThrough,
+  dropFromTray,
   finishLevel1,
   place,
+  placeDimmer,
   pullOff,
   tap,
 } from './boardActions.js';
 
 /**
- * Plays level 3 the way a person would: finish levels 1 and 2, bridge the gap
- * after the LED with the dimmer, and turn the knob until the light is soft.
+ * Plays level 3 the way a person would: finish levels 1 and 2, drop the
+ * three-pin dimmer across the gap after the LED, wire its wiper into the loop,
+ * and turn the knob until the light is soft.
  */
 
 afterEach(cleanup);
@@ -40,7 +43,7 @@ const knob = () => document.querySelector('.knob__input');
 const turnTo = (percent) => fireEvent.change(knob(), { target: { value: String(percent) } });
 const continueButton = () => screen.queryByRole('button', { name: /sit back down/i });
 
-describe('Level 3 — Reading Light', () => {
+describe('Level 3 — Variable Control', () => {
   it('opens on the story, then a board with a gap after the LED', () => {
     startLevel3();
     expect(screen.getByText(/found a book/i)).toBeTruthy();
@@ -52,11 +55,35 @@ describe('Level 3 — Reading Light', () => {
     expect(document.querySelector('[data-part="potentiometer"]').disabled).toBe(false);
   });
 
-  it('bridging the gap with the dimmer lights the room at full and shows a knob', () => {
+  it('drops in across the gap with a leg either side and its wiper between', () => {
     startLevel3();
     clickThrough(boardVisible);
 
-    place('potentiometer', 'C17', 'C21');
+    dropFromTray('potentiometer', 'C17');
+    const pot = document.querySelector('.breadboard [data-placement^="potentiometer-"]');
+    expect(pot.getAttribute('data-holes')).toBe('C17,C19,C21');
+    expect(pot.querySelectorAll('[data-leg]').length).toBe(3);
+  });
+
+  it('wired end to end the knob does nothing', () => {
+    startLevel3();
+    clickThrough(boardVisible);
+
+    // Both outer pins in the loop, wiper connected to nothing: the current
+    // crosses the whole track whatever the knob says.
+    dropFromTray('potentiometer', 'C17');
+
+    expect(screen.getByText(/^1000 Ω$/)).toBeTruthy();
+    turnTo(20);
+    expect(screen.getByText(/^1000 Ω$/)).toBeTruthy();
+    expect(continueButton()).toBeNull();
+  });
+
+  it('a jumper from the wiper to the ground end puts the knob in charge', () => {
+    startLevel3();
+    clickThrough(boardVisible);
+
+    placeDimmer();
 
     expect(knob()).toBeTruthy();
     expect(knob().value).toBe('0');
@@ -69,7 +96,7 @@ describe('Level 3 — Reading Light', () => {
   it('more resistance means a dimmer room; less means brighter', () => {
     startLevel3();
     clickThrough(boardVisible);
-    place('potentiometer', 'C17', 'C21');
+    placeDimmer();
 
     turnTo(100);
     const dim = veilOpacity();
@@ -89,7 +116,7 @@ describe('Level 3 — Reading Light', () => {
   it('the knob turns the pointer on the part itself', () => {
     startLevel3();
     clickThrough(boardVisible);
-    place('potentiometer', 'C17', 'C21');
+    placeDimmer();
 
     expect(document.querySelector('.part__pot').dataset.turn).toBe('0.00');
     turnTo(75);
@@ -99,7 +126,7 @@ describe('Level 3 — Reading Light', () => {
   it('dragging the part down dims it and up brightens it', () => {
     startLevel3();
     clickThrough(boardVisible);
-    place('potentiometer', 'C17', 'C21');
+    placeDimmer();
     const pot = () => document.querySelector('.breadboard [data-placement^="potentiometer-"]');
 
     fireEvent.pointerDown(pot(), { button: 0, pointerId: 1, clientY: 100 });
@@ -138,7 +165,7 @@ describe('Level 3 — Reading Light', () => {
   it('the dimmer comes off the board by its legs, like everything else', () => {
     startLevel3();
     clickThrough(boardVisible);
-    place('potentiometer', 'C17', 'C21');
+    placeDimmer();
     expect(knob()).toBeTruthy();
 
     pullOff(document.querySelector('.breadboard [data-placement^="potentiometer-"]'));
@@ -150,7 +177,7 @@ describe('Level 3 — Reading Light', () => {
   it('a soft setting completes the level; a spotlight does not', () => {
     startLevel3();
     clickThrough(boardVisible);
-    place('potentiometer', 'C17', 'C21');
+    placeDimmer();
 
     turnTo(50);
     expect(continueButton()).toBeTruthy();
@@ -168,7 +195,7 @@ describe('Level 3 — Reading Light', () => {
     startLevel3();
     clickThrough(boardVisible);
 
-    place('potentiometer', 'A25', 'A29');
+    dropFromTray('potentiometer', 'A25');
 
     expect(knob()).toBeTruthy();
     turnTo(50);
@@ -178,7 +205,7 @@ describe('Level 3 — Reading Light', () => {
   it('reaches the end of the game', () => {
     startLevel3();
     clickThrough(boardVisible);
-    place('potentiometer', 'C17', 'C21');
+    placeDimmer();
     turnTo(50);
     fireEvent.click(continueButton());
     clickThrough(() => Boolean(screen.queryByText(/End of Level 3/i)));

@@ -1,7 +1,7 @@
 /**
  * OWNER: Person D (writing) / Person C (beat structure)
  *
- * LEVEL 3 — "Reading Light"
+ * LEVEL 3 — "Variable Control"
  *
  * The room is safely lit after level 2. Now it is about *how* lit. Same beat
  * shape as the other stories. During the puzzle the room's brightness is driven
@@ -10,7 +10,7 @@
 
 export const level3Story = {
   id: 'level-3',
-  title: 'Reading Light',
+  title: 'Variable Control',
   chapter: 'Level 3',
 
   beats: [
@@ -47,8 +47,10 @@ export const level3Story = {
       background: 'living-room-lit',
       mode: 'puzzle',
       lines: [
-        'Bridge the gap after the LED with the dimmer. Then drag it — down for dimmer, up for brighter — and find a ' +
-          'brightness you could read by — not off, not a spotlight, somewhere in between.',
+        'Drop the dimmer across the gap after the LED. It has three pins: current in at one ' +
+          'end, ground at the other, and the wiper in the middle. Get the wiper carrying the ' +
+          'current, then drag the dimmer — down for dimmer, up for brighter — until the room ' +
+          'is somewhere you could read: not off, not a spotlight, somewhere in between.',
       ],
       resolve: 'The light eases. The page in your lap is still readable; the rest of the room falls back into shadow.',
       resolveLabel: 'Sit back down',

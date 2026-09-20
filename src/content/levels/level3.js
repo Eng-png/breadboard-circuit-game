@@ -1,19 +1,31 @@
 /**
  * OWNER: Person D (Content) / Person C (format)
  *
- * LEVEL 3 — "Reading Light"
+ * LEVEL 3 — "Variable Control"
  *
  * The level 2 circuit is back on the board, working and safe — but fixed at
  * one brightness. Between the LED and the return wire there is a gap, and the
- * tray holds a potentiometer. Bridge the gap with it and a knob appears under
- * the board: more resistance, less current, dimmer light. Settle on a soft
- * reading light and the level is done.
+ * tray holds a potentiometer. Settle on a soft reading light and the level is
+ * done.
  *
  * Board layout:
  *   TP1/TN1   battery          A5-A9    switch (closed)
  *   TP5-A5    feed wire        B9-B13   330 Ω resistor
  *   B13-B17   LED              [gap: column 17 -> column 21]
  *   A21-TN5   return wire
+ *
+ * THE THREE PINS. The dimmer drops in across the gap with a pin in column 17,
+ * its wiper in 19 and a pin in 21 — voltage in from the LED on one side,
+ * ground on the other, the wiper sitting between them:
+ *
+ *   col 17 ──/\/\/\── col 19 ──/\/\/\── col 21
+ *   (from LED)         (wiper)          (to ground)
+ *
+ * Wired like that the current runs end to end past the wiper, so it crosses
+ * the whole track whatever the knob says and nothing dims. The fix is the one
+ * every bench uses: a jumper from the wiper to the ground end. That shorts the
+ * lower half out and leaves the knob in charge of everything between the LED
+ * and ground.
  *
  * With the 330 Ω resistor still in the loop the dimmer can never burn the LED
  * out, which is exactly how you would wire one for real.
@@ -29,11 +41,13 @@ const potOf = (placements) => placements.find((p) => p.type === 'potentiometer')
 /** @type {import('../../shared/types.js').Level} */
 export const level3 = {
   id: 'level-3',
-  title: 'Reading Light',
+  title: 'Variable Control',
   brief:
     'The light is fine now — for cooking. For reading it is still a spotlight. ' +
-    'There is a gap after the LED and a dimmer in the tray. Put the dimmer in the ' +
-    'gap, then turn it until the room is soft enough to sit in.',
+    'There is a gap after the LED and a dimmer in the tray. The dimmer has three ' +
+    'pins: the outer two are the ends of a resistive track, and the middle one is ' +
+    'the wiper the knob slides along it. Get the current going through that wiper, ' +
+    'then turn it until the room is soft enough to sit in.',
 
   tray: [
     { type: 'wire', count: Infinity },
@@ -69,6 +83,21 @@ export const level3 = {
       },
     },
     {
+      /*
+       * The whole lesson. Both outer pins in the loop is a legal circuit and a
+       * complete one — it is just the whole track, fixed, with the wiper doing
+       * nothing. Only current that enters or leaves at the wiper answers to
+       * the knob, so only that counts as having wired a dimmer.
+       */
+      id: 'wiper',
+      description: 'Send the current through the wiper, not straight across the track',
+      check: ({ resultClosed, placements }) => {
+        const pot = potOf(placements);
+        if (!pot) return false;
+        return resultClosed.components[pot.id]?.viaWiper === true;
+      },
+    },
+    {
       id: 'soft',
       description: 'Turn the knob until the light is soft — between 20% and 60%',
       check: ({ result, placements }) => {
@@ -93,8 +122,10 @@ export const level3 = {
 
   hints: [
     'Follow the loop from the LED’s short leg. It reaches column 17 and stops — the return wire starts four columns later, at 21. That gap is where the dimmer goes.',
-    'Drag the dimmer out of the tray onto column 17, then pull its far end to column 21 (rows A to E share a strip, so any row works). It has no + or −.',
-    'Once the dimmer is on the board, press on it and drag down to dim, up to brighten. There is a slider under the board too. Watch the room, the LED, and the ohms reading change together.',
+    'Drag the dimmer out of the tray onto column 17. Its three legs land in columns 17, 19 and 21: one end taking the current from the LED, the wiper in the middle, the other end on the wire back to the battery. It has no + or −.',
+    'Turning the knob does nothing yet, and that is the point. The current is going in one end and out the other, so it crosses the whole track every time. The wiper in column 19 is not connected to anything.',
+    'Run a jumper from the wiper’s column, 19, to column 21 — the ground end. Now the current leaves at the wiper instead of carrying on through the rest of the track, and the knob decides how much track it had to cross. That is how a dimmer is wired on a real bench.',
+    'Once the wiper is carrying the current, press on the dimmer and drag down to dim, up to brighten. There is a slider under the board too. Watch the room, the LED, and the ohms reading change together.',
     'The 330 Ω resistor is still in the loop, so even fully down the dimmer cannot hurt the LED. In real dimmers that fixed resistor is there for exactly that reason.',
   ],
 
@@ -102,9 +133,11 @@ export const level3 = {
     title: 'That knob is a potentiometer',
     body:
       'A potentiometer is a resistor with a moving contact: turn the shaft and the ' +
-      'current has to cross more or less of the resistive track. Volume knobs, ' +
-      'dimmer switches, joystick axes and the brightness wheel on a torch are all ' +
-      'the same part. Modern LED dimmers usually pulse the light on and off very fast ' +
-      'instead — but the knob you turn is still, very often, a potentiometer.',
+      'current has to cross more or less of the resistive track. That is why it has ' +
+      'three pins — one at each end of the track, and one on the contact itself. ' +
+      'Wire the two ends across a supply and the wiper reads off a fraction of the ' +
+      'voltage, which is how a volume knob or a joystick axis talks to a chip. Wire ' +
+      'one end and the wiper into a circuit, as you just did, and it is a variable ' +
+      'resistor instead. Same part, two jobs, decided entirely by which pins you use.',
   },
 };

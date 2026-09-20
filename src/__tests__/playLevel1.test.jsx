@@ -38,7 +38,7 @@ function buildWorkingCircuit() {
   place('battery', 'TP1', 'TN1');
   place('wire', 'TP5', 'A5');
   place('switch', 'A5', 'A9');
-  place('resistor', 'B9', 'B13');
+  place('wire', 'B9', 'B13');
   place('led', 'B13', 'B17');
   place('wire', 'A17', 'TN5');
 }
@@ -47,7 +47,7 @@ describe('Level 1 — Lights Out', () => {
   it('opens on the story, not the puzzle', () => {
     resetIds();
     startGame();
-    expect(screen.getByText(/Home\. It took longer/i)).toBeTruthy();
+    expect(screen.getByText(/Oh shoot/i)).toBeTruthy();
     expect(document.querySelector('[data-hole]')).toBeNull();
   });
 
@@ -133,7 +133,6 @@ describe('Level 1 — Lights Out', () => {
     }
 
     expect(screen.getByText(/End of Level 1/i)).toBeTruthy();
-    expect(screen.getByText(/too much/i)).toBeTruthy();
     expect(screen.getByRole('button', { name: /play level 1 again/i })).toBeTruthy();
   });
 });
@@ -147,8 +146,8 @@ describe('Dragging parts around', () => {
 
   it('a part dropped on the main grid lies along its row', () => {
     start();
-    dropFromTray('resistor', 'B9');
-    expect(holesOf(lastPlaced('resistor'))).toEqual(['B9', 'B12']);
+    dropFromTray('led', 'B9');
+    expect(holesOf(lastPlaced('led'))).toEqual(['B9', 'B12']);
   });
 
   it('a battery dropped on a rail goes across the rail pair', () => {
@@ -172,12 +171,12 @@ describe('Dragging parts around', () => {
 
   it('dragging the body moves the whole part, span intact', () => {
     start();
-    dropFromTray('resistor', 'B9'); // B9–B12
-    const part = lastPlaced('resistor');
+    dropFromTray('led', 'B9'); // B9–B12
+    const part = lastPlaced('led');
     fireEvent.pointerDown(part, { clientX: 0, clientY: 0 });
     dragOver('D20');
     drop();
-    expect(holesOf(lastPlaced('resistor'))).toEqual(['D20', 'D23']);
+    expect(holesOf(lastPlaced('led'))).toEqual(['D20', 'D23']);
   });
 
   it('dragging a part off the board takes it away', () => {
@@ -205,12 +204,12 @@ describe('Dragging parts around', () => {
 
   it('undo puts a dragged part back where it was', () => {
     start();
-    dropFromTray('resistor', 'B9');
-    dragLeg(lastPlaced('resistor'), 1, 'B20');
-    expect(holesOf(lastPlaced('resistor'))).toEqual(['B9', 'B20']);
+    dropFromTray('led', 'B9');
+    dragLeg(lastPlaced('led'), 1, 'B20');
+    expect(holesOf(lastPlaced('led'))).toEqual(['B9', 'B20']);
 
     fireEvent.click(screen.getByRole('button', { name: /undo/i }));
-    expect(holesOf(lastPlaced('resistor'))).toEqual(['B9', 'B12']);
+    expect(holesOf(lastPlaced('led'))).toEqual(['B9', 'B12']);
   });
 
   it('the keyboard can place and move a part without a pointer', () => {
@@ -238,7 +237,7 @@ describe('The toolbox tray', () => {
   it('shows one picture slot per part, and no wall of text', () => {
     start();
     const slots = document.querySelectorAll('.tray__item');
-    expect(slots.length).toBe(5);
+    expect(slots.length).toBe(4);
     for (const slot of slots) {
       expect(slot.querySelector('.tray__art')).toBeTruthy();
       // A count, and whatever tiny lettering is drawn into the art itself —
@@ -264,9 +263,9 @@ describe('The toolbox tray', () => {
   it('keeps the part named for a screen reader even without a hover', () => {
     start();
     const label = document
-      .querySelector('[data-part="resistor"]')
+      .querySelector('[data-part="switch"]')
       .getAttribute('aria-label');
-    expect(label).toMatch(/330 . resistor/);
+    expect(label).toMatch(/switch/i);
     expect(label).toMatch(/1 left/);
   });
 

@@ -18,32 +18,16 @@ export const level2Story = {
 
   beats: [
     {
-      id: 'glare',
+      id: 'burn',
       background: 'living-room-lit',
       light: 1,
       glare: 1,
       mode: 'narrative',
       lines: [
-        'You shade your eyes. Every edge in the room is bleached white.',
-        'The bulb is not just on — it is being pushed as hard as the battery can push it.',
-        'It is already warm. Left like this it will not last the night.',
+        'ahhhhhh my eyes are burninggggggg :(',
+        'I must have used too much power I can almost feel it in my bones',
       ],
-      advance: 'Back to the panel',
-      next: 'panel',
-    },
-
-    {
-      id: 'panel',
-      background: 'living-room-lit',
-      light: 1,
-      glare: 0.8,
-      mode: 'narrative',
-      lines: [
-        'The loop you built is all there: battery, switch, LED, and back.',
-        'But between the switch and the LED there is just a bare jumper. Nothing in the path is holding the current back.',
-        'You still have one part in the tray.',
-      ],
-      advance: 'Fix it',
+      advance: 'Get back to the panel',
       next: 'puzzle',
     },
 

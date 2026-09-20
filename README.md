@@ -20,6 +20,28 @@ npm install
 npm run dev
 ```
 
+### Devin circuit helper
+
+The in-game **Ask Watt** panel sends circuit questions through a server-side
+Devin proxy. Copy `.env.example` to `.env.local` and set a dedicated service
+user key, organization ID, and tutor session ID:
+
+```env
+DEVIN_API_KEY=cog_...
+DEVIN_ORG_ID=org-...
+DEVIN_SESSION_ID=devin-...
+```
+
+The service user needs `ManageOrgSessions` and `ViewOrgSessions`. Never use a
+`VITE_` variable for the key: Vite exposes those values to the browser. Restart
+`npm run dev` after changing `.env.local`.
+
+For a local demo using the personal key offered on Devin's **Devin API** page,
+set `DEVIN_API_VERSION=v1` and `DEVIN_API_KEY=apk_user_...`. The organization
+and session values are optional in this mode; the proxy creates a private tutor
+session when the first question is asked. Personal v1 keys are a legacy option,
+so use the v3 service-user configuration above for a deployed app.
+
 | Command | What it does |
 | --- | --- |
 | `npm run dev` | Dev server with hot reload |

@@ -1,8 +1,9 @@
 /**
  * OWNER: Person D (art) — working placeholder art, replace freely.
  *
- * Renders one placed component between its two holes. Everything is drawn in
- * board millimetres, inside the breadboard's own SVG, so one hole pitch is 2.54.
+ * Renders one placed component across the holes it is plugged into — two for
+ * most parts, three for a potentiometer. Everything is drawn in board
+ * millimetres, inside the breadboard's own SVG, so one hole pitch is 2.54.
  *
  * The visual job of this file is to make three things unmistakable at a glance:
  *   - which way round a polarized part goes (the LED lesson)
@@ -46,9 +47,14 @@ export function Part({
   const art = boardArt(placement);
   const artReady = useImageAvailable(art?.src ?? '') === true;
   const drawn = art && artReady ? art : null;
-  const from = holeCenter(placement.holes[0]);
-  const to = holeCenter(placement.holes[1]);
-  if (!from || !to) return null;
+  const points = placement.holes.map((id) => holeCenter(id));
+  if (points.length < 2 || points.some((point) => !point)) return null;
+  const from = points[0];
+  const to = points[points.length - 1];
+
+  // Legs between the two ends — a potentiometer's wiper — run their own lead
+  // out to the body, because the body only reaches as far as the outer two.
+  const innerLegs = points.slice(1, -1);
 
   const mid = { x: (from.x + to.x) / 2, y: (from.y + to.y) / 2 };
   const angle = (Math.atan2(to.y - from.y, to.x - from.x) * 180) / Math.PI;
@@ -105,12 +111,11 @@ export function Part({
     ...(knob.active ? knob.handlers : { onPointerDown: ghost ? undefined : grab(null) }),
   };
 
-  const handles = ghost ? null : (
-    <>
-      <LegHandle index={0} at={from} onPointerDown={grab(0)} />
-      <LegHandle index={1} at={to} onPointerDown={grab(1)} />
-    </>
-  );
+  const handles = ghost
+    ? null
+    : points.map((at, index) => (
+        <LegHandle key={index} index={index} at={at} onPointerDown={grab(index)} />
+      ));
 
   if (placement.type === 'wire') {
     return (
@@ -130,6 +135,16 @@ export function Part({
         take the straight line between the two.
       */}
       {!drawn && <line x1={from.x} y1={from.y} x2={to.x} y2={to.y} className="part__lead" />}
+      {innerLegs.map((at, index) => (
+        <line
+          key={index}
+          x1={mid.x}
+          y1={mid.y}
+          x2={at.x}
+          y2={at.y}
+          className="part__lead part__lead--wiper"
+        />
+      ))}
       <g transform={`translate(${mid.x} ${mid.y}) rotate(${bodyAngle})`}>
         {drawn ? (
           <ArtBody
@@ -173,7 +188,8 @@ function ariaLabel(placement) {
   }
   if (placement.type === 'potentiometer') {
     const percent = Math.round((placement.state?.turn ?? 0) * 100);
-    return `Dimmer at ${where}, turned ${percent}%. Drag it up or down to set it, or use the slider under the board. Arrow keys to move, Delete to remove.`;
+    const [a, wiper, b] = placement.holes;
+    return `Dimmer, end A at ${a}, wiper at ${wiper}, end B at ${b}, turned ${percent}%. Drag it up or down to set it, or use the slider under the board. Arrow keys to move, Delete to remove.`;
   }
   return `${placement.type} at ${where}. Arrow keys to move, Delete to remove.`;
 }

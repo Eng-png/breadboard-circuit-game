@@ -59,6 +59,10 @@ export const DRAG_THRESHOLD = 4;
  * @property {Placement[][]} history   Snapshots for undo, newest last
  * @property {number} hintsRevealed
  * @property {string | null} notice    Transient message, e.g. "no wires left"
+ * @property {boolean} touched   The player has changed the board at least once.
+ *                               Undo does not take it back — it is "have they
+ *                               worked out how to do this yet", not "is the
+ *                               board dirty" — but Clear board does.
  */
 
 /** @param {Level} level @returns {GameState} */
@@ -68,6 +72,7 @@ const initialState = (level) => ({
   history: [],
   hintsRevealed: 0,
   notice: null,
+  touched: false,
 });
 
 /**
@@ -121,6 +126,7 @@ function reducer(state, action) {
     history: [...state.history, state.placements],
     drag: null,
     notice: null,
+    touched: true,
     ...extra,
   });
 
@@ -225,8 +231,8 @@ function reducer(state, action) {
 
       const holes = previewHoles(drag);
       if (!holes) return clearDrag('That does not fit on the board. Try further in.');
-      if (holes[0] === holes[1]) {
-        return clearDrag('Both legs cannot go in the same hole. Drop it somewhere with room.');
+      if (new Set(holes).size !== holes.length) {
+        return clearDrag('Two legs cannot go in the same hole. Drop it somewhere with room.');
       }
 
       if (drag.source === 'tray') {

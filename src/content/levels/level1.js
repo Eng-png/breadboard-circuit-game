@@ -3,13 +3,24 @@
  *          + Person C (objective `check` functions)
  *
  * LEVEL 1 — "Light It Up"
- * The player wires a battery, switch, resistor and LED into one loop, then
- * flips the switch to prove the light is under their control.
+ * The player wires a battery, switch and LED into one loop, then flips the
+ * switch to prove the light is under their control.
  *
  * The win condition is deliberately two-sided: the LED must be OFF with the
  * switch open and ON with it closed. That rules out the common cheat of
  * bridging around the switch, and it is the actual idea the level teaches.
+ *
+ * No resistor here — that is level 2's lesson. With nothing limiting the
+ * current the LED comes on far too hard, which is exactly the note level 1
+ * ends on and the reason the player goes looking for a resistor next.
  */
+
+import {
+  TUTORIAL_BOARD,
+  TUTORIAL_FEED,
+  TUTORIAL_PLACED,
+  TUTORIAL_PLACING,
+} from '../tutorial.js';
 
 /** @typedef {import('../../shared/types.js').Level} Level */
 
@@ -19,18 +30,29 @@ export const level1 = {
   title: 'Light It Up',
   brief:
     'Electricity only does useful work when it can travel in a complete loop. ' +
-    'Build a loop from the battery, through a switch and a resistor, to the LED ' +
-    'and back — then put the light under your control.',
+    'Build a loop from the battery, through a switch, to the LED and back — ' +
+    'then put the light under your control.',
 
   tray: [
     { type: 'wire', count: Infinity },
     { type: 'battery', count: 1 },
     { type: 'switch', count: 1 },
-    { type: 'resistor', count: 1 },
     { type: 'led', count: 1 },
   ],
 
   preplaced: [],
+
+  /*
+   * The only level that gets the mouse. It teaches working the toolbox, which
+   * is a thing you learn once — by level 2 it would just be a picture standing
+   * in front of the board.
+   */
+  tutorial: {
+    placing: TUTORIAL_PLACING,
+    placed: TUTORIAL_PLACED,
+    board: TUTORIAL_BOARD,
+    feed: TUTORIAL_FEED,
+  },
 
   objectives: [
     {
@@ -39,30 +61,29 @@ export const level1 = {
       check: ({ resultClosed }) => resultClosed.complete && !resultClosed.shorted,
     },
     {
-      id: 'protected',
-      description: 'Protect the LED with the resistor',
-      check: ({ resultClosed, placements }) => {
-        const led = placements.find((p) => p.type === 'led');
-        if (!led) return false;
-        return resultClosed.components[led.id]?.burnedOut === false;
-      },
-    },
-    {
       id: 'switch-off',
       description: 'With the switch OPEN, the LED is dark',
       check: ({ resultOpen, placements }) => {
         const led = placements.find((p) => p.type === 'led');
         if (!led) return false;
-        return resultOpen.components[led.id]?.lit !== true;
+        const result = resultOpen.components[led.id];
+        return result?.lit !== true && result?.burnedOut !== true;
       },
     },
     {
+      /*
+       * "On" here means shining, not shining *well*. With no resistor in the
+       * level the LED is always over-driven, which the engine reports as
+       * `burnedOut` rather than `lit` — it still floods the room, painfully,
+       * and that glare is the whole hand-off into level 2.
+       */
       id: 'switch-on',
       description: 'With the switch CLOSED, the LED lights up',
       check: ({ resultClosed, placements }) => {
         const led = placements.find((p) => p.type === 'led');
         if (!led) return false;
-        return resultClosed.components[led.id]?.lit === true;
+        const result = resultClosed.components[led.id];
+        return result?.lit === true || result?.burnedOut === true;
       },
     },
   ],

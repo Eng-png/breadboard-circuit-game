@@ -1,0 +1,24 @@
+.circuit-chat { position: fixed; right: 1.25rem; bottom: 1.25rem; z-index: 50; font-family: inherit; }
+.circuit-chat__toggle { display: flex; align-items: center; gap: .55rem; margin-left: auto; padding: .8rem 1rem; border: 3px solid #321638; border-radius: 0; color: #321638; background: #ffd95a; box-shadow: 5px 5px 0 #321638; font-weight: 900; cursor: pointer; }
+.circuit-chat__panel { display: flex; flex-direction: column; width: min(23rem, calc(100vw - 2rem)); height: min(34rem, calc(100vh - 7rem)); margin-bottom: 1rem; overflow: hidden; border: 4px solid #321638; background: #fff8df; box-shadow: 8px 8px 0 rgba(18, 7, 31, .7); }
+.circuit-chat__header { display: flex; justify-content: space-between; align-items: center; padding: .8rem 1rem; color: white; background: #5a3278; }
+.circuit-chat__header div { display: grid; gap: .1rem; }
+.circuit-chat__header strong { font-size: 1.15rem; }
+.circuit-chat__header span { color: #ead7f7; font-size: .72rem; }
+.circuit-chat__header button { border: 0; color: white; background: transparent; font-size: 1.7rem; cursor: pointer; }
+.circuit-chat__messages { flex: 1; display: flex; flex-direction: column; gap: .7rem; padding: 1rem; overflow-y: auto; }
+.circuit-chat__messages p { max-width: 88%; margin: 0; padding: .7rem .8rem; border: 2px solid #321638; line-height: 1.4; white-space: pre-wrap; }
+.circuit-chat__messages p[data-role='assistant'] { align-self: flex-start; color: #1c1022; background: white; }
+.circuit-chat__messages p[data-role='user'] { align-self: flex-end; color: white; background: #6e3d91; }
+.circuit-chat__messages p[data-role='error'] { align-self: flex-start; color: #7d2030; background: #ffd9df; }
+.circuit-chat__form { padding: .85rem; border-top: 3px solid #321638; background: #f4e6bb; }
+.circuit-chat__form label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+.circuit-chat__form div { display: flex; gap: .5rem; }
+.circuit-chat__form input { min-width: 0; flex: 1; padding: .7rem; border: 2px solid #321638; background: white; font: inherit; }
+.circuit-chat__form button { padding: .65rem .8rem; border: 2px solid #321638; color: white; background: #5a3278; font-weight: 800; cursor: pointer; }
+.circuit-chat__form button:disabled { opacity: .55; cursor: not-allowed; }
+
+@media (max-width: 600px) {
+  .circuit-chat { right: .7rem; bottom: .7rem; }
+  .circuit-chat__panel { width: calc(100vw - 1.4rem); height: min(31rem, calc(100vh - 6rem)); }
+}

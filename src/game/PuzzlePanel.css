@@ -14,7 +14,7 @@
  */
 .puzzle {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 15rem;
+  grid-template-columns: minmax(0, 1fr) auto;
   gap: 1.1rem;
   align-items: end;
   width: 100%;
@@ -27,6 +27,7 @@
  */
 .puzzle__board {
   width: 100%;
+  position: relative;
   min-width: 0;
   max-width: 46rem;
   margin-right: auto;
@@ -35,12 +36,22 @@
 /*
  * The toolbox stands upright beside the bench rather than resting on it, so it
  * is centred against the board's height instead of sharing its bottom line.
+ * The mouse giving the tutorial stands to its left, between bench and box.
  */
 .puzzle__sidebar {
+  --toolbox-width: 15rem;
+
+  position: relative;
   display: flex;
-  flex-direction: column;
-  gap: 0.7rem;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.9rem;
   align-self: center;
+}
+
+/* The toolbox keeps the width the sidebar used to be; the tutorial is extra. */
+.puzzle__sidebar > .tray {
+  flex: 0 0 var(--toolbox-width);
 }
 
 .puzzle__toolbar {
@@ -261,4 +272,7 @@ img.tray__art { image-rendering: pixelated; }
 
 @media (max-width: 62rem) {
   .puzzle { grid-template-columns: minmax(0, 1fr); }
+  /* No room to stand beside the box any more — the mouse goes above it. */
+  .puzzle__sidebar { flex-direction: column; align-items: center; }
+  .puzzle__sidebar > .tray { flex: 0 0 auto; }
 }

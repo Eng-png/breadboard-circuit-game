@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "start": "node --env-file-if-exists=.env.local server.js",
     "build": "vite build",
     "preview": "vite preview",
     "lint": "oxlint",
