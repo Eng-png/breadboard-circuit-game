@@ -44,6 +44,7 @@ export function PuzzlePanel({ level, game }) {
           pending={state.pending}
           onHoleClick={(hole) => dispatch({ type: 'holeClick', hole })}
           onPartClick={handlePartClick}
+          onPartTurn={(id, turn) => dispatch({ type: 'setTurn', id, turn })}
         />
 
         {knobs.length > 0 && (
@@ -78,6 +79,7 @@ export function PuzzlePanel({ level, game }) {
           </button>
           <span className="puzzle__tip">
             Click a switch to flip it. Click any other part to take it off.
+            {knobs.length > 0 && ' Drag the dimmer up for brighter, down for dimmer.'}
           </span>
         </div>
 

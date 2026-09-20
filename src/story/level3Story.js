@@ -47,7 +47,7 @@ export const level3Story = {
       background: 'living-room-lit',
       mode: 'puzzle',
       lines: [
-        'Bridge the gap after the LED with the dimmer. Then turn its knob and find a ' +
+        'Bridge the gap after the LED with the dimmer. Then drag it — down for dimmer, up for brighter — and find a ' +
           'brightness you could read by — not off, not a spotlight, somewhere in between.',
       ],
       resolve: 'The light eases. The page in your lap is still readable; the rest of the room falls back into shadow.',

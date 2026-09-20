@@ -129,6 +129,42 @@ describe('Level 3 — Reading Light', () => {
     expect(document.querySelector('.part__pot').dataset.turn).toBe('0.75');
   });
 
+  it('dragging the part down dims it, up brightens it, and a plain click still removes it', () => {
+    startLevel3();
+    clickThrough(boardVisible);
+    place('potentiometer', 'C17', 'C21');
+    const pot = () => document.querySelector('[data-placement^="potentiometer-"]');
+
+    fireEvent.pointerDown(pot(), { button: 0, pointerId: 1, clientY: 100 });
+    fireEvent.pointerMove(pot(), { pointerId: 1, clientY: 180 });
+    fireEvent.pointerUp(pot(), { pointerId: 1, clientY: 180 });
+    fireEvent.click(pot());
+    expect(pot()).toBeTruthy();
+    expect(knob().value).toBe('50');
+    expect(screen.getByText(/^500 Ω$/)).toBeTruthy();
+    const dimmed = veilOpacity();
+    expect(dimmed).toBeGreaterThan(0);
+
+    fireEvent.pointerDown(pot(), { button: 0, pointerId: 1, clientY: 100 });
+    fireEvent.pointerMove(pot(), { pointerId: 1, clientY: 60 });
+    fireEvent.pointerUp(pot(), { pointerId: 1, clientY: 60 });
+    fireEvent.click(pot());
+    expect(knob().value).toBe('25');
+    expect(veilOpacity()).toBeLessThan(dimmed);
+
+    fireEvent.pointerDown(pot(), { button: 0, pointerId: 1, clientY: 100 });
+    fireEvent.pointerMove(pot(), { pointerId: 1, clientY: -900 });
+    fireEvent.pointerUp(pot(), { pointerId: 1, clientY: -900 });
+    fireEvent.click(pot());
+    expect(knob().value).toBe('0');
+
+    fireEvent.pointerDown(pot(), { button: 0, pointerId: 1, clientY: 100 });
+    fireEvent.pointerUp(pot(), { pointerId: 1, clientY: 101 });
+    fireEvent.click(pot());
+    expect(pot()).toBeNull();
+    expect(knob()).toBeNull();
+  });
+
   it('a soft setting completes the level; a spotlight does not', () => {
     startLevel3();
     clickThrough(boardVisible);

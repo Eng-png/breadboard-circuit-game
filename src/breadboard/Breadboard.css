@@ -141,6 +141,7 @@
   stroke: #000;
 }
 
+.part--potentiometer { cursor: ns-resize; touch-action: none; }
 .part__pot-body { fill: #2f6fd6; stroke: #1c4a95; stroke-width: 0.2; }
 .part__pot-dial { fill: #f1f1f1; stroke: #9aa1ad; stroke-width: 0.2; }
 .part__pot-pointer {
