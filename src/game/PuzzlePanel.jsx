@@ -51,7 +51,6 @@ export function PuzzlePanel({ level, game }) {
     }
   };
 
-  const status = state.notice ?? statusLine(context.result);
   /*
    * Which of the mouse's speeches is due, and where it stands to give it. The
    * rules live in tutorialStage.js; all this needs to know is that an 'over'
@@ -109,19 +108,7 @@ export function PuzzlePanel({ level, game }) {
           >
             Clear board
           </button>
-          <span className="puzzle__tip">
-            Drag parts to move them. Drag one off the board to remove it. Tap a switch to flip it.
-            {knobs.length > 0 && ' Drag the dimmer up for brighter, down for dimmer.'}
-          </span>
         </div>
-
-        <p
-          className="puzzle__status"
-          data-tone={toneOf(context.result, state.notice)}
-          aria-live="polite"
-        >
-          {status}
-        </p>
       </div>
 
       <aside className="puzzle__sidebar">
@@ -157,18 +144,6 @@ export function PuzzlePanel({ level, game }) {
   );
 }
 
-/**
- * One line of coaching. Show the first fault only — four red messages at once
- * teaches nothing.
- *
- * @param {import('../shared/types.js').CircuitResult} result
- */
-function statusLine(result) {
-  if (result.faults.length > 0) return result.faults[0].message;
-  if (result.complete) return 'Current is flowing all the way round the loop.';
-  return 'The board is empty. Start with the battery — nothing moves without it.';
-}
-
 /** Arrow keys, in board terms: rows down the board, columns across it. */
 const NUDGE = {
   ArrowUp: { rows: -1, cols: 0 },
@@ -176,11 +151,3 @@ const NUDGE = {
   ArrowLeft: { rows: 0, cols: -1 },
   ArrowRight: { rows: 0, cols: 1 },
 };
-
-function toneOf(result, notice) {
-  if (notice) return 'warn';
-  if (result.shorted) return 'error';
-  if (result.faults.length > 0) return 'warn';
-  if (result.complete) return 'ok';
-  return 'neutral';
-}

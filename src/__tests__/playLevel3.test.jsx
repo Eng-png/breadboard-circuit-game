@@ -51,7 +51,6 @@ describe('Level 3 — Variable Control', () => {
 
     expect(document.querySelector('[data-placement="pre-led"]')).toBeTruthy();
     expect(document.querySelector('[data-placement="pre-resistor"]')).toBeTruthy();
-    expect(screen.getByText(/gap in your loop/i)).toBeTruthy();
     expect(knob()).toBeNull();
     expect(document.querySelector('[data-part="potentiometer"]').disabled).toBe(false);
   });
@@ -66,7 +65,7 @@ describe('Level 3 — Variable Control', () => {
     expect(pot.querySelectorAll('[data-leg]').length).toBe(3);
   });
 
-  it('wired end to end the knob does nothing, and the board says why', () => {
+  it('wired end to end the knob does nothing', () => {
     startLevel3();
     clickThrough(boardVisible);
 
@@ -75,7 +74,6 @@ describe('Level 3 — Variable Control', () => {
     dropFromTray('potentiometer', 'C17');
 
     expect(screen.getByText(/^1000 Ω$/)).toBeTruthy();
-    expect(screen.getByText(/straight past the middle pin/i)).toBeTruthy();
     turnTo(20);
     expect(screen.getByText(/^1000 Ω$/)).toBeTruthy();
     expect(continueButton()).toBeNull();
@@ -91,7 +89,6 @@ describe('Level 3 — Variable Control', () => {
     expect(knob().value).toBe('0');
     expect(screen.getByText(/^0 Ω$/)).toBeTruthy();
     expect(veilOpacity()).toBe(0);
-    expect(screen.getByText(/flowing all the way round/i)).toBeTruthy();
     // Full brightness is not a reading light yet.
     expect(continueButton()).toBeNull();
   });
@@ -175,7 +172,6 @@ describe('Level 3 — Variable Control', () => {
 
     expect(document.querySelector('.breadboard [data-placement^="potentiometer-"]')).toBeNull();
     expect(knob()).toBeNull();
-    expect(screen.getByText(/gap in your loop/i)).toBeTruthy();
   });
 
   it('a soft setting completes the level; a spotlight does not', () => {
@@ -202,7 +198,6 @@ describe('Level 3 — Variable Control', () => {
     dropFromTray('potentiometer', 'A25');
 
     expect(knob()).toBeTruthy();
-    expect(screen.getByText(/gap in your loop/i)).toBeTruthy();
     turnTo(50);
     expect(continueButton()).toBeNull();
   });
