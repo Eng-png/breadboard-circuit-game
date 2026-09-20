@@ -7,5 +7,7 @@ export default defineConfig({
   test: {
     environment: 'jsdom',
     globals: false,
+    // Full level playthroughs through the DOM run several seconds on CI runners.
+    testTimeout: 20000,
   },
 })

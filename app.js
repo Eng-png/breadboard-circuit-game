@@ -29,6 +29,7 @@ const gameScreen = document.querySelector("#game-screen");
 const startGameButton = document.querySelector("#start-game");
 const howToPlayButton = document.querySelector("#how-to-play");
 const menuInstructions = document.querySelector("#menu-instructions");
+const mouseRunner = document.querySelector("#mouse-runner");
 let selected = null;
 let connections = [];
 let switchClosed = false;
@@ -124,6 +125,19 @@ document.querySelector("#reset-button").addEventListener("click", reset);
 document.querySelector("#play-again").addEventListener("click", () => { dialog.close(); reset(); });
 window.addEventListener("resize", drawWires);
 
+function closePawCursor() {
+  document.body.classList.add("paw-pressed");
+}
+
+function openPawCursor() {
+  document.body.classList.remove("paw-pressed");
+}
+
+window.addEventListener("pointerdown", closePawCursor);
+window.addEventListener("pointerup", openPawCursor);
+window.addEventListener("pointercancel", openPawCursor);
+window.addEventListener("blur", openPawCursor);
+
 function openGame() {
   menuScreen.classList.add("is-leaving");
   window.setTimeout(() => {
@@ -138,12 +152,25 @@ function openGame() {
 
 function openMenu() {
   menuScreen.hidden = false;
+  menuScreen.classList.remove("mouse-is-running");
+  mouseRunner.classList.remove("is-running");
+  startGameButton.removeAttribute("aria-disabled");
+  howToPlayButton.removeAttribute("aria-disabled");
   gameScreen.setAttribute("aria-hidden", "true");
   document.body.classList.add("menu-open");
   startGameButton.focus();
 }
 
-startGameButton.addEventListener("click", openGame);
+function startGameSequence() {
+  if (menuScreen.classList.contains("mouse-is-running")) return;
+  menuScreen.classList.add("mouse-is-running");
+  mouseRunner.classList.add("is-running");
+  startGameButton.setAttribute("aria-disabled", "true");
+  howToPlayButton.setAttribute("aria-disabled", "true");
+  window.setTimeout(openGame, 2700);
+}
+
+startGameButton.addEventListener("click", startGameSequence);
 document.querySelector("#back-to-menu").addEventListener("click", openMenu);
 howToPlayButton.addEventListener("click", () => {
   const willOpen = menuInstructions.hidden;

@@ -15,9 +15,11 @@ import { LevelNav } from './story/LevelNav.jsx';
 import { StoryScreen } from './story/StoryScreen.jsx';
 import { getStory } from './story/index.js';
 import { LEVELS } from './content/levels/index.js';
+import { usePawCursor } from './ui/usePawCursor.js';
 
 export default function App() {
   const [levelIndex, setLevelIndex] = useState(null);
+  usePawCursor();
 
   if (levelIndex === null) {
     return <MainMenu levels={LEVELS} onStart={setLevelIndex} />;

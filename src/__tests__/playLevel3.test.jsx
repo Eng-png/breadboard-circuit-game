@@ -105,8 +105,10 @@ describe('Level 3 — Reading Light', () => {
     const pot = () => document.querySelector('.breadboard [data-placement^="potentiometer-"]');
 
     fireEvent.pointerDown(pot(), { button: 0, pointerId: 1, clientY: 100 });
+    expect(document.body.classList.contains('paw-pressed')).toBe(true);
     fireEvent.pointerMove(pot(), { pointerId: 1, clientY: 180 });
     fireEvent.pointerUp(pot(), { pointerId: 1, clientY: 180 });
+    expect(document.body.classList.contains('paw-pressed')).toBe(false);
     fireEvent.click(pot());
     expect(pot()).toBeTruthy();
     expect(knob().value).toBe('50');
