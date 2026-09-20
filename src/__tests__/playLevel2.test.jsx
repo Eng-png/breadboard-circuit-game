@@ -133,7 +133,7 @@ describe('Level 2 — Turn It Down', () => {
     expect(screen.queryByRole('button', { name: /lower your hand/i })).toBeNull();
   });
 
-  it('reaches the end of the game', () => {
+  it('ends with a way into level 3', () => {
     startLevel2();
     clickThrough(boardVisible);
     fireEvent.click(document.querySelector('[data-placement="pre-bridge"]'));
@@ -141,8 +141,7 @@ describe('Level 2 — Turn It Down', () => {
     fireEvent.click(screen.getByRole('button', { name: /lower your hand/i }));
     clickThrough(() => Boolean(screen.queryByText(/End of Level 2/i)));
 
-    expect(screen.getByText(/every level there is/i)).toBeTruthy();
-    expect(screen.queryByRole('button', { name: /continue to/i })).toBeNull();
+    expect(screen.getByRole('button', { name: /continue to level 3/i })).toBeTruthy();
     expect(screen.getByRole('button', { name: /play level 2 again/i })).toBeTruthy();
   });
 });

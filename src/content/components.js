@@ -50,6 +50,7 @@ export const COMPONENTS = {
       forwardVolts: 2,
       minCurrentMa: 2,
       maxCurrentMa: 30,
+      nominalCurrentMa: 20,
     },
   },
 
@@ -63,6 +64,19 @@ export const COMPONENTS = {
     ],
     polarized: false,
     electrical: { ohms: 330 },
+  },
+
+  potentiometer: {
+    type: 'potentiometer',
+    label: 'Dimmer (potentiometer)',
+    blurb: 'A resistor with a knob. Turn it up for more resistance and a dimmer light.',
+    pins: [
+      { name: 'a', label: 'Lead A' },
+      { name: 'b', label: 'Lead B' },
+    ],
+    polarized: false,
+    // In series with the 330 Ω resistor: ~21 mA fully down, ~5 mA fully up.
+    electrical: { minOhms: 0, maxOhms: 1000 },
   },
 
   switch: {

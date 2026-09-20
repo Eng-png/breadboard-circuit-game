@@ -19,6 +19,12 @@ art is still in progress.
 | `breadboard/breadboard.png` | The breadboard itself | See calibration note below |
 | `props/panel-closed.png` | Wall panel, shut | Optional |
 
+## Level 3
+
+| Path | What it is | Notes |
+| --- | --- | --- |
+| `components/potentiometer.png` | The dimmer knob part, seen from above | **Square, transparent background**, roughly 512×512. Drawn 9 mm wide on the board (about 3.5 hole pitches) with the leads running left–right. Until the file exists a blue SVG placeholder is drawn instead. The black pointer that shows the knob position is drawn on top of your image, so leave the centre of the dial clear. Size/alt live in `src/content/assets.js` (`COMPONENT_ART`). |
+
 ## Component art (optional)
 
 `components/battery.png`, `led-off.png`, `led-on.png`, `resistor.png`,

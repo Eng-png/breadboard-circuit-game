@@ -44,15 +44,23 @@ export function StoryScreen({ level, story, nextLevel = null }) {
    * An LED with nothing limiting its current is not dark — it is far too
    * bright, right up until it dies. So an over-driven LED lights the room too,
    * with a glare on top. Level 2 is built on that difference.
+   *
+   * A lit LED is only as bright as the current through it, so the room follows
+   * that too. Level 3's dimmer is built on that.
    */
   const parts = Object.values(context.result.components);
   const roomLit = parts.some((part) => part.lit === true);
   const roomGlare = parts.some((part) => part.burnedOut === true);
+  const brightness = parts.reduce(
+    (max, part) => (part.lit === true ? Math.max(max, part.brightness ?? 1) : max),
+    0,
+  );
 
   // You may move on once the circuit is right AND the light is actually on.
   const canContinue = game.won && roomLit;
 
-  const light = isPuzzle ? (roomLit || roomGlare ? 1 : DARK) : (beat.light ?? 1);
+  const liveLight = roomGlare ? 1 : roomLit ? DARK + (1 - DARK) * brightness : DARK;
+  const light = isPuzzle ? liveLight : (beat.light ?? 1);
   const glare = isPuzzle ? (roomGlare ? 1 : 0) : (beat.glare ?? 0);
 
   return (

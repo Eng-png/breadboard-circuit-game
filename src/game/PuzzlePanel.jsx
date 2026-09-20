@@ -11,6 +11,7 @@
 
 import { Breadboard } from '../breadboard/Breadboard.jsx';
 import { HintPanel } from '../ui/HintPanel.jsx';
+import { Knob } from '../ui/Knob.jsx';
 import { ObjectiveList } from '../ui/ObjectiveList.jsx';
 import { Tray } from '../ui/Tray.jsx';
 import './PuzzlePanel.css';
@@ -32,6 +33,7 @@ export function PuzzlePanel({ level, game }) {
   };
 
   const status = state.notice ?? statusLine(context.result);
+  const knobs = state.placements.filter((placement) => placement.type === 'potentiometer');
 
   return (
     <div className="puzzle">
@@ -43,6 +45,19 @@ export function PuzzlePanel({ level, game }) {
           onHoleClick={(hole) => dispatch({ type: 'holeClick', hole })}
           onPartClick={handlePartClick}
         />
+
+        {knobs.length > 0 && (
+          <div className="puzzle__knobs">
+            {knobs.map((placement) => (
+              <Knob
+                key={placement.id}
+                placement={placement}
+                result={context.result.components[placement.id]}
+                onTurn={(turn) => dispatch({ type: 'setTurn', id: placement.id, turn })}
+              />
+            ))}
+          </div>
+        )}
 
         <div className="puzzle__toolbar">
           <button

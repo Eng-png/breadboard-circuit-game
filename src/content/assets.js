@@ -51,6 +51,23 @@ export const PROPS = {
 export const BREADBOARD_IMAGE = `${BASE}/breadboard/breadboard.png`;
 
 /**
+ * Optional bitmap art for parts on the board. A part with an entry here is
+ * drawn from the PNG when the file exists and from its SVG placeholder when it
+ * does not. Drawn centred on the part, long axis along the leads.
+ *
+ * @type {Record<string, { src: string, alt: string, width: number, height: number }>}
+ *   width/height are in board millimetres (one hole pitch is 2.54).
+ */
+export const COMPONENT_ART = {
+  potentiometer: {
+    src: `${BASE}/components/potentiometer.png`,
+    alt: 'A small blue trimmer potentiometer with a white dial',
+    width: 9,
+    height: 9,
+  },
+};
+
+/**
  * @param {string} name
  * @returns {AssetSpec}
  */

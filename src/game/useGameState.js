@@ -10,6 +10,7 @@
  *   2. Click a hole              -> first leg goes down
  *   3. Click a second hole       -> the part is placed
  *   Escape cancels. Clicking a placed switch toggles it. Right-click removes.
+ *   A placed potentiometer gets a knob (a range input) under the board.
  *
  * Drag-and-drop is a later upgrade. This teaches the same thing with a
  * fraction of the code, and it works on a touchscreen for free.
@@ -109,7 +110,7 @@ function reducer(state, action) {
         id: makeId(state.pending.type),
         type: state.pending.type,
         holes: [state.pending.firstHole, action.hole],
-        state: state.pending.type === 'switch' ? { closed: false } : {},
+        state: initialPartState(state.pending.type),
       };
       return commit([...state.placements, placement]);
     }
@@ -130,6 +131,19 @@ function reducer(state, action) {
         ),
         notice: null,
       };
+
+    case 'setTurn': {
+      const turn = Math.min(1, Math.max(0, Number(action.turn) || 0));
+      return {
+        ...state,
+        placements: state.placements.map((placement) =>
+          placement.id === action.id && placement.type === 'potentiometer'
+            ? { ...placement, state: { ...placement.state, turn } }
+            : placement,
+        ),
+        notice: null,
+      };
+    }
 
     case 'undo': {
       if (state.history.length === 0) return { ...state, pending: null };
@@ -152,6 +166,13 @@ function reducer(state, action) {
     default:
       return state;
   }
+}
+
+/** @param {string} type */
+function initialPartState(type) {
+  if (type === 'switch') return { closed: false };
+  if (type === 'potentiometer') return { turn: 0 };
+  return {};
 }
 
 /**
