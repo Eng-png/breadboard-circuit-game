@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Learn basic electronics by building circuits on a virtual breadboard." />
+    <title>Circuit Quest</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body class="menu-open">
+    <section id="menu-screen" class="menu-screen" aria-labelledby="game-title">
+      <div class="menu-stars" aria-hidden="true"></div>
+      <img id="mouse-runner" class="mouse-runner" src="public/assets/mouse-sprite.png" alt="" aria-hidden="true" />
+      <div class="menu-card">
+        <p class="menu-kicker">An electronics adventure</p>
+        <h1 id="game-title"><span>Watt’s</span> Wrong?</h1>
+        <div class="menu-actions">
+          <button id="start-game" class="menu-primary">Start game <span aria-hidden="true">→</span></button>
+          <button id="how-to-play" class="menu-secondary" aria-expanded="false" aria-controls="menu-instructions">How to play</button>
+        </div>
+        <div id="menu-instructions" class="menu-instructions" hidden>
+          Connect two blue, red, or black terminals to add a wire. Build a complete loop, then close the switch to light the LED.
+        </div>
+      </div>
+    </section>
+
+    <main id="game-screen" class="game-shell" aria-hidden="true">
+      <header class="hero">
+        <p class="eyebrow">Circuit Quest · Level 1</p>
+        <h1>Light it up!</h1>
+        <p>Build a complete circuit so the switch controls the LED.</p>
+        <button id="back-to-menu" class="back-to-menu">← Main menu</button>
+      </header>
+
+      <section class="lesson" aria-labelledby="mission-title">
+        <div>
+          <h2 id="mission-title">Your mission</h2>
+          <p>Connect the battery, switch, resistor, and LED in one closed loop.</p>
+        </div>
+        <div class="progress" aria-label="Level progress">
+          <span id="progress-text">0 of 5 connections</span>
+          <div class="progress-track"><div id="progress-bar"></div></div>
+        </div>
+      </section>
+
+      <section class="workspace">
+        <aside class="parts-panel" aria-label="Available components">
+          <h2>Parts</h2>
+          <p>Click two matching connection points to add a wire.</p>
+          <div class="legend">
+            <span><i class="dot positive"></i> Power</span>
+            <span><i class="dot negative"></i> Ground</span>
+            <span><i class="dot signal"></i> Component pin</span>
+          </div>
+          <button id="hint-button" class="secondary">Show a hint</button>
+          <button id="reset-button" class="ghost">Reset circuit</button>
+        </aside>
+
+        <div class="board-wrap">
+          <div class="board" id="board" aria-label="Interactive breadboard">
+            <svg id="wires" aria-hidden="true"></svg>
+            <div class="rail rail-top"></div>
+            <div class="rail rail-bottom"></div>
+            <div class="breadboard-grid" aria-hidden="true"></div>
+
+            <div class="component battery">
+              <span class="component-name">9V battery</span>
+              <button class="terminal positive" data-node="battery+" aria-label="Battery positive terminal">+</button>
+              <button class="terminal negative" data-node="battery-" aria-label="Battery negative terminal">−</button>
+            </div>
+
+            <div class="component switch">
+              <span class="component-name">Switch</span>
+              <button class="terminal signal left" data-node="switch-in" aria-label="Switch input"></button>
+              <button id="toggle-switch" class="switch-toggle" aria-pressed="false"><span></span></button>
+              <button class="terminal signal right" data-node="switch-out" aria-label="Switch output"></button>
+            </div>
+
+            <div class="component resistor">
+              <span class="component-name">220 Ω resistor</span>
+              <button class="terminal signal left" data-node="resistor-in" aria-label="Resistor input"></button>
+              <span class="resistor-body"><i></i><i></i><i></i></span>
+              <button class="terminal signal right" data-node="resistor-out" aria-label="Resistor output"></button>
+            </div>
+
+            <div class="component led">
+              <span class="component-name">LED</span>
+              <button class="terminal signal left" data-node="led-anode" aria-label="LED positive leg"></button>
+              <span id="led-bulb" class="led-bulb"></span>
+              <button class="terminal signal right" data-node="led-cathode" aria-label="LED negative leg"></button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="coach" class="coach" aria-live="polite">
+        <span class="coach-icon">⚡</span>
+        <p id="coach-message"><strong>Start here:</strong> connect the battery’s positive terminal to the switch input.</p>
+      </section>
+    </main>
+
+    <dialog id="success-dialog">
+      <div class="success-bulb">💡</div>
+      <p class="eyebrow">Level complete</p>
+      <h2>You made a working circuit!</h2>
+      <p>Closing the switch completes the path, allowing current to flow through the resistor and LED.</p>
+      <button id="play-again">Build it again</button>
+    </dialog>
+
+    <script type="module" src="app.js"></script>
+  </body>
+</html>

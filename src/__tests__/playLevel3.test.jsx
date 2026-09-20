@@ -1,6 +1,6 @@
 import { describe, expect, it, afterEach } from 'vitest';
-import { cleanup, fireEvent, render, screen } from '@testing-library/react';
-import App from '../App.jsx';
+import { cleanup, fireEvent, screen } from '@testing-library/react';
+import { startGame } from './helpers/startGame.jsx';
 import { resetIds } from '../shared/ids.js';
 import {
   boardVisible,
@@ -29,7 +29,7 @@ function finishLevel2() {
 
 function startLevel3() {
   resetIds();
-  render(<App />);
+  startGame();
   finishLevel1();
   finishLevel2();
   fireEvent.click(screen.getByRole('button', { name: /continue to level 3/i }));
@@ -105,8 +105,10 @@ describe('Level 3 — Reading Light', () => {
     const pot = () => document.querySelector('.breadboard [data-placement^="potentiometer-"]');
 
     fireEvent.pointerDown(pot(), { button: 0, pointerId: 1, clientY: 100 });
+    expect(document.body.classList.contains('paw-pressed')).toBe(true);
     fireEvent.pointerMove(pot(), { pointerId: 1, clientY: 180 });
     fireEvent.pointerUp(pot(), { pointerId: 1, clientY: 180 });
+    expect(document.body.classList.contains('paw-pressed')).toBe(false);
     fireEvent.click(pot());
     expect(pot()).toBeTruthy();
     expect(knob().value).toBe('50');

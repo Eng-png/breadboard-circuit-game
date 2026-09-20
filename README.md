@@ -23,11 +23,17 @@ npm run dev
 | Command | What it does |
 | --- | --- |
 | `npm run dev` | Dev server with hot reload |
-| `npm test` | The solver, and full playthroughs of Levels 1, 2 and 3 |
+| `npm test` | The solver, the main menu, full playthroughs of Levels 1, 2 and 3, and the level picker |
 | `npm run lint` | Static checks |
 | `npm run build` | Production build into `dist/` |
 
 ## How you play
+
+The game opens on the *Watt's Wrong?* title screen: **Start game** begins
+Level 1, **How to play** shows the basics, and the level list jumps straight to
+any level. Start game sends the mouse running into the house before Level 1
+opens. In play, the header has a **Menu** button and a 1/2/3 level picker. The
+cursor is a paw everywhere, closing while a button is held.
 
 Drag a part out of the tray and drop it on a hole — it lands spanning that hole
 plus its own width, so one gesture places a whole component. After that, drag
@@ -51,7 +57,13 @@ series solve for current. No simulation library. Writing it is part of the point
 Drop files into `public/assets/` using the names in
 [public/assets/README.md](public/assets/README.md) and they appear on refresh —
 no imports, no code changes. Until a file exists the game draws a styled
-placeholder, so art and code never block each other.
+placeholder, so art and code never block each other. The title screen's pixel
+background lives at `public/assets/menu-background-pixel.png`; the mouse sprite
+at `public/assets/mouse-sprite.png` and the paw cursors at
+`public/assets/cursor-paw-64.png` / `cursor-paw-pressed-64.png`.
+
+The standalone menu prototype (`menu-index.html`, `app.js`, `styles.css`,
+`server.js`) is kept for reference; the React port lives in `src/menu/`.
 
 For the breadboard image specifically, load the game with `?calibrate=1` and
 drag the sliders until the holes line up, then paste the numbers into
