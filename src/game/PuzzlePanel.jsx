@@ -10,10 +10,12 @@
  */
 
 import { Breadboard } from '../breadboard/Breadboard.jsx';
+import { isRailHole } from '../shared/holes.js';
 // Paired with the commented-out panels in the sidebar below — put both back together.
 // import { HintPanel } from '../ui/HintPanel.jsx';
 // import { ObjectiveList } from '../ui/ObjectiveList.jsx';
 import { Knob } from '../ui/Knob.jsx';
+import { TutorialMouse } from './TutorialMouse.jsx';
 import { Tray } from '../ui/Tray.jsx';
 import './PuzzlePanel.css';
 
@@ -50,6 +52,24 @@ export function PuzzlePanel({ level, game }) {
   };
 
   const status = state.notice ?? statusLine(context.result);
+  /*
+   * The mouse's three goes, in order: how to get a part out of the toolbox;
+   * then, once a wire proves they can, what a wire is doing; then, once the
+   * battery is across the rails, how the board is joined up underneath. In
+   * the gaps between them it has nothing to add and stays off.
+   */
+  const wirePlaced = state.placements.some((placement) => placement.type === 'wire');
+  const batteryOnRails = state.placements.some(
+    (placement) =>
+      placement.type === 'battery' && placement.holes.length > 0 && placement.holes.every(isRailHole),
+  );
+  const tutorialStage = batteryOnRails
+    ? 'board'
+    : wirePlaced
+      ? 'placed'
+      : state.touched
+        ? null
+        : 'placing';
   const knobs = state.placements.filter((placement) => placement.type === 'potentiometer');
 
   return (
@@ -65,6 +85,11 @@ export function PuzzlePanel({ level, game }) {
           onPartKeyDown={handlePartKeyDown}
           onPartTurn={(id, turn) => dispatch({ type: 'setTurn', id, turn })}
         />
+
+        {/* The last go is about the board, so it is laid over the board. */}
+        {level.tutorial && tutorialStage === 'board' && (
+          <TutorialMouse stage="board" lines={level.tutorial.board} />
+        )}
 
         {knobs.length > 0 && (
           <div className="puzzle__knobs">
@@ -112,6 +137,12 @@ export function PuzzlePanel({ level, game }) {
       </div>
 
       <aside className="puzzle__sidebar">
+        {/* The first two go beside the toolbox they are talking about.
+            Which levels get a mouse at all is the level's own business:
+            it is there if the level wrote lines for it. */}
+        {level.tutorial && tutorialStage && tutorialStage !== 'board' && (
+          <TutorialMouse stage={tutorialStage} lines={level.tutorial[tutorialStage]} />
+        )}
         <Tray
           level={level}
           placements={state.placements}
