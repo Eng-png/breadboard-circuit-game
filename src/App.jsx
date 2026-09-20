@@ -37,7 +37,7 @@ export default function App() {
   };
 
   if (levelIndex === null) {
-return (
+    return (
       <>
         <MainMenu levels={LEVELS} onStart={start} />
         <CircuitChat />
@@ -47,7 +47,6 @@ return (
 
   if (showIntro) {
     return <IntroSlides onDone={() => setShowIntro(false)} />;
-  }
   }
 
   const level = LEVELS[levelIndex];
