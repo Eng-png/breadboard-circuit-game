@@ -65,6 +65,18 @@ export function place(type, first, second) {
   dragLeg(part, 1, second);
 }
 
+/**
+ * Level 3's dimmer, wired the way the level asks for it: dropped across the
+ * gap so its three legs land in columns 17, 19 and 21, then a jumper from the
+ * wiper's column to the ground end. Without that jumper the current runs end
+ * to end past the wiper and the knob does nothing — which is the lesson, so
+ * tests that are not about it start from the working version.
+ */
+export function placeDimmer() {
+  dropFromTray('potentiometer', 'C17');
+  place('wire', 'D19', 'D21');
+}
+
 /** Press and release without moving — a tap, not a drag. Flips a switch. */
 export function tap(node) {
   fireEvent.pointerDown(node, { clientX: 0, clientY: 0 });
@@ -102,7 +114,7 @@ export function finishLevel1() {
   place('battery', 'TP1', 'TN1');
   place('wire', 'TP5', 'A5');
   place('switch', 'A5', 'A9');
-  place('resistor', 'B9', 'B13');
+  place('wire', 'B9', 'B13');
   place('led', 'B13', 'B17');
   place('wire', 'A17', 'TN5');
   tap(document.querySelector('[data-placement^="switch-"]'));

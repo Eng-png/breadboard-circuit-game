@@ -91,6 +91,25 @@ If a player builds something the series solver cannot handle, `simulate` should
 report a fault explaining that the circuit is more complicated than this level
 expects — not crash, and not lie.
 
+### The potentiometer inside that guard
+
+The potentiometer has three real pins: the two ends of its resistive track and
+the wiper between them. It is the one part that becomes **two** edges in the
+graph — `a-wiper` and `wiper-b`, splitting the track wherever the knob has left
+it — which is why `findPath` keys its visited set by `edge.key` rather than by
+placement id.
+
+That covers a pot used as a **rheostat**: current in at one end, out at the
+wiper, the third pin either unconnected or jumpered to the wiper. Level 3 is
+built on it.
+
+It does not cover a pot used as a **voltage divider** — both ends across the
+supply and a load hanging off the wiper — because the wiper branch and the
+lower half of the track are then in parallel, which is exactly what this guard
+defers. Wiring one that way is not silently wrong: the solver walks whichever
+series path it finds and `POT_ENDS_ONLY` tells the player the wiper is being
+bypassed. A true divider is a nodal-analysis milestone, not a patch.
+
 ## Why SVG and not canvas
 
 Every hole is a real DOM node. That buys us hit-testing for free, CSS hover
