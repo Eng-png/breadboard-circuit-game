@@ -16,13 +16,14 @@ import { StoryScreen } from './story/StoryScreen.jsx';
 import { getStory } from './story/index.js';
 import { LEVELS } from './content/levels/index.js';
 import { usePawCursor } from './ui/usePawCursor.js';
+import { CircuitChat } from './chat/CircuitChat.jsx';
 
 export default function App() {
   const [levelIndex, setLevelIndex] = useState(null);
   usePawCursor();
 
   if (levelIndex === null) {
-    return <MainMenu levels={LEVELS} onStart={setLevelIndex} />;
+    return <><MainMenu levels={LEVELS} onStart={setLevelIndex} /><CircuitChat /></>;
   }
 
   const level = LEVELS[levelIndex];
@@ -36,7 +37,7 @@ export default function App() {
       }
     : null;
 
-  return (
+  return <>
     <StoryScreen
       key={level.id}
       level={level}
@@ -51,5 +52,6 @@ export default function App() {
         />
       }
     />
-  );
+    <CircuitChat />
+  </>;
 }
