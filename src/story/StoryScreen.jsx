@@ -11,6 +11,7 @@
  * of a living room; the story has never heard of Ohm's law.
  */
 
+import { useEffect, useRef, useState } from 'react';
 import { useGameState } from '../game/useGameState.js';
 import { PuzzlePanel } from '../game/PuzzlePanel.jsx';
 import { DialogueBox } from './DialogueBox.jsx';
@@ -20,6 +21,16 @@ import './story.css';
 
 /** How dark "dark" is. Not zero — the player still needs to see the furniture. */
 const DARK = 0.07;
+
+/**
+ * How long the fade to black runs on an `autoAdvance` puzzle before the next
+ * level opens. Long enough to sit with what just happened, short enough that
+ * it does not feel like the game has hung.
+ *
+ * The overlay is handed this as a custom property, so this is the only place
+ * the number lives — the CSS cannot drift out of step with the timer.
+ */
+export const FADE_MS = 2200;
 
 /**
  * @param {object} props
@@ -66,6 +77,34 @@ export function StoryScreen({ level, story, nextLevel = null, onMenu, levelNav =
    */
   const canContinue = game.won && (roomLit || roomGlare);
 
+  /*
+   * Some puzzles do not ask. Level 1 ends by blinding the player, so instead
+   * of a "Continue" button the screen fades out and the next level takes over
+   * by itself — see the `autoAdvance` beat in level1Story.js.
+   *
+   * The callback goes through a ref because App builds `nextLevel` fresh on
+   * every render: depending on the object directly would restart the timer on
+   * every render and it would never fire.
+   */
+  const autoAdvance = beat.autoAdvance === true && Boolean(nextLevel);
+  const fading = autoAdvance && canContinue;
+  const onNext = nextLevel?.onSelect;
+  const onNextRef = useRef(onNext);
+  const [faded, setFaded] = useState(false);
+
+  useEffect(() => {
+    onNextRef.current = onNext;
+  }, [onNext]);
+
+  useEffect(() => {
+    if (!fading) return undefined;
+    const timer = window.setTimeout(() => {
+      setFaded(true);
+      onNextRef.current?.();
+    }, FADE_MS);
+    return () => window.clearTimeout(timer);
+  }, [fading]);
+
   const liveLight = roomGlare ? 1 : roomLit ? DARK + (1 - DARK) * brightness : DARK;
   const light = isPuzzle ? liveLight : (beat.light ?? 1);
   const glare = isPuzzle ? (roomGlare ? 1 : 0) : (beat.glare ?? 0);
@@ -101,7 +140,7 @@ export function StoryScreen({ level, story, nextLevel = null, onMenu, levelNav =
           <>
             <DialogueBox lines={visibleLines} dimmed />
             <PuzzlePanel level={level} game={game} />
-            {canContinue && (
+            {canContinue && !autoAdvance && (
               <div className="story__resolve">
                 <p>{beat.resolve ?? 'The circuit works.'}</p>
                 <button type="button" onClick={advance}>
@@ -145,6 +184,15 @@ export function StoryScreen({ level, story, nextLevel = null, onMenu, levelNav =
           </div>
         )}
       </div>
+
+      {/* Over everything, including the board — the player is done here. */}
+      {fading && (
+        <div
+          className="story__fade"
+          data-held={faded || undefined}
+          style={{ '--story-fade-ms': `${FADE_MS}ms` }}
+        />
+      )}
     </Scene>
   );
 }

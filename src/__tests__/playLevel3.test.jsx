@@ -22,7 +22,7 @@ import {
 afterEach(cleanup);
 
 function finishLevel2() {
-  fireEvent.click(screen.getByRole('button', { name: /continue to level 2/i }));
+  // finishLevel1 has already faded us into level 2.
   clickThrough(boardVisible);
   pullOff(document.querySelector('[data-placement="pre-bridge"]'));
   place('resistor', 'B9', 'B13');
