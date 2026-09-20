@@ -48,6 +48,17 @@ so use the v3 service-user configuration above for a deployed app.
 | `npm test` | The solver, the main menu, full playthroughs of Levels 1, 2 and 3, and the level picker |
 | `npm run lint` | Static checks |
 | `npm run build` | Production build into `dist/` |
+| `npm start` | Serves `dist/` plus the Devin proxy, reading `.env.local` |
+
+### Deploying with Ask Watt
+
+Ask Watt needs a server: the browser never holds the key, it posts to
+`/api/devin-chat`, which only exists in `npm run dev`, `npm run preview` and
+`npm start`. A static host such as GitHub Pages serves `dist/` with no such
+route, so the panel reports that the helper service is not running. Deploy to a
+Node host instead — `npm ci && npm run build`, start with `npm start`, and set
+`DEVIN_API_KEY` (plus `DEVIN_ORG_ID` and `DEVIN_SESSION_ID` on v3) in the host's
+environment.
 
 ## How you play
 

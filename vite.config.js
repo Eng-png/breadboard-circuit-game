@@ -11,6 +11,9 @@ export default defineConfig(({ mode }) => {
     configureServer(server) {
       server.middlewares.use('/api/devin-chat', handleDevinChat)
     },
+    configurePreviewServer(server) {
+      server.middlewares.use('/api/devin-chat', handleDevinChat)
+    },
   }],
   test: {
     environment: 'jsdom',

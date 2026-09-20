@@ -27,7 +27,12 @@ export function CircuitChat() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ question: text }),
       });
-      const payload = await response.json();
+      const payload = await response.json().catch(() => null);
+      if (!payload) {
+        throw new Error(
+          'Watt’s helper service is not running. Start the game with `npm run dev`, or serve the build with `npm start` — a plain static host has no /api/devin-chat route.',
+        );
+      }
       if (!response.ok) throw new Error(payload.error || 'Watt could not answer right now.');
       setMessages((current) => [...current, { role: 'assistant', text: payload.answer }]);
     } catch (error) {
