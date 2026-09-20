@@ -8,8 +8,9 @@
 import { level1Story } from './level1Story.js';
 import { level2Story } from './level2Story.js';
 import { level3Story } from './level3Story.js';
+import { level4Story } from './level4Story.js';
 
-export const STORIES = [level1Story, level2Story, level3Story];
+export const STORIES = [level1Story, level2Story, level3Story, level4Story];
 
 /** @param {string} levelId */
 export function getStory(levelId) {

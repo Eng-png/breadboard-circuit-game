@@ -26,6 +26,13 @@ art is still in progress.
 | --- | --- | --- |
 | `components/potentiometer.png` | The dimmer knob part, seen from above | **Square, transparent background**, roughly 512×512. Drawn 9 mm wide on the board (about 3.5 hole pitches) with the leads running left–right. Until the file exists a blue SVG placeholder is drawn instead. The black pointer that shows the knob position is drawn on top of your image, so leave the centre of the dial clear. Size/alt live in `src/content/assets.js` (`COMPONENT_ART`). |
 
+## Level 4
+
+| Path | What it is | Notes |
+| --- | --- | --- |
+| `props/fan/fan-1.png` … `fan-5.png` | The desk fan in the corner of the room, one frame per head position | **In place.** Frame 1 faces right, frame 5 faces left. While the fan motor on the board is turning, `FanProp` plays them 1→5→1 to sweep the head. Transparent PNGs, roughly 240×350; they are fitted bottom-centre into a 2:3 box so slightly different sizes line up on the floor. Replace any frame in place and it picks up on refresh. |
+| `components/fan.png` | The fan motor part, for the tray | Optional. Square, transparent. Until it exists a pink SVG placeholder with spinning blades is drawn. |
+
 ## Component art
 
 One picture per part, shown in the tray. These are the slots the tray reads:
@@ -38,6 +45,7 @@ One picture per part, shown in the tray. These are the slots the tray reads:
 | `components/resistor.png` | 330 Ω resistor |
 | `components/switch-open.png` | Push switch |
 | `components/potentiometer.png` | Dimmer — shared with the board art above |
+| `components/fan.png` | Fan motor |
 
 Square, transparent PNGs. They are letterboxed into a square slot, so anything
 roughly 1:1 (128×128 is plenty) looks right.

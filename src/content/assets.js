@@ -48,6 +48,12 @@ export const PROPS = {
   },
 };
 
+/**
+ * The desk fan in the room, one frame per head position. Frame 1 faces right,
+ * frame 5 faces left; played 1→5→1 it sweeps like an oscillating fan.
+ */
+export const FAN_FRAMES = [1, 2, 3, 4, 5].map((n) => `${BASE}/props/fan/fan-${n}.png`);
+
 export const BREADBOARD_IMAGE = `${BASE}/breadboard/breadboard.png`;
 
 /** The open toolbox the parts tray is drawn inside. */
@@ -72,6 +78,7 @@ export const COMPONENT_IMAGES = {
   switch: `${BASE}/components/switch-open.png`,
   // Shared with COMPONENT_ART below: one drawing of the dimmer does both jobs.
   potentiometer: `${BASE}/components/potentiometer.png`,
+  fan: `${BASE}/components/fan.png`,
 };
 
 /**

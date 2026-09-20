@@ -104,5 +104,12 @@ more resistance, less current, dimmer room — live, as you drag. Settle on a so
 reading light to finish. The part is drawn as a blue SVG placeholder until
 `public/assets/components/potentiometer.png` exists (see `public/assets/README.md`).
 
-To add a Level 4, register a level in `src/content/levels/` and a story in
-`src/story/` — the end beat of Level 3 will offer it automatically.
+**Level 4 — Fresh Air.** The first load that is not a light. The battery and
+rail wires are on the board with a gap between them; wire a switch and the desk
+fan into it and flip the switch. The fan is a motor — its own 300 Ω of
+resistance, no protecting resistor, no polarity — and while current runs through
+it the pink fan in the corner of the room sweeps right → left → right through
+its five frames in `public/assets/props/fan/`, faster with more current.
+
+To add a Level 5, register a level in `src/content/levels/` and a story in
+`src/story/` — the end beat of Level 4 will offer it automatically.

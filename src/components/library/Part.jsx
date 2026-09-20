@@ -146,6 +146,9 @@ function ariaLabel(placement) {
     const percent = Math.round((placement.state?.turn ?? 0) * 100);
     return `Dimmer at ${where}, turned ${percent}%. Drag it up or down to set it, or use the slider under the board. Arrow keys to move, Delete to remove.`;
   }
+  if (placement.type === 'fan') {
+    return `Fan motor at ${where}. Arrow keys to move, Delete to remove.`;
+  }
   return `${placement.type} at ${where}. Arrow keys to move, Delete to remove.`;
 }
 
@@ -200,6 +203,7 @@ const ICON_SCALE = {
   switch: 1.7,
   resistor: 1.9,
   led: 2.2,
+  fan: 1.3,
 };
 
 function Body({ placement, result }) {
@@ -228,6 +232,25 @@ function Body({ placement, result }) {
 
     case 'potentiometer':
       return <Potentiometer placement={placement} />;
+
+    case 'fan': {
+      const spinning = result?.spinning === true;
+      const speed = spinning ? (result?.speed ?? 1) : 0;
+      return (
+        <g className="part__fan" data-spinning={spinning}>
+          <rect x="-3.2" y="-2.2" width="6.4" height="4.4" rx="0.8" className="part__fan-body" />
+          <g
+            className="part__fan-blades"
+            style={spinning ? { animationDuration: `${1.6 - 1.2 * speed}s` } : undefined}
+          >
+            <path d="M 0 0 L 0.5 -2.6 L -0.5 -2.6 Z" />
+            <path d="M 0 0 L 0.5 -2.6 L -0.5 -2.6 Z" transform="rotate(120)" />
+            <path d="M 0 0 L 0.5 -2.6 L -0.5 -2.6 Z" transform="rotate(240)" />
+            <circle r="0.6" className="part__fan-hub" />
+          </g>
+        </g>
+      );
+    }
 
     case 'led': {
       const lit = result?.lit === true;

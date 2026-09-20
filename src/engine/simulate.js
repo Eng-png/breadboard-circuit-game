@@ -117,9 +117,10 @@ export function simulate(placements, options = {}) {
 
   const hasResistor = path.some((edge) => edge.type === 'resistor' || edge.type === 'potentiometer');
   const hasLed = path.some((edge) => edge.type === 'led');
+  const hasFan = path.some((edge) => edge.type === 'fan');
 
   // A loop with no load at all: the battery is shorted across itself.
-  if (!hasResistor && !hasLed) {
+  if (!hasResistor && !hasLed && !hasFan) {
     for (const edge of path) {
       components[edge.placement.id].energized = true;
     }
@@ -167,6 +168,12 @@ export function simulate(placements, options = {}) {
           placementIds: [edge.placement.id],
         });
       }
+    }
+
+    if (edge.type === 'fan') {
+      const spec = getComponent('fan').electrical ?? {};
+      result.spinning = currentMa >= (spec.minCurrentMa ?? 0);
+      result.speed = result.spinning ? ledBrightness(currentMa, spec) : 0;
     }
   }
 
@@ -235,7 +242,7 @@ function diagnoseBrokenLoop(edges, posNet, negNet, placements) {
 /**
  * How bright a lit LED looks, 0..1. Linear from the minimum current it needs to
  * glow up to its nominal current, then pinned at 1 — the eye cannot tell 20 mA
- * from 28 mA, but it can tell 5 from 20.
+ * from 28 mA, but it can tell 5 from 20. A fan's speed follows the same curve.
  */
 function ledBrightness(currentMa, spec) {
   const min = spec.minCurrentMa ?? 0;
@@ -255,6 +262,10 @@ function blankResults(placements) {
       components[placement.id].reverseBiased = false;
       components[placement.id].burnedOut = false;
       components[placement.id].brightness = 0;
+    }
+    if (placement.type === 'fan') {
+      components[placement.id].spinning = false;
+      components[placement.id].speed = 0;
     }
     if (placement.type === 'potentiometer') {
       components[placement.id].ohms = potentiometerOhms(

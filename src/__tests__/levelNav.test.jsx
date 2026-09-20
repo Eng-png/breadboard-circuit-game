@@ -14,9 +14,10 @@ describe('Level navigation', () => {
     startGame();
 
     const buttons = navButtons();
-    expect(buttons.length).toBe(3);
+    expect(buttons.length).toBe(4);
     expect(current().textContent).toBe('1');
     expect(screen.getByRole('button', { name: /level 3: reading light/i })).toBeTruthy();
+    expect(screen.getByRole('button', { name: /level 4: fresh air/i })).toBeTruthy();
   });
 
   it('jumps straight to level 3 and back to level 1, starting each fresh', () => {
