@@ -67,6 +67,13 @@ export const FAN_FRAMES = [
   { src: `${BASE}/props/fan/fan-5.png`, width: 217, height: 369, anchor: [102, 311] },
 ];
 
+/**
+ * Level 4's control gear. Both are drawn as SVG placeholders until the PNG is
+ * on disk (see public/assets/README.md).
+ */
+export const ARDUINO_IMAGE = `${BASE}/props/arduino.png`;
+export const LIMIT_SWITCH_IMAGE = `${BASE}/props/limit-switch.png`;
+
 export const BREADBOARD_IMAGE = `${BASE}/breadboard/breadboard.png`;
 
 /** The open toolbox the parts tray is drawn inside. */
@@ -91,6 +98,7 @@ export const COMPONENT_IMAGES = {
   switch: `${BASE}/components/switch-open.png`,
   // Shared with COMPONENT_ART below: one drawing of the dimmer does both jobs.
   potentiometer: `${BASE}/components/potentiometer.png`,
+  fan: `${BASE}/components/fan.png`,
 };
 
 /**

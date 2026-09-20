@@ -32,6 +32,32 @@
 
 .puzzle__tip { color: var(--text-dim); font-size: 0.8rem; }
 
+/* ── Arduino dock ───────────────────────────────────────────────────────── */
+
+/* A small board parked above the breadboard, off to the right, its own thing. */
+.puzzle__dock {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 0.5rem;
+}
+
+.arduino {
+  width: clamp(120px, 18%, 180px);
+  filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.45));
+}
+.arduino img,
+.arduino__art { display: block; width: 100%; height: auto; }
+
+.arduino__board { fill: #1f7a8c; stroke: #0f3d46; stroke-width: 1.5; }
+.arduino__usb { fill: #c8ccd2; stroke: #6b7280; stroke-width: 1; }
+.arduino__chip { fill: #1a1d24; stroke: #000; stroke-width: 1; }
+.arduino__pins rect { fill: #111; }
+.arduino__text { fill: #e6f4f1; font: 700 9px 'Courier New', monospace; letter-spacing: 0.08em; }
+.arduino__text--small { font-size: 8px; }
+.arduino__led { fill: #2b3a3e; stroke: #0f3d46; stroke-width: 1; transition: fill 120ms ease; }
+.arduino__led[data-wired='true'] { fill: #5c6b2f; }
+.arduino__led[data-on='true'] { fill: #ffe066; filter: drop-shadow(0 0 4px #ffe066); }
+
 /* ── Knobs ──────────────────────────────────────────────────────────────── */
 
 .puzzle__knobs {

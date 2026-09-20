@@ -30,7 +30,10 @@ art is still in progress.
 
 | Path | What it is | Notes |
 | --- | --- | --- |
-| `props/fan/fan-1.png` … `fan-5.png` | The desk fan in the corner of the room, one frame per head position | **In place.** Frame 1 faces right, frame 5 faces left. When a story beat sets `fanSpeed`, `FanProp` plays them 1→5→1 to sweep the head. Transparent PNGs, roughly 240×350 but not identical, so `FAN_FRAMES` in `src/content/assets.js` records each frame's size and the bottom-centre of its base; all five are drawn at one scale with that point pinned, so only the head moves. If you re-export a frame, update its `width`/`height`/`anchor` there. |
+| `props/fan/fan-1.png` … `fan-5.png` | The desk fan in the corner of the room, one frame per head position | **In place.** Frame 1 faces right, frame 5 faces left. While the fan motor on the board is turning, `FanProp` steps through them; at an end it stalls unless a limit switch is there, in which case it turns back. Transparent PNGs, roughly 240×350 but not identical, so `FAN_FRAMES` in `src/content/assets.js` records each frame's size and the bottom-centre of its base; all five are drawn at one scale with that point pinned, so only the head moves. If you re-export a frame, update its `width`/`height`/`anchor` there. |
+| `components/fan.png` | The fan motor part, for the tray | Optional. Square, transparent. Until it exists a pink SVG placeholder with spinning blades is drawn. |
+| `props/arduino.png` | The small Arduino docked above the breadboard | Landscape, transparent, roughly 2:1.4 (a real Uno is 69×53 mm). Drawn about 120–180 px wide. Until it exists a blue SVG placeholder board is drawn, with two input lights that blink when a limit switch is pressed — if you supply art, those lights are lost, so leave room for them or tell us. |
+| `props/limit-switch.png` | One limit switch (micro switch with a lever arm and two wires coming off the back) | Square-ish, transparent, wires exiting bottom-left. Drawn about 48–72 px wide and mirrored for the right-hand end. Both switches share the one image. Until it exists an SVG placeholder is drawn. |
 
 ## Component art
 
@@ -44,6 +47,7 @@ One picture per part, shown in the tray. These are the slots the tray reads:
 | `components/resistor.png` | 330 Ω resistor |
 | `components/switch-open.png` | Push switch |
 | `components/potentiometer.png` | Dimmer — shared with the board art above |
+| `components/fan.png` | Fan motor |
 
 Square, transparent PNGs. They are letterboxed into a square slot, so anything
 roughly 1:1 (128×128 is plenty) looks right.

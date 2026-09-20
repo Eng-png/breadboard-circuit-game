@@ -168,6 +168,19 @@
   stroke: #000;
 }
 
+.part__fan-body { fill: #f2a6a6; stroke: #a85a5a; stroke-width: 0.2; }
+.part__fan-blades path { fill: #fde2e2; stroke: #a85a5a; stroke-width: 0.15; }
+.part__fan-hub { fill: #a85a5a; }
+.part__fan[data-spinning='true'] .part__fan-blades {
+  animation: part-fan-spin 1s linear infinite;
+}
+@keyframes part-fan-spin {
+  to { transform: rotate(360deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .part__fan[data-spinning='true'] .part__fan-blades { animation-duration: 4s; }
+}
+
 .part--potentiometer { cursor: ns-resize; touch-action: none; }
 .part__pot-body { fill: #2f6fd6; stroke: #1c4a95; stroke-width: 0.2; }
 .part__pot-dial { fill: #f1f1f1; stroke: #9aa1ad; stroke-width: 0.2; }
