@@ -23,7 +23,7 @@ npm run dev
 | Command | What it does |
 | --- | --- |
 | `npm run dev` | Dev server with hot reload |
-| `npm test` | The solver, and full playthroughs of Levels 1, 2 and 3 |
+| `npm test` | The solver, full playthroughs of Levels 1, 2 and 3, and the level picker |
 | `npm run lint` | Static checks |
 | `npm run build` | Production build into `dist/` |
 

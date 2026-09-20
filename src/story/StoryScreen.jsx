@@ -27,8 +27,9 @@ const DARK = 0.07;
  * @param {{ id: string, title: string, chapter?: string, beats: any[] }} props.story
  * @param {{ label: string, onSelect: () => void } | null} [props.nextLevel]
  *   Offered on the story's end beat. Null on the last level.
+ * @param {import('react').ReactNode} [props.levelNav]  Level picker shown in the header.
  */
-export function StoryScreen({ level, story, nextLevel = null }) {
+export function StoryScreen({ level, story, nextLevel = null, levelNav = null }) {
   const { beat, visibleLines, hasMoreLines, advance, restart } = useStory(story);
   const game = useGameState(level);
   const { context } = game;
@@ -67,8 +68,11 @@ export function StoryScreen({ level, story, nextLevel = null }) {
     <Scene key={beat.background} name={beat.background} light={light} glare={glare}>
       <div className="story" data-mode={beat.mode}>
         <header className="story__header">
-          <span className="story__chapter">{story.chapter ?? level.title}</span>
-          <h1>{story.title}</h1>
+          <div>
+            <span className="story__chapter">{story.chapter ?? level.title}</span>
+            <h1>{story.title}</h1>
+          </div>
+          {levelNav}
         </header>
 
         {isPuzzle ? (
