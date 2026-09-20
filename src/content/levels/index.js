@@ -6,9 +6,10 @@
  */
 
 import { level1 } from './level1.js';
+import { level2 } from './level2.js';
 
 /** @type {import('../../shared/types.js').Level[]} */
-export const LEVELS = [level1];
+export const LEVELS = [level1, level2];
 
 /** @param {string} id */
 export function getLevel(id) {

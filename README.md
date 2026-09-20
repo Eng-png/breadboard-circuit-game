@@ -23,7 +23,7 @@ npm run dev
 | Command | What it does |
 | --- | --- |
 | `npm run dev` | Dev server with hot reload |
-| `npm test` | 35 tests: the solver, and a full playthrough of Level 1 |
+| `npm test` | 43 tests: the solver, and full playthroughs of Levels 1 and 2 |
 | `npm run lint` | Static checks |
 | `npm run build` | Production build into `dist/` |
 
@@ -72,5 +72,9 @@ Read [TEAM_PLAN.md](TEAM_PLAN.md) — the 24-hour sprint, who owns what, and the
 cut list. Then [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the contracts
 between layers.
 
-**Level 2 is not built.** The story ends on the hook for it (the room is too
-bright, nothing is limiting the current). Leave it there.
+**Level 2 — Turn It Down.** The room is too bright: the Level 1 loop is already
+on the board with a plain jumper where the resistor should be, so the LED is
+being over-driven. Pull the jumper, drop the resistor in its place, and the
+glare settles into a light you can live with. To add a Level 3, register a
+level in `src/content/levels/` and a story in `src/story/` — the end beat of
+Level 2 will offer it automatically.

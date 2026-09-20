@@ -16,6 +16,9 @@
  *   mode        'narrative' (click through) | 'puzzle' (the breadboard) | 'end'
  *   next        id of the following beat, or null
  *   advance     button label for narrative beats
+ *   glare       0..1, optional harsh white wash (an over-driven bulb)
+ *   resolve     puzzle beats only — the line shown once the circuit is solved
+ *   resolveLabel  puzzle beats only — the button that moves the story on
  */
 
 /** @typedef {import('../shared/types.js').Level} Level */
@@ -23,6 +26,7 @@
 export const level1Story = {
   id: 'level-1',
   title: 'Lights Out',
+  chapter: 'Level 1',
 
   beats: [
     {
@@ -73,6 +77,8 @@ export const level1Story = {
         'Rebuild the circuit. Electricity has to leave the battery, pass through ' +
           'everything, and get all the way back — or nothing happens.',
       ],
+      resolve: 'The bulb catches. Light spills out of the panel and across the floor.',
+      resolveLabel: 'Stand up and look around',
       next: 'solved',
     },
 
@@ -93,15 +99,15 @@ export const level1Story = {
     /*
      * END OF LEVEL 1.
      *
-     * This beat is the hook that level 2 hangs off — the room is now painfully
-     * bright, which is the problem level 2 solves. Level 2 itself is NOT built
-     * and must not be started here. When someone does build it, they add a
-     * `next: 'level-2-something'` and a new story file; nothing in this one changes.
+     * The hook into level 2: the room is now painfully bright. An `end` beat
+     * hands off to the next story in src/story/index.js — level2Story picks up
+     * from exactly this moment.
      */
     {
       id: 'toobright',
       background: 'living-room-lit',
       light: 1,
+      glare: 1,
       mode: 'end',
       lines: [
         'Except — it is too much. The bulb is running flat out and the glare is painful.',
