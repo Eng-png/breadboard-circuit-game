@@ -30,7 +30,7 @@ art is still in progress.
 
 | Path | What it is | Notes |
 | --- | --- | --- |
-| `props/fan/fan-1.png` … `fan-5.png` | The desk fan in the corner of the room, one frame per head position | **In place.** Frame 1 faces right, frame 5 faces left. While the fan motor on the board is turning, `FanProp` plays them 1→5→1 to sweep the head. Transparent PNGs, roughly 240×350; they are fitted bottom-centre into a 2:3 box so slightly different sizes line up on the floor. Replace any frame in place and it picks up on refresh. |
+| `props/fan/fan-1.png` … `fan-5.png` | The desk fan in the corner of the room, one frame per head position | **In place.** Frame 1 faces right, frame 5 faces left. While the fan motor on the board is turning, `FanProp` plays them 1→5→1 to sweep the head. Transparent PNGs, roughly 240×350 but not identical, so `FAN_FRAMES` in `src/content/assets.js` records each frame's size and the bottom-centre of its base; all five are drawn at one scale with that point pinned, so only the head moves. If you re-export a frame, update its `width`/`height`/`anchor` there. |
 | `components/fan.png` | The fan motor part, for the tray | Optional. Square, transparent. Until it exists a pink SVG placeholder with spinning blades is drawn. |
 
 ## Component art

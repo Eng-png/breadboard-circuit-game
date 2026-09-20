@@ -280,13 +280,13 @@
   filter: drop-shadow(0 10px 14px rgba(0, 0, 0, 0.55));
 }
 
+/* Each frame sets its own width/transform inline so all five share one scale
+   and stand on the same floor point (see FAN_FRAMES). */
 .fan-prop__frame {
   position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  object-position: bottom center;
+  left: 50%;
+  bottom: 0;
+  height: auto;
   image-rendering: pixelated;
 }
 

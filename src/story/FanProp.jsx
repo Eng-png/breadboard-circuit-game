@@ -13,7 +13,7 @@
 
 import { useEffect, useState } from 'react';
 import { useImageAvailable } from '../breadboard/useImageAvailable.js';
-import { FAN_FRAMES } from '../content/assets.js';
+import { FAN_FRAMES, FAN_REF_WIDTH } from '../content/assets.js';
 import { SWEEP, frameInterval } from './fanSweep.js';
 
 /**
@@ -21,7 +21,7 @@ import { SWEEP, frameInterval } from './fanSweep.js';
  * @param {number} props.speed 0 (stopped) .. 1 (full)
  */
 export function FanProp({ speed }) {
-  const hasArt = useImageAvailable(FAN_FRAMES[0]) === true;
+  const hasArt = useImageAvailable(FAN_FRAMES[0].src) === true;
   const [step, setStep] = useState(0);
   const spinning = speed > 0;
 
@@ -40,14 +40,19 @@ export function FanProp({ speed }) {
   return (
     <div className="fan-prop" data-spinning={spinning} data-frame={frame + 1} aria-hidden="true">
       {/* Every frame stays mounted so switching is instant, with no flicker while a PNG loads. */}
-      {FAN_FRAMES.map((src, index) => (
+      {FAN_FRAMES.map(({ src, width, height, anchor: [ax, ay] }, index) => (
         <img
           key={src}
           className="fan-prop__frame"
           src={src}
           alt=""
           draggable="false"
-          style={{ opacity: index === frame ? 1 : 0 }}
+          style={{
+            opacity: index === frame ? 1 : 0,
+            // Same scale for every frame; base bottom-centre pinned to the box's bottom centre.
+            width: `${(width / FAN_REF_WIDTH) * 100}%`,
+            transform: `translate(${(-ax / width) * 100}%, ${((height - ay) / height) * 100}%)`,
+          }}
         />
       ))}
     </div>
