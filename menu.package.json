@@ -1,0 +1,12 @@
+{
+  "name": "circuit-quest",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "A beginner-friendly electronics learning game.",
+  "scripts": {
+    "start": "node server.js",
+    "check": "node --check app.js && node --check server.js"
+  },
+  "license": "MIT"
+}
