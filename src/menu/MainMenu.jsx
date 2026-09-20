@@ -56,9 +56,9 @@ export function MainMenu({ levels, onStart }) {
 
         {showHelp && (
           <div id="menu-instructions" className="menu-instructions">
-            Pick a part from the tray and click two holes to put it on the breadboard. Build a
-            complete loop from the battery’s + back to its −, then close the switch to light the
-            LED. Click a placed part to take it off again.
+            Drag a part out of the tray and drop it on the breadboard. Build a complete loop from
+            the battery’s + back to its −, then click the switch to light the LED. Drag a placed
+            part to move it, or drag it off the board to take it away.
           </div>
         )}
 
