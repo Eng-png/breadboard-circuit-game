@@ -15,7 +15,7 @@
 import { useRef } from 'react';
 import { PITCH, holeCenter } from '../../breadboard/geometry.js';
 import { useImageAvailable } from '../../breadboard/useImageAvailable.js';
-import { COMPONENT_ART } from '../../content/assets.js';
+import { artAnchors, boardArt } from '../../content/assets.js';
 import { releaseImplicitCapture } from '../../shared/pointer.js';
 
 /** @typedef {import('../../shared/types.js').Placement} Placement */
@@ -43,12 +43,26 @@ export function Part({
   onTurn,
 }) {
   const knob = useKnobDrag(placement, ghost ? undefined : onTurn);
+  const art = boardArt(placement);
+  const artReady = useImageAvailable(art?.src ?? '') === true;
+  const drawn = art && artReady ? art : null;
   const from = holeCenter(placement.holes[0]);
   const to = holeCenter(placement.holes[1]);
   if (!from || !to) return null;
 
   const mid = { x: (from.x + to.x) / 2, y: (from.y + to.y) / 2 };
   const angle = (Math.atan2(to.y - from.y, to.x - from.x) * 180) / Math.PI;
+
+  /*
+   * Parts are drawn along the line from leg 0 to leg 1, which points backwards
+   * whenever leg 1 is to the left — near the right edge of the board, say. Left
+   * alone that stands the whole drawing on its head. So the body always uses
+   * the forward-facing angle, and `sign` tells it which end leg 0 is now at, so
+   * the + and − markings stay on the right legs.
+   */
+  const backwards = Math.abs(angle) > 90;
+  const bodyAngle = backwards ? angle - Math.sign(angle) * 180 : angle;
+  const sign = backwards ? -1 : 1;
 
   const className = [
     'part',
@@ -110,9 +124,24 @@ export function Part({
 
   return (
     <g {...shared}>
-      <line x1={from.x} y1={from.y} x2={to.x} y2={to.y} className="part__lead" />
-      <g transform={`translate(${mid.x} ${mid.y}) rotate(${angle})`}>
-        <Body placement={placement} result={result} />
+      {/*
+        A drawing knows where its own legs are, so it runs its leads out to the
+        holes itself. The plain SVG parts have no legs of their own and just
+        take the straight line between the two.
+      */}
+      {!drawn && <line x1={from.x} y1={from.y} x2={to.x} y2={to.y} className="part__lead" />}
+      <g transform={`translate(${mid.x} ${mid.y}) rotate(${bodyAngle})`}>
+        {drawn ? (
+          <ArtBody
+            art={drawn}
+            placement={placement}
+            result={result}
+            sign={sign}
+            reach={Math.hypot(to.x - from.x, to.y - from.y) / 2}
+          />
+        ) : (
+          <DrawnBody placement={placement} result={result} sign={sign} />
+        )}
       </g>
       <line x1={from.x} y1={from.y} x2={to.x} y2={to.y} className="part__hit" />
       {handles}
@@ -181,7 +210,7 @@ export function PartIcon({ type, className }) {
         <>
           <line x1="-7.5" y1="0" x2="7.5" y2="0" className="part__lead" />
           <g transform={`scale(${ICON_SCALE[type] ?? 1})`}>
-            <Body placement={placement} />
+            <DrawnBody placement={placement} />
           </g>
         </>
       )}
@@ -202,15 +231,98 @@ const ICON_SCALE = {
   led: 2.2,
 };
 
-function Body({ placement, result }) {
+/**
+ * One drawing, lined up with the two holes it is plugged into.
+ *
+ * The drawing's own legs land exactly on the holes when the part is sitting at
+ * its natural width. Stretch it wider and the body stays the size it should be
+ * — a real part does not grow — while the leads splay out to reach, which is
+ * what bending the legs of a real component looks like.
+ *
+ * Anything the drawing cannot say for itself goes on top: the LED's glow and
+ * its + leg, and the dimmer's pointer.
+ *
+ * @param {object} props
+ * @param {object} props.art     an entry from COMPONENT_ART
+ * @param {number} props.reach   half the distance between the two holes, in mm
+ */
+function ArtBody({ art, placement, result, sign, reach }) {
+  const { span, angle, offset, heart } = artAnchors(art);
+  const foot = span / 2;
+  const lit = placement.type === 'led' && result?.lit === true;
+  const brightness = lit ? (result?.brightness ?? 1) : 0;
+
+  return (
+    <g
+      className="part__art"
+      data-lit={placement.type === 'led' ? lit : undefined}
+      data-dead={result?.burnedOut === true || undefined}
+    >
+      {/* Leads from the drawn feet out to the holes, when the holes are further. */}
+      {reach > foot + 0.05 && (
+        <>
+          <line x1={-reach} y1="0" x2={-foot} y2="0" className="part__lead" />
+          <line x1={foot} y1="0" x2={reach} y2="0" className="part__lead" />
+        </>
+      )}
+
+      {lit && (
+        <circle
+          cx={heart.x}
+          cy={heart.y}
+          r={art.width * 0.5 + 1.4 * brightness}
+          className="part__glow"
+          style={{ opacity: 0.1 + 0.22 * brightness }}
+        />
+      )}
+
+      <g transform={`rotate(${-angle}) translate(${offset.x} ${offset.y})`}>
+        <image
+          href={art.src}
+          x="0"
+          y="0"
+          width={art.width}
+          height={art.height}
+          preserveAspectRatio="none"
+        />
+      </g>
+
+      {/* The drawing shows a round red bulb either way round, so say which leg. */}
+      {placement.type === 'led' && (
+        <text className="part__pole part__pole--pos" x={-foot - 1.1 * sign} y="0.6">
+          +
+        </text>
+      )}
+
+      {placement.type === 'potentiometer' && <PotPointer placement={placement} at={heart} />}
+    </g>
+  );
+}
+
+/** The dial pointer, drawn over whatever the dimmer's body is. */
+function PotPointer({ placement, at = { x: 0, y: 0 } }) {
+  const turn = Math.min(1, Math.max(0, placement.state?.turn ?? 0));
+  // Sweep through 270 degrees, from 7 o'clock round to 5 o'clock.
+  const angle = -135 + turn * 270;
+  return (
+    <g className="part__pot" data-turn={turn.toFixed(2)} transform={`translate(${at.x} ${at.y})`}>
+      <g transform={`rotate(${angle})`}>
+        <line x1="0" y1="0" x2="0" y2="-2.2" className="part__pot-pointer" />
+      </g>
+    </g>
+  );
+}
+
+function DrawnBody({ placement, result, sign = 1 }) {
   switch (placement.type) {
     case 'battery':
       return (
         <>
           <rect x="-5" y="-2.6" width="10" height="5.2" rx="0.8" className="part__battery" />
           <text className="part__text" x="0" y="0.9">9V</text>
-          <text className="part__pole part__pole--pos" x="-6.4" y="0.9">+</text>
-          <text className="part__pole part__pole--neg" x="6.4" y="0.9">&#8722;</text>
+          {/* Leg 0 is + — and leg 0 is not always on the left. */}
+          <text className="part__pole part__pole--pos" x={-6.4 * sign} y="0.9">+</text>
+          <text className="part__pole part__pole--neg" x={6.4 * sign} y="0.9">&#8722;</text>
         </>
       );
 
@@ -227,7 +339,13 @@ function Body({ placement, result }) {
       );
 
     case 'potentiometer':
-      return <Potentiometer placement={placement} />;
+      return (
+        <>
+          <rect x="-4.2" y="-4.2" width="8.4" height="8.4" rx="1" className="part__pot-body" />
+          <circle r="2.9" className="part__pot-dial" />
+          <PotPointer placement={placement} />
+        </>
+      );
 
     case 'led': {
       const lit = result?.lit === true;
@@ -250,7 +368,7 @@ function Body({ placement, result }) {
               style={{ opacity: 0.08 + 0.2 * brightness }}
             />
           )}
-          <text className="part__pole part__pole--pos" x="-3.6" y="0.8">+</text>
+          <text className="part__pole part__pole--pos" x={-3.6 * sign} y="0.8">+</text>
         </>
       );
     }
@@ -279,45 +397,9 @@ function Body({ placement, result }) {
   }
 }
 
-/**
- * A potentiometer: a square body with a dial whose pointer follows the knob.
- * When the real artwork exists at COMPONENT_ART.potentiometer.src it replaces
- * the drawn body; the dial pointer stays on top so the setting is still readable.
- */
-function Potentiometer({ placement }) {
-  const art = COMPONENT_ART.potentiometer;
-  const hasArt = useImageAvailable(art.src) === true;
-  const turn = Math.min(1, Math.max(0, placement.state?.turn ?? 0));
-  // Sweep the pointer through 270 degrees, from 7 o'clock round to 5 o'clock.
-  const angle = -135 + turn * 270;
-
-  return (
-    <g className="part__pot" data-turn={turn.toFixed(2)}>
-      {hasArt ? (
-        <image
-          href={art.src}
-          x={-art.width / 2}
-          y={-art.height / 2}
-          width={art.width}
-          height={art.height}
-          preserveAspectRatio="xMidYMid meet"
-        />
-      ) : (
-        <>
-          <rect x="-4.2" y="-4.2" width="8.4" height="8.4" rx="1" className="part__pot-body" />
-          <circle r="2.9" className="part__pot-dial" />
-        </>
-      )}
-      <g transform={`rotate(${angle})`}>
-        <line x1="0" y1="0" x2="0" y2="-2.5" className="part__pot-pointer" />
-      </g>
-    </g>
-  );
-}
-
 /** Screen pixels of vertical drag that sweep the knob from one end to the other. */
 const KNOB_DRAG_PX = 160;
-/** Movement under this many pixels is a click (remove the part), not a drag. */
+/** Movement under this many pixels is a tap, not a turn. */
 const KNOB_CLICK_SLOP_PX = 4;
 
 /**

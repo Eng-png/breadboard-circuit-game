@@ -169,6 +169,15 @@
 }
 
 .part--potentiometer { cursor: ns-resize; touch-action: none; }
+/*
+ * Drawn part art. There is one LED drawing and it is always a bright red bulb,
+ * so lit and dark are the same picture at different exposures — which is what
+ * a real LED looks like anyway.
+ */
+.part__art image { image-rendering: pixelated; }
+.part__art[data-lit='false'] image { filter: brightness(0.5) saturate(0.65); }
+.part__art[data-dead='true'] image { filter: grayscale(1) brightness(0.45); }
+
 .part__pot-body { fill: #2f6fd6; stroke: #1c4a95; stroke-width: 0.2; }
 .part__pot-dial { fill: #f1f1f1; stroke: #9aa1ad; stroke-width: 0.2; }
 .part__pot-pointer {
