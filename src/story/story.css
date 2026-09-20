@@ -1,5 +1,78 @@
 /* OWNER: Person D (look) / Person C (layout) */
 
+/* ── Intro slides ───────────────────────────────────────────────────────── */
+
+/*
+ * A whole-screen button so click, tap and Enter all move on, and the slide is
+ * announced properly. It has to undo the app's button styling, which is built
+ * for small accent-coloured controls.
+ */
+.intro-slide {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  display: block;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: #05070c;
+  cursor: pointer;
+  overflow: hidden;
+}
+
+/*
+ * The whole picture, at its own proportions, as large as the window allows.
+ *
+ * The box is the full screen and `contain` scales the image down inside it, so
+ * nothing is ever cropped off and nothing is stretched — the slide keeps its
+ * shape and the leftover space on the short sides is just backdrop.
+ *
+ * Positioned rather than laid out: as a grid or flex item an image gets an
+ * automatic minimum size of its own pixel dimensions, so a slide wider than
+ * the window pushed the box past the screen and the picture came out cropped
+ * and zoomed in no matter what `object-fit` said. Out of flow it cannot.
+ */
+.intro-slide__image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  object-fit: contain;
+  object-position: center;
+}
+
+/*
+ * On its own pill: the slide now covers the whole screen, and a slide can be
+ * light or dark, so the hint cannot rely on what is behind it.
+ */
+.intro-slide__hint {
+  position: absolute;
+  bottom: 1.6rem;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 0.4rem 0.9rem;
+  border-radius: 999px;
+  background: rgba(5, 7, 12, 0.72);
+  backdrop-filter: blur(6px);
+  font-size: 0.85rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text);
+  animation: intro-hint 1.8s ease-in-out infinite;
+}
+
+@keyframes intro-hint {
+  50% { opacity: 0.35; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .intro-slide__hint { animation: none; }
+}
+
 /* ── Scene ──────────────────────────────────────────────────────────────── */
 
 .scene {

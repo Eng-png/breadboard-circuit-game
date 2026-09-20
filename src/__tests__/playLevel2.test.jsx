@@ -36,11 +36,15 @@ describe('Level 2 — Turn It Down', () => {
     expect(screen.getByRole('button', { name: /continue to level 2/i })).toBeTruthy();
   });
 
-  it('opens on a glaring room, not the puzzle', () => {
+  it('opens on the glare, not the puzzle', () => {
     startLevel2();
-    expect(screen.getByText(/shade your eyes/i)).toBeTruthy();
+    expect(screen.getByText(/my eyes are burning/i)).toBeTruthy();
     expect(document.querySelector('[data-hole]')).toBeNull();
     expect(glareOpacity()).toBe(1);
+
+    // One click per line, then the board.
+    fireEvent.click(document.querySelector('.dialogue__advance'));
+    expect(screen.getByText(/too much power/i)).toBeTruthy();
   });
 
   it('starts the puzzle with the circuit already built and over-driving the LED', () => {

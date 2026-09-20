@@ -57,8 +57,12 @@ export function StoryScreen({ level, story, nextLevel = null, levelNav = null })
     0,
   );
 
-  // You may move on once the circuit is right AND the light is actually on.
-  const canContinue = game.won && roomLit;
+  /*
+   * You may move on once the circuit is right AND the light is actually on.
+   * An over-driven LED counts: level 1 has no resistor to tame it, so its
+   * light arrives as glare, and refusing that would leave the level unfinishable.
+   */
+  const canContinue = game.won && (roomLit || roomGlare);
 
   const liveLight = roomGlare ? 1 : roomLit ? DARK + (1 - DARK) * brightness : DARK;
   const light = isPuzzle ? liveLight : (beat.light ?? 1);
@@ -97,7 +101,7 @@ export function StoryScreen({ level, story, nextLevel = null, levelNav = null })
           />
         )}
 
-        {beat.mode === 'end' && (
+        {beat.mode === 'end' && !hasMoreLines && (
           <div className="story__end">
             <p className="story__end-label">End of {story.chapter ?? level.title}</p>
             <p className="story__end-note">
