@@ -6,20 +6,40 @@
  * by the open panel, and it should read as the brightest thing on screen.
  */
 
+/*
+ * The board is docked to the bottom left of the room and the toolbox sits
+ * beside it, both resting on the same line — the player is looking down at a
+ * bench, not at a page. `align-items: end` is what does the docking; the story
+ * frame above already pushes this whole block to the bottom of the screen.
+ */
 .puzzle {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 21rem;
+  grid-template-columns: minmax(0, 1fr) 15rem;
   gap: 1.1rem;
-  align-items: start;
+  align-items: end;
   width: 100%;
 }
 
-.puzzle__board { min-width: 0; }
+/*
+ * Capped rather than stretched: left to fill the column the board grows to
+ * nearly a metre of screen on a wide monitor, which makes 2.54 mm hole spacing
+ * look nothing like 2.54 mm. `margin-right: auto` keeps it against the left.
+ */
+.puzzle__board {
+  min-width: 0;
+  max-width: 46rem;
+  margin-right: auto;
+}
 
+/*
+ * The toolbox stands upright beside the bench rather than resting on it, so it
+ * is centred against the board's height instead of sharing its bottom line.
+ */
 .puzzle__sidebar {
   display: flex;
   flex-direction: column;
   gap: 0.7rem;
+  align-self: center;
 }
 
 .puzzle__toolbar {
@@ -100,22 +120,31 @@
  * The tray IS the toolbox: the box keeps toolbox.png's exact aspect ratio, so
  * every percentage below lands on the same pixel of the artwork at any size.
  *
- * The drawing is a box seen front-on with two shelves, split by the pink band
- * across its middle. The parts are laid out as two centred rows which
- * `align-content: space-between` pushes apart onto those shelves — so the
- * number of parts a level gives you can change without the layout caring.
+ * The drawing is a case standing on end, with the pink strip running down its
+ * middle. The parts are laid out as two columns which
+ * `align-content: space-between` pushes apart to either side of that strip —
+ * so the number of parts a level gives you can change without the layout
+ * caring. Three to a column.
  *
- * The --shelf-* numbers mark the inside of the frame. If the artwork is ever
- * replaced, retune those four and nothing else.
+ * NOTHING MAY SIT ON THE STRIP. Measured off the artwork, it runs from 40.6%
+ * to 55.0% of the box width, and the recessed panels either side of it are
+ * 17.9%-36.2% and 63.2%-82.4%. --shelf-left/right plus --column-width below
+ * are what hold the columns clear of it: the left column runs from
+ * --shelf-left for --column-width of the space between the shelves, and the
+ * right column ends at --shelf-right. Widen either and the parts creep onto
+ * the strip. If the artwork is ever replaced, re-measure and retune these.
  */
 .tray__box[data-toolbox='true'] {
-  --shelf-left: 13%;
-  --shelf-right: 13%;
+  --shelf-left: 15%;
+  --shelf-right: 15%;
   --shelf-top: 13%;
-  --shelf-bottom: 15%;
+  --shelf-bottom: 13%;
+  /* Of the space between the shelves. Leaves the columns at 15%-37.4% and
+     62.6%-85% of the box: clear of the strip at both ends. */
+  --column-width: 32%;
 
   position: relative;
-  aspect-ratio: 512 / 318;
+  aspect-ratio: 318 / 512;
   background-repeat: no-repeat;
   background-position: center;
   background-size: 100% 100%;
@@ -127,17 +156,24 @@
   position: absolute;
   inset: var(--shelf-top) var(--shelf-right) var(--shelf-bottom) var(--shelf-left);
   display: flex;
+  flex-direction: column;
   flex-wrap: wrap;
   justify-content: center;
   align-content: space-between;
-  column-gap: 6%;
-  row-gap: 2%;
+  row-gap: 6%;
+  column-gap: 2%;
 }
 
-/* Three to a shelf: 3 x 22% plus two 6% gaps fills the width, a fourth wraps. */
+/* Two columns, one either side of the strip. Height follows from the square. */
 .tray__box[data-toolbox='true'] .tray__slot {
-  flex: 0 0 22%;
-  min-width: 0;
+  flex: 0 0 auto;
+  width: var(--column-width);
+}
+
+/* A part can ask for a smaller slot than the rest — see SLOT_SCALE. */
+.tray__slot {
+  display: grid;
+  place-items: center;
 }
 
 /* No toolbox.png yet: fall back to a plain grid on the glass panel. */
@@ -151,7 +187,7 @@
 
 .tray__item {
   position: relative;
-  width: 100%;
+  width: calc(100% * var(--slot-scale, 1));
   aspect-ratio: 1;
   display: grid;
   place-items: center;

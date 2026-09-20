@@ -92,6 +92,28 @@ export function componentImage(type) {
 }
 
 /**
+ * How big a part's slot is in the toolbox, as a fraction of a full one. Shrinks
+ * the whole slot — the dark cut-out and the picture in it together.
+ *
+ * Icons are fitted to their slot, so a long thin drawing is scaled up until its
+ * length fills the height and ends up towering over the chunky ones. The
+ * resistor is the case in point: its tray icon is really its board art doing
+ * double duty, leads and all, so it gets a smaller slot and reads as a small
+ * part rather than a pole. Give it its own `restool.png`, drawn square like the
+ * others, and this entry can go.
+ *
+ * @type {Record<string, number>}
+ */
+export const SLOT_SCALE = {
+  resistor: 0.5,
+};
+
+/** @param {string} type */
+export function slotScale(type) {
+  return SLOT_SCALE[type] ?? 1;
+}
+
+/**
  * Bitmap art for parts sitting on the board — the `board` drawings.
  *
  * Each entry says how big the drawing is in board millimetres (one hole pitch
