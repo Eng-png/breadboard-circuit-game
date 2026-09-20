@@ -50,8 +50,6 @@
   flex-wrap: wrap;
 }
 
-.puzzle__tip { color: var(--text-dim); font-size: 0.8rem; }
-
 /* ── Knobs ──────────────────────────────────────────────────────────────── */
 
 .puzzle__knobs {
@@ -87,20 +85,6 @@
 }
 .knob__end { font-size: 0.75rem; color: var(--text-dim); flex: none; }
 .knob__input { flex: 1; accent-color: var(--accent); min-width: 0; }
-
-.puzzle__status {
-  margin: 0.6rem 0 0;
-  padding: 0.65rem 0.85rem;
-  border-radius: var(--radius);
-  border-left: 4px solid var(--text-dim);
-  background: var(--glass);
-  backdrop-filter: blur(6px);
-  max-width: 64ch;
-  font-size: 0.92rem;
-}
-.puzzle__status[data-tone='ok'] { border-left-color: var(--ok); }
-.puzzle__status[data-tone='warn'] { border-left-color: var(--warn); }
-.puzzle__status[data-tone='error'] { border-left-color: var(--error); }
 
 /* ── Panels ─────────────────────────────────────────────────────────────── */
 

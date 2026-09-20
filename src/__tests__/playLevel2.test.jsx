@@ -49,7 +49,6 @@ describe('Level 2 — Turn It Down', () => {
 
     expect(document.querySelector('[data-placement="pre-led"]')).toBeTruthy();
     expect(document.querySelector('[data-placement="pre-bridge"]')).toBeTruthy();
-    expect(screen.getByText(/too much current/i)).toBeTruthy();
 
     // Lit, but painfully so.
     expect(veilOpacity()).toBe(0);
@@ -71,7 +70,6 @@ describe('Level 2 — Turn It Down', () => {
     pullOff(document.querySelector('[data-placement="pre-bridge"]'));
 
     expect(document.querySelector('[data-placement="pre-bridge"]')).toBeNull();
-    expect(screen.getByText(/gap in your loop/i)).toBeTruthy();
     expect(glareOpacity()).toBe(0);
     expect(veilOpacity()).toBeGreaterThan(0.8);
   });
@@ -85,7 +83,6 @@ describe('Level 2 — Turn It Down', () => {
 
     expect(veilOpacity()).toBe(0);
     expect(glareOpacity()).toBe(0);
-    expect(screen.getByText(/flowing all the way round/i)).toBeTruthy();
     expect(screen.getByRole('button', { name: /lower your hand/i })).toBeTruthy();
   });
 

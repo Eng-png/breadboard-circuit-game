@@ -48,7 +48,6 @@ describe('Level 3 — Reading Light', () => {
 
     expect(document.querySelector('[data-placement="pre-led"]')).toBeTruthy();
     expect(document.querySelector('[data-placement="pre-resistor"]')).toBeTruthy();
-    expect(screen.getByText(/gap in your loop/i)).toBeTruthy();
     expect(knob()).toBeNull();
     expect(document.querySelector('[data-part="potentiometer"]').disabled).toBe(false);
   });
@@ -63,7 +62,6 @@ describe('Level 3 — Reading Light', () => {
     expect(knob().value).toBe('0');
     expect(screen.getByText(/^0 Ω$/)).toBeTruthy();
     expect(veilOpacity()).toBe(0);
-    expect(screen.getByText(/flowing all the way round/i)).toBeTruthy();
     // Full brightness is not a reading light yet.
     expect(continueButton()).toBeNull();
   });
@@ -147,7 +145,6 @@ describe('Level 3 — Reading Light', () => {
 
     expect(document.querySelector('.breadboard [data-placement^="potentiometer-"]')).toBeNull();
     expect(knob()).toBeNull();
-    expect(screen.getByText(/gap in your loop/i)).toBeTruthy();
   });
 
   it('a soft setting completes the level; a spotlight does not', () => {
@@ -174,7 +171,6 @@ describe('Level 3 — Reading Light', () => {
     place('potentiometer', 'A25', 'A29');
 
     expect(knob()).toBeTruthy();
-    expect(screen.getByText(/gap in your loop/i)).toBeTruthy();
     turnTo(50);
     expect(continueButton()).toBeNull();
   });
